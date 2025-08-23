@@ -1,0 +1,49 @@
+# AquaLytics Database Migrations
+
+This directory contains Alembic migrations for the AquaLytics database schema.
+
+## Usage
+
+### Initialize Alembic (already done)
+```bash
+cd services/api
+alembic init migrations
+```
+
+### Create a new migration
+```bash
+cd services/api
+alembic revision --autogenerate -m "Description of changes"
+```
+
+### Apply migrations
+```bash
+cd services/api
+alembic upgrade head
+```
+
+### Rollback migrations
+```bash
+cd services/api
+alembic downgrade -1  # Rollback one migration
+alembic downgrade base  # Rollback all migrations
+```
+
+### Check current migration status
+```bash
+cd services/api
+alembic current
+alembic history
+```
+
+## Notes
+
+- The database schema is already created via Supabase MCP tools
+- This Alembic setup is for future schema changes and local development
+- Make sure DATABASE_URL is correctly set in your .env file
+- All models should be imported in migrations/env.py for autogenerate to work
+
+## Environment Variables
+
+Make sure these are set in your .env file:
+- `AQUALYTICS_DATABASE_URL`: PostgreSQL connection string

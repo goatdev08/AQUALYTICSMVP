@@ -1,0 +1,144 @@
+[project]
+name = "aqualytics-api"
+version = "0.1.0"
+description = "API backend para AquaLytics MVP - Sistema de análisis de resultados de natación"
+requires-python = ">=3.11"
+dependencies = [
+    # FastAPI y servidor ASGI
+    "fastapi>=0.104.0",
+    "uvicorn[standard]>=0.24.0",
+    
+    # Base de datos y ORM  
+    "sqlmodel>=0.0.14",
+    "sqlalchemy>=2.0.23",
+    "alembic>=1.12.1",
+    "psycopg2-binary>=2.9.9",
+    
+    # Validación y serialización
+    "pydantic>=2.5.0",
+    "pydantic-settings>=2.1.0",
+    
+    # Seguridad y autenticación
+    "python-jose[cryptography]>=3.3.0",
+    "pyjwt[crypto]>=2.8.0",
+    "passlib[bcrypt]>=1.7.4",
+    
+    # HTTP cliente y CORS
+    "httpx>=0.25.2",
+    "python-multipart>=0.0.6",
+    
+    # Utilidades
+    "python-dotenv>=1.0.0",
+    "loguru>=0.7.2",
+]
+
+[project.optional-dependencies]
+dev = [
+    # Herramientas de desarrollo
+    "ruff>=0.1.6",
+    "black>=23.11.0",
+    
+    # Testing
+    "pytest>=7.4.3",
+    "pytest-asyncio>=0.21.1",
+    "pytest-cov>=4.1.0",
+    "httpx>=0.25.2",  # Para testing de endpoints
+    
+    # Base de datos para testing
+    "pytest-postgresql>=5.0.0",
+]
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[tool.hatch.build.targets.wheel]
+packages = ["app"]
+
+# Configuración de ruff (linter/formatter)
+[tool.ruff]
+target-version = "py311"
+line-length = 88
+
+[tool.ruff.lint]
+select = [
+    "E",   # pycodestyle errors
+    "W",   # pycodestyle warnings  
+    "F",   # pyflakes
+    "I",   # isort
+    "C",   # flake8-comprehensions
+    "B",   # flake8-bugbear
+    "UP",  # pyupgrade
+]
+ignore = [
+    "E501",  # line too long (handled by black)
+    "B008",  # do not perform function calls in argument defaults
+    "C901",  # too complex
+]
+
+[tool.ruff.lint.per-file-ignores]
+"__init__.py" = ["F401"]
+"tests/**/*" = ["S101", "S106"]
+
+[tool.ruff.lint.isort]
+known-first-party = ["app"]
+
+# Configuración de black
+[tool.black]
+line-length = 88
+target-version = ['py311']
+include = '\.pyi?$'
+exclude = '''
+/(
+    \.eggs
+  | \.git
+  | \.hg
+  | \.mypy_cache
+  | \.tox
+  | \.venv
+  | _build
+  | buck-out
+  | build
+  | dist
+  | migrations
+)/
+'''
+
+
+
+# Configuración de pytest
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+python_files = ["test_*.py"]
+python_classes = ["Test*"]
+python_functions = ["test_*"]
+addopts = [
+    "--strict-markers",
+    "--strict-config",
+    "--cov=app",
+    "--cov-report=term-missing",
+    "--cov-report=html",
+    "--cov-report=xml",
+]
+markers = [
+    "slow: marks tests as slow",
+    "integration: marks tests as integration tests",
+]
+asyncio_mode = "auto"
+
+# Configuración de coverage
+[tool.coverage.run]
+source = ["app"]
+omit = [
+    "*/tests/*",
+    "*/migrations/*",
+    "*/__init__.py",
+]
+
+[tool.coverage.report]
+exclude_lines = [
+    "pragma: no cover",
+    "def __repr__",
+    "raise AssertionError",
+    "raise NotImplementedError",
+]

@@ -1,0 +1,30 @@
+{
+  "name": "aqualytics-mvp",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "concurrently -k -n web,api \"pnpm -C apps/web dev\" \"cd services/api && . venv/bin/activate && uvicorn app.main:app --reload --port 8000\"",
+    "dev:web": "pnpm -C apps/web dev",
+    "dev:api": "cd services/api && . venv/bin/activate && uvicorn app.main:app --reload --port 8000",
+    "build": "pnpm -C apps/web build",
+    "build:web": "pnpm -C apps/web build",
+    "lint": "pnpm -C apps/web lint && cd services/api && ruff check .",
+    "lint:web": "pnpm -C apps/web lint",
+    "lint:api": "cd services/api && ruff check .",
+    "test": "pnpm -C apps/web test && cd services/api && pytest -q",
+    "test:web": "pnpm -C apps/web test",
+    "test:api": "cd services/api && pytest -q",
+    "setup": "pnpm install && cd services/api && python -m venv venv && source venv/bin/activate && pip install -e .",
+    "setup:full": "echo '🚀 Configurando AquaLytics MVP...' && pnpm install && echo '✅ Frontend instalado' && cd services/api && python -m venv venv && source venv/bin/activate && pip install -e . && echo '✅ Backend instalado' && echo '🎉 ¡Configuración completa!' && echo 'Ejecuta: pnpm dev'",
+    "clean": "pnpm -C apps/web clean && cd services/api && rm -rf __pycache__ .pytest_cache .coverage"
+  },
+  "devDependencies": {
+    "concurrently": "^8.2.2"
+  },
+  "engines": {
+    "node": ">=20.0.0",
+    "pnpm": ">=8.0.0"
+  },
+  "packageManager": "pnpm@8.15.1"
+}

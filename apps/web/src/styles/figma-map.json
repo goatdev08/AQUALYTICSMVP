@@ -1,0 +1,79 @@
+{
+  "tags": {
+    "ui": "saBhbYPASbAXGbbokQUusa"
+  },
+  "components": {
+    "Slider": {
+      "tag": "ui",
+      "nodeId": "2686:499",
+      "properties": { "thumbs": "range", "size": "lg", "color": "success", "radius": "full" }
+    },
+    "Button": {
+      "tag": "ui",
+      "variants": [
+        {
+          "label": "buttonsolid",
+          "nodeId": "2209:26195",
+          "properties": { "variant": "solid", "color": "success", "size": "md", "radius": "full", "isIconOnly": false }
+        },
+        {
+          "label": "buttonborder",
+          "nodeId": "2209:26195",
+          "properties": { "variant": "bordered", "color": "success", "size": "md", "radius": "full", "isIconOnly": false }
+        }
+      ]
+    },
+    "Alert": {
+      "tag": "ui",
+      "nodeId": "3132:38598",
+      "properties": { "color": "warning" }
+    },
+    "ButtonGroup": {
+      "tag": "ui",
+      "nodeId": "2249:24735",
+      "properties": { "variant": "shadow", "color": "default", "size": "md", "radius": "full" }
+    },
+    "Checkbox": {
+      "tag": "ui",
+      "variants": [
+        {
+          "label": "Checkboxempty",
+          "nodeId": "767:54274",
+          "properties": { "state": "default", "color": "success", "size": "md", "radius": "md", "isDisabled": false, "lineThrough": false }
+        },
+        {
+          "label": "Checkboxselected",
+          "nodeId": "767:54274",
+          "properties": { "state": "selected", "color": "success", "size": "md", "radius": "md", "isDisabled": false, "lineThrough": false }
+        }
+      ]
+    },
+    "Input": {
+      "tag": "ui",
+      "variants": [
+        {
+          "label": "Droplistborder",
+          "nodeId": "2702:198295",
+          "properties": { "labelPlacement": "outside", "hovered": true, "variant": "bordered", "color": "success", "size": "sm", "radius": "full", "selected": true }
+        },
+        {
+          "label": "Droplistflat",
+          "nodeId": "2702:198295",
+          "properties": { "labelPlacement": "outside", "hovered": true, "variant": "flat", "color": "success", "size": "sm", "radius": "full", "selected": false }
+        }
+      ]
+    },
+    "Progress": {
+      "tag": "ui",
+      "nodeId": "2162:14824",
+      "properties": { "color": "success", "size": "lg", "isDisabled": false, "isStriped": false }
+    },
+    "Theme": {
+      "tag": "ui",
+      "nodeId": "481:16440",
+      "paletteFromNode": true
+    }
+  }
+}
+
+

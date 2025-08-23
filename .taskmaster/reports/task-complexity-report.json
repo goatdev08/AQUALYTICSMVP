@@ -1,0 +1,109 @@
+{
+	"meta": {
+		"generatedAt": "2025-08-18T23:44:45.496Z",
+		"tasksAnalyzed": 12,
+		"totalTasks": 12,
+		"analysisCount": 12,
+		"thresholdScore": 5,
+		"projectName": "Taskmaster",
+		"usedResearch": false
+	},
+	"complexityAnalysis": [
+		{
+			"taskId": 11,
+			"taskTitle": "Configurar estructura del proyecto monorepo y base de datos",
+			"complexityScore": 9,
+			"recommendedSubtasks": 8,
+			"expansionPrompt": "Break down this foundational task into specific setup phases: monorepo structure creation, frontend dependencies installation, backend dependencies installation, Supabase project setup, database schema creation, database extensions and indexes configuration, environment configuration, and integration testing.",
+			"reasoning": "This is a foundational task with high complexity involving multiple technologies (Next.js 15, FastAPI, Supabase), complex database schema with generated columns and specialized indexes, and critical configuration that affects all subsequent tasks. The extensive technical details and multiple integration points justify high complexity and multiple subtasks."
+		},
+		{
+			"taskId": 12,
+			"taskTitle": "Implementar sistema de autenticación y roles",
+			"complexityScore": 8,
+			"recommendedSubtasks": 6,
+			"expansionPrompt": "Divide this authentication system into logical components: Supabase Auth configuration, Next.js middleware implementation, frontend authentication hooks and components, FastAPI JWT validation and dependencies, authentication endpoints development, and role-based access control implementation.",
+			"reasoning": "Authentication systems are inherently complex, involving both frontend and backend integration, JWT handling, role-based access control, and security considerations. The task requires coordination between multiple technologies and has critical security implications."
+		},
+		{
+			"taskId": 13,
+			"taskTitle": "Crear catálogo de pruebas y utilidades de formateo de tiempo",
+			"complexityScore": 6,
+			"recommendedSubtasks": 5,
+			"expansionPrompt": "Split this catalog implementation into focused areas: database schema and seed data for swimming events, time conversion utility functions, API endpoints for catalog queries, frontend components for time input and event selection, and segmentation logic for different swimming styles.",
+			"reasoning": "Moderate complexity involving domain-specific swimming knowledge, time conversion algorithms, and multiple UI components. The task has clear functional boundaries but requires understanding of swimming competition rules and precise time calculations."
+		},
+		{
+			"taskId": 14,
+			"taskTitle": "Implementar gestión de nadadores",
+			"complexityScore": 7,
+			"recommendedSubtasks": 6,
+			"expansionPrompt": "Organize swimmer management into distinct modules: database model and API endpoints, search functionality with trigram indexing, CRUD operations and forms, swimmer profile page with performance analytics, data visualization components for charts and graphs, and age category calculation logic.",
+			"reasoning": "This task involves complex CRUD operations, advanced search with trigram indexing, data visualization, and performance analytics. The swimmer profile with charts and best times analysis adds significant complexity to what could otherwise be a standard CRUD implementation."
+		},
+		{
+			"taskId": 15,
+			"taskTitle": "Implementar gestión de competencias",
+			"complexityScore": 5,
+			"recommendedSubtasks": 4,
+			"expansionPrompt": "Break down competition management into core components: database model with date range support, CRUD API endpoints, frontend forms with date range picker, and competition listing and filtering functionality.",
+			"reasoning": "Relatively straightforward CRUD implementation with some complexity around date range handling and PostgreSQL-specific features (GIST indexes). The task is well-defined with clear boundaries and moderate technical requirements."
+		},
+		{
+			"taskId": 16,
+			"taskTitle": "Desarrollar módulo de registro de resultados (stepper)",
+			"complexityScore": 9,
+			"recommendedSubtasks": 7,
+			"expansionPrompt": "Decompose this complex stepper into individual steps and features: stepper navigation framework, competition and swimmer selection steps, event and phase selection logic, dynamic segment capture interface, real-time preview calculations, keyboard shortcuts implementation, and local auto-save functionality.",
+			"reasoning": "This is one of the most complex tasks involving a multi-step wizard, real-time calculations, keyboard shortcuts, dynamic UI based on swimming event types, and complex validation logic. The real-time preview and tolerance checking add significant technical complexity."
+		},
+		{
+			"taskId": 17,
+			"taskTitle": "Crear vista de resultado_agregado y cálculos derivados",
+			"complexityScore": 7,
+			"recommendedSubtasks": 5,
+			"expansionPrompt": "Structure this database-heavy task into components: database view creation with complex calculations, optimized API endpoint for result details, frontend modal component for result display, performance optimization and indexing, and URL sharing functionality.",
+			"reasoning": "High complexity due to complex database calculations, performance requirements (<300ms), and the need to handle large datasets (up to 60 segments). The task involves advanced SQL, optimization concerns, and full-screen modal implementation."
+		},
+		{
+			"taskId": 18,
+			"taskTitle": "Implementar dashboard con KPIs y gráficos",
+			"complexityScore": 6,
+			"recommendedSubtasks": 5,
+			"expansionPrompt": "Organize the dashboard into functional areas: KPI calculation endpoints, chart and visualization components, filtering and state management, dashboard layout and responsive design, and performance optimization for dashboard queries.",
+			"reasoning": "Moderate to high complexity involving multiple data aggregations, chart implementations, state management, and performance considerations. The task requires coordination of multiple data sources and real-time filtering capabilities."
+		},
+		{
+			"taskId": 19,
+			"taskTitle": "Desarrollar módulo de análisis y comparaciones",
+			"complexityScore": 8,
+			"recommendedSubtasks": 6,
+			"expansionPrompt": "Break down analytics into specialized components: team average calculation endpoints, comparison logic and algorithms, advanced filtering system, specialized chart components (pacing, radar, consistency), comparison interface for selecting and displaying results, and performance optimization for analytical queries.",
+			"reasoning": "High complexity due to advanced analytical calculations, multiple chart types, complex comparison logic, and performance requirements. The task involves sophisticated data analysis and visualization that goes beyond basic CRUD operations."
+		},
+		{
+			"taskId": 20,
+			"taskTitle": "Implementar listado de resultados con filtros avanzados",
+			"complexityScore": 6,
+			"recommendedSubtasks": 5,
+			"expansionPrompt": "Structure the results listing into key components: advanced filtering API with multiple parameters, optimized pagination and sorting, data table component with actions, search functionality with typeahead, and state management for filters and table preferences.",
+			"reasoning": "Moderate complexity involving advanced filtering, pagination optimization, and complex table interactions. The task requires careful attention to performance with large datasets and sophisticated state management."
+		},
+		{
+			"taskId": 21,
+			"taskTitle": "Implementar tema claro/oscuro y accesibilidad",
+			"complexityScore": 4,
+			"recommendedSubtasks": 4,
+			"expansionPrompt": "Divide theming and accessibility into focused areas: theme system implementation with Tailwind CSS, accessibility improvements and ARIA compliance, keyboard navigation enhancements, and automated accessibility testing setup.",
+			"reasoning": "Lower complexity but important for user experience. The task involves systematic application of theming and accessibility principles across the application, with clear guidelines and testing requirements."
+		},
+		{
+			"taskId": 22,
+			"taskTitle": "Crear landing page y configurar despliegue en Vercel",
+			"complexityScore": 5,
+			"recommendedSubtasks": 4,
+			"expansionPrompt": "Organize deployment and landing page into distinct phases: landing page development and responsive design, Vercel deployment configuration, backend deployment setup (Render/Fly.io), and CI/CD pipeline implementation with GitHub Actions.",
+			"reasoning": "Moderate complexity involving deployment configuration, CI/CD setup, and coordination between multiple hosting platforms. The task requires understanding of deployment best practices and environment configuration."
+		}
+	]
+}

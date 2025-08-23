@@ -1,0 +1,175 @@
+---
+alwaysApply: false
+---
+
+# Reglas del Proyecto AquaLytics (MVP)
+
+## 1) Principios y stack
+
+- Siempre en español (UI y textos).
+- Monorepo PNPM: `apps/web` (Next.js 15 + TS) y `services/api` (FastAPI + Pydantic), `database/ddl` para SQL.
+- Validaciones: Zod (web) y Pydantic v2 (API). ORM: SQLModel/SQLAlchemy 2.x.
+- Estado: TanStack Query (server-state) + Zustand (UI-state). Gráficas: Chart.js.
+- Formato de tiempos: UI `mm:ss.cc`; persistir en centésimas (enteros).
+- Sin materialized views en el MVP (solo vistas normales y/o cache en API).
+
+## 2) Estructura del monorepo
+
+- Raíz: `pnpm-workspace.yaml`, `.nvmrc (Node 20)`, `.env.example` y `README.md`.
+- `apps/web`: app Router, components, features, lib (formatos de tiempo, clientes), styles, public.
+- `services/api`: app/api/v1 (routers), core (config/CORS), db (engine/session), models (SQLModel), schemas (Pydantic), services (cálculos/validaciones), utils, migrations (Alembic), tests.
+- `database/ddl`: DDL de tablas/índices/vistas; `seeds/`.
+- `.taskmaster/`: PRD y tareas.
+
+## 3) Flujo de desarrollo
+
+- Node 20 LTS (`nvm use`), PNPM; Python 3.11+ (uv/venv).
+- Instalar desde raíz: `pnpm install` (no usar npm/yarn).
+- Ejecutar: `pnpm dev` (web:3000, api:8000). CORS: `ALLOWED_ORIGINS=http://localhost:3000`.
+- Variables (dev):
+  - Web: `NEXT_PUBLIC_SUPABASE_URL`,`NEXT_PUBLIC_SUPABASE_ANON_KEY`,`NEXT_PUBLIC_API_BASE_URL=http://localhost:8000`.
+  - API: `DATABASE_URL`,`SUPABASE_JWT_SECRET`,`ALLOWED_ORIGINS`.
+- No importar código directamente entre `apps/web` y `services/api`.
+- Reutilizables JS/TS: crear `packages/shared/` si se requiere.
+
+## 4) Base de datos (Supabase)
+
+- Extensiones: `pg_trgm` y `btree_gist`.
+- Tablas: `equipo`,`usuario`,`nadador`,`competencia` (DATERANGE),`prueba`,`resultado`,`segmento`.
+- Índices: fechas/prueba/tiempo, trigram en `nadador.nombre_completo`, GIST en `competencia.rango_fechas`, orden por `segmento.indice`.
+- Reglas de dominio:
+  - Segmentación N = distancia/(25 SC, 50 LC). IM etiqueta por tramo (Mariposa→Dorso→Pecho→Libre).
+  - 15 m solo distancia=50.
+  - Tolerancia: |suma(parciales) − global| ≤ 40 cs → válido; si excede → "revisar".
+  - Flecha ≤ distancia del segmento; brazadas ≥ 0.
+  - `fecha_registro` ∈ `competencia.rango_fechas` (validar en API).
+- Derivadas por segmento almacenadas (GENERATED STORED). Globales: calcular vía vistas/consultas, no persistir.
+- Sin triggers ni webhooks de BD en MVP.
+
+## 5) API (FastAPI)
+
+- Endpoints V1: `competencias`, `nadadores`, `resultados`, `dashboard`, `analitica`, `catalogos`, `me`.
+- Contratos: tiempos en centésimas (`*_cs`), `flecha_m` decimal; respuestas typed con Pydantic.
+- Guardado de resultado: transacción (resultado+segmentos) y recalcular validación/derivadas antes de responder.
+- Opcional: webhooks salientes `resultado.creado`/`resultado.actualizado` (config por entorno; reintentos con backoff).
+
+## 6) Frontend (Next.js)
+
+- Validaciones con Zod; previsualización 100% en front usando centésimas (sin floats). El backend es fuente de verdad final.
+- Modal “Ver detalles” a pantalla completa; soportar `?detalle={id}`.
+- Filtros persistentes por sesión; typeahead en dropdowns; tema claro/oscuro.
+- Evitar archivos > 500 líneas; dividir en componentes/feature slices.
+
+## 7) Testing y calidad
+
+- Lint: `pnpm -C apps/web lint` y `ruff check services/api`.
+- Tests: `pnpm -C apps/web test` y `pytest -q`.
+- PRs deben pasar linters y tests.
+
+## 8) Ramas y CI/CD
+
+- Ramas: `main` (prod), `develop` (staging), `feature/*` → PR a `develop`.
+- Conventional Commits. Requerir revisión.
+- Despliegues: Vercel (apps/web) y Render (services/api). Previews en PR; `main` a producción.
+
+## 9) Entornos y secretos
+
+- No commitear `.env`. Mantener `.env.example` actualizado.
+- Variables seguras en Vercel/Render. No exponer secretos en el frontend.
+
+## 10) Rendimiento y UX
+
+- Consultas usan índices y vistas normales; si hay latencia, cache en API/ETag.
+- Objetivos: dashboard < 500 ms, detalle < 300 ms, CRUD < 1 s.
+
+## 11) Documentación y tareas
+
+- Actualizar `README.md` ante cambios de setup o dependencias.
+- Comentar lógica no-obvia y añadir docstrings Google-style en Python.
+- Mantener PRD sincronizado ante cambios de alcance.
+- Usar Taskmaster AI para planificar/seguir tareas; reflejar decisiones clave.# Reglas del Proyecto AquaLytics (MVP)
+
+## 1) Principios y stack
+
+- Siempre en español (UI y textos).
+- Monorepo PNPM: `apps/web` (Next.js 15 + TS) y `services/api` (FastAPI + Pydantic), `database/ddl` para SQL.
+- Validaciones: Zod (web) y Pydantic v2 (API). ORM: SQLModel/SQLAlchemy 2.x.
+- Estado: TanStack Query (server-state) + Zustand (UI-state). Gráficas: Chart.js.
+- Formato de tiempos: UI `mm:ss.cc`; persistir en centésimas (enteros).
+- Sin materialized views en el MVP (solo vistas normales y/o cache en API).
+
+## 2) Estructura del monorepo
+
+- Raíz: `pnpm-workspace.yaml`, `.nvmrc (Node 20)`, `.env.example` y `README.md`.
+- `apps/web`: app Router, components, features, lib (formatos de tiempo, clientes), styles, public.
+- `services/api`: app/api/v1 (routers), core (config/CORS), db (engine/session), models (SQLModel), schemas (Pydantic), services (cálculos/validaciones), utils, migrations (Alembic), tests.
+- `database/ddl`: DDL de tablas/índices/vistas; `seeds/`.
+- `.taskmaster/`: PRD y tareas.
+
+## 3) Flujo de desarrollo
+
+- Node 20 LTS (`nvm use`), PNPM; Python 3.11+ (uv/venv).
+- Instalar desde raíz: `pnpm install` (no usar npm/yarn).
+- Ejecutar: `pnpm dev` (web:3000, api:8000). CORS: `ALLOWED_ORIGINS=http://localhost:3000`.
+- Variables (dev):
+  - Web: `NEXT_PUBLIC_SUPABASE_URL`,`NEXT_PUBLIC_SUPABASE_ANON_KEY`,`NEXT_PUBLIC_API_BASE_URL=http://localhost:8000`.
+  - API: `DATABASE_URL`,`SUPABASE_JWT_SECRET`,`ALLOWED_ORIGINS`.
+- No importar código directamente entre `apps/web` y `services/api`.
+- Reutilizables JS/TS: crear `packages/shared/` si se requiere.
+
+## 4) Base de datos (Supabase)
+
+- Extensiones: `pg_trgm` y `btree_gist`.
+- Tablas: `equipo`,`usuario`,`nadador`,`competencia` (DATERANGE),`prueba`,`resultado`,`segmento`.
+- Índices: fechas/prueba/tiempo, trigram en `nadador.nombre_completo`, GIST en `competencia.rango_fechas`, orden por `segmento.indice`.
+- Reglas de dominio:
+  - Segmentación N = distancia/(25 SC, 50 LC). IM etiqueta por tramo (Mariposa→Dorso→Pecho→Libre).
+  - 15 m solo distancia=50.
+  - Tolerancia: |suma(parciales) − global| ≤ 40 cs → válido; si excede → "revisar".
+  - Flecha ≤ distancia del segmento; brazadas ≥ 0.
+  - `fecha_registro` ∈ `competencia.rango_fechas` (validar en API).
+- Derivadas por segmento almacenadas (GENERATED STORED). Globales: calcular vía vistas/consultas, no persistir.
+- Sin triggers ni webhooks de BD en MVP.
+
+## 5) API (FastAPI)
+
+- Endpoints V1: `competencias`, `nadadores`, `resultados`, `dashboard`, `analitica`, `catalogos`, `me`.
+- Contratos: tiempos en centésimas (`*_cs`), `flecha_m` decimal; respuestas typed con Pydantic.
+- Guardado de resultado: transacción (resultado+segmentos) y recalcular validación/derivadas antes de responder.
+- Opcional: webhooks salientes `resultado.creado`/`resultado.actualizado` (config por entorno; reintentos con backoff).
+
+## 6) Frontend (Next.js)
+
+- Validaciones con Zod; previsualización 100% en front usando centésimas (sin floats). El backend es fuente de verdad final.
+- Modal “Ver detalles” a pantalla completa; soportar `?detalle={id}`.
+- Filtros persistentes por sesión; typeahead en dropdowns; tema claro/oscuro.
+- Evitar archivos > 500 líneas; dividir en componentes/feature slices.
+
+## 7) Testing y calidad
+
+- Lint: `pnpm -C apps/web lint` y `ruff check services/api`.
+- Tests: `pnpm -C apps/web test` y `pytest -q`.
+- PRs deben pasar linters y tests.
+
+## 8) Ramas y CI/CD
+
+- Ramas: `main` (prod), `develop` (staging), `feature/*` → PR a `develop`.
+- Conventional Commits. Requerir revisión.
+- Despliegues: Vercel (apps/web) y Render (services/api). Previews en PR; `main` a producción.
+
+## 9) Entornos y secretos
+
+- No commitear `.env`. Mantener `.env.example` actualizado.
+- Variables seguras en Vercel/Render. No exponer secretos en el frontend.
+
+## 10) Rendimiento y UX
+
+- Consultas usan índices y vistas normales; si hay latencia, cache en API/ETag.
+- Objetivos: dashboard < 500 ms, detalle < 300 ms, CRUD < 1 s.
+
+## 11) Documentación y tareas
+
+- Actualizar `README.md` ante cambios de setup o dependencias.
+- Comentar lógica no-obvia y añadir docstrings Google-style en Python.
+- Mantener PRD sincronizado ante cambios de alcance.
+- Usar Taskmaster AI para planificar/seguir tareas; reflejar decisiones clave.

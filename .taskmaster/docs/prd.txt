@@ -1,0 +1,294 @@
+AquaLytics - PRD (Producto Mínimo Viable)
+
+1. Resumen y objetivos
+- AquaLytics es una plataforma en español para registrar, analizar y comparar resultados de natación de un equipo (4-5 entrenadores, 40-50 atletas).
+- MVP enfocado en: captura eficiente en vivo/post-competencia, visualización clara de estadísticas, comparaciones simples (vs equipo y vs registro específico), y consulta de históricos.
+- Dispositivos objetivo: tablet y laptop (teclado-prioritario). Experiencia de captura rápida para evitar registro en libreta.
+
+2. Usuarios y roles
+- Entrenador (RW): puede crear/editar/eliminar competiciones, resultados, segmentos y nadadores. Acceso completo a análisis y dashboard.
+- Atleta (R): solo lectura de todo el contenido del equipo (no restringido a lo propio en MVP).
+
+3. Alcance MVP
+- Dashboard con KPIs (nadadores, competencias, registros, PBs recientes), top 5 por prueba/rama y distribución por estilo, próximas competencias y atletas destacados.
+- Registrar: formulario dinámico por prueba/curso, captura de segmentos, previsualización en tiempo real (sumas y métricas derivadas), tolerancia de parciales ±0.40 s, modo rápido con atajos de teclado.
+- Nadadores: alta/edición básica, búsqueda por teclado, perfil con mejores marcas, evolución y distribución de estilos.
+- Análisis: comparación vs promedio del equipo y vs otro registro del mismo nadador; vistas de pacing por segmentos y radar de fortalezas/debilidades.
+- Autenticación con roles (entrenador, atleta) y una landing informativa mínima.
+
+4. Requerimientos funcionales por módulo
+4.1 Dashboard
+- KPIs: total de nadadores, competencias, registros, PBs recientes.
+- Gráficos: (a) Top 5 por prueba/rama (selector de estilo, distancia, curso). (b) Pie de distribución por estilo.
+- Listas: próximas competencias (por rango de fechas), atletas destacados (mejoras porcentuales recientes), actividad reciente.
+- Filtros rápidos persistentes por sesión: fecha, prueba, curso, rama.
+- Acción en filas de resultados: botón "Ver detalles" (modal de pantalla completa con tabla de segmentos y resumen global).
+
+4.2 Registrar (stepper)
+- Paso 1: Competencia (elegir existente o crear con rango de fechas y curso; sede opcional; siempre asociada a un equipo).
+- Paso 2: Nadador (búsqueda por teclado; filtros por rama/categoría).
+- Paso 3: Prueba (estilo, distancia, curso), fase (Preliminar/Semifinal/Final).
+- Paso 4: Captura de segmentos y globales manuales:
+  - Por segmento: tiempo (mm:ss.cc), brazadas (entero ≥ 0), flecha (metros con 1 decimal; 0 ≤ flecha ≤ distancia del segmento), estilo del segmento (para IM) y distancia del segmento (25/50 según curso).
+  - Global: tiempo global (mm:ss.cc). 15 m (solo si distancia=50, SC o LC).
+  - Previsualización en vivo: suma de parciales vs global (desviación), brazadas totales, flecha total, distancia sin flecha total, velocidad promedio, distancia por brazada global. Si |desviación| > 0.40 s, marcar estado "Revisar".
+  - Atajos: Enter avanza, Ctrl+S guarda, Alt+D duplica fila anterior, Alt+↑/↓ navega segmentos.
+  - Borradores/autoguardado local.
+- Guardado transaccional: crea resultado + segmentos. Backend recalcula y devuelve estado/resumen oficial.
+
+4.3 Nadadores
+- Alta/edición: nombre completo, fecha de nacimiento, rama (F/M), equipo; opcionales: peso.
+- Lista: búsqueda por teclado (trigram), filtros por rama/categoría, paginación.
+- Perfil: mejores marcas por prueba/curso, evolución por prueba, distribución de estilos, registros recientes.
+
+4.4 Análisis
+- Filtros: nadador, prueba, curso, rama, fechas.
+- Comparaciones: vs promedio de equipo (global y por segmento) y vs otro registro del mismo nadador (misma prueba/curso).
+- Vistas: pacing por segmentos, radar de fortalezas/debilidades, consistencia de parciales.
+
+4.5 Autenticación/Roles
+- Entrenador: CRUD completo.
+- Atleta: solo lectura.
+- Invites/verificación por email (básico del proveedor de auth). Bitácora avanzada queda para backlog.
+
+4.6 Landing
+- Página informativa mínima (beneficios, flujo básico, CTA a login), sin enfoque de marketing agresivo.
+
+5. Requerimientos no funcionales
+- Idioma: 100% español.
+- Accesibilidad: contraste adecuado, foco de teclado visible, atajos en captura.
+- Rendimiento: latencia de consultas de dashboard < 500 ms típicas; detalle de resultado < 300 ms; operaciones CRUD < 1 s típicas.
+- Tema: claro/oscuro (toggle global).
+- Buscadores y dropdowns: todos con typeahead.
+- Persistencia exacta de tiempos: almacenar en centésimas (enteros). Mostrar siempre mm:ss.cc en UI.
+
+6. Dominio y reglas de negocio de natación (MVP)
+- Catálogo de pruebas oficiales:
+  - Libre: 50, 100, 200, 400, 800, 1500.
+  - Dorso/Pecho/Mariposa: 50, 100, 200.
+  - Combinado (IM): 100 (solo SC), 200, 400.
+- Cursos: SC (25 m) y LC (50 m).
+- Segmentación: N = distancia / (curso==SC ? 25 : 50). IM etiqueta estilo por tramo (Mariposa → Dorso → Pecho → Libre).
+- 15 m: solo en pruebas de 50 (SC o LC), máximo 1 valor por resultado.
+- Tolerancia de parciales vs global: ±0.40 s (±40 cs). Si excede, se permite guardar con estado "Revisar" y se registra la desviación.
+- Categorías: 11-12, 13-14, 15-16, 17+ (en ocasiones 17-18 y 19+ según competencia). La categoría se congela en el resultado en función de la edad a la fecha de competencia.
+
+7. Datos y modelo (alto nivel)
+- Equipo: id, nombre.
+- Usuario: id, email, rol {entrenador, atleta}, equipo_id.
+- Nadador: id, equipo_id, nombre_completo, fecha_nacimiento, rama {F,M}, peso (opcional).
+- Competencia: id, equipo_id, nombre, curso {SC,LC}, rango_fechas (daterange), sede (club/alberca, opcional).
+- Prueba: id, estilo {Libre, Dorso, Pecho, Mariposa, Combinado}, distancia (m), curso {SC,LC}.
+- Resultado: id, nadador_id, competencia_id, prueba_id, fase {Preliminar, Semifinal, Final}, fecha_registro (día), tiempo_global_cs (int), tiempo_15m_cs (int, opcional), categoria_label (texto), estado_validacion {"valido","revisar"}, desviacion_parciales_cs (int), capturado_por (usuario).
+- Segmento: id, resultado_id, indice (1..N), estilo_segmento, distancia_m (25/50), tiempo_cs (int), brazadas (int), flecha_m (NUMERIC con 1 decimal), y derivadas almacenadas por segmento: dist_sin_flecha_m, velocidad_mps, dist_por_brazada_m.
+- Globales derivados (no persistidos): a partir de segmentos (sumas) y tiempo global. Disponibles vía vista/consulta.
+
+8. Cálculos y formatos (normativos)
+- Parse de tiempo UI mm:ss.cc → centésimas: cs = mm*6000 + ss*100 + cc.
+- Render de centésimas → mm:ss.cc (zero-padding en mm, ss y cc).
+- Dist. sin flecha (segmento): max(distancia_segmento − flecha_segmento, 0).
+- Velocidad (segmento): distancia_segmento / (tiempo_segmento_cs / 100).
+- Distancia por brazada (segmento): dist_sin_flecha_segmento / brazadas (si > 0).
+- Globales: sumas y cocientes análogos a nivel resultado.
+
+9. API (V1)
+- GET /me → usuario, rol, equipo_id.
+- GET /catalogos/pruebas?estilo&distancia&curso.
+- POST /competencias (entrenador). GET /competencias. GET /competencias/proximas. GET /competencias/{id}.
+- POST /nadadores (entrenador). GET /nadadores. GET /nadadores/{id}. PATCH /nadadores/{id} (entrenador).
+- POST /resultados (entrenador): crea resultado + segmentos; calcula categoria_label, estado_validacion, desviacion_parciales_cs; fija capturado_por.
+- GET /resultados (filtros por prueba, competencia, nadador, rama, fechas, estado_validacion; orden/paginación).
+- GET /resultados/{id}: devuelve {resultado, segmentos[], resumen_global} para modal "Ver detalles".
+- PATCH /resultados/{id} (entrenador). POST /resultados/{id}/marcar-revisar (entrenador).
+- GET /dashboard/resumen | /dashboard/top5 | /dashboard/distribucion-estilos | /dashboard/pbs-recientes | /dashboard/proximas-competencias | /dashboard/atletas-destacados.
+- GET /analitica/promedio-equipo | /analitica/comparar.
+
+10. UX y flujos
+- Navegación lateral: Dashboard | Registrar | Nadadores | Análisis | Ajustes.
+- Registrar: stepper 4 pasos con previsualización en vivo y atajos de teclado; autoguardado local.
+- Detalle de resultado: modal de pantalla completa invocable desde filas; permite compartir vía query param (?detalle={id}).
+- Dropdowns y búsquedas: typeahead en toda la app.
+
+11. Criterios de aceptación (clave)
+- Registrar: al ingresar todos los segmentos, la previsualización calcula suma de parciales y compara contra global; si diferencia > 40 cs, se muestra estado "Revisar" y aun así permite guardar. 15 m solo si la prueba es 50 m. No se permite flecha mayor a la distancia del segmento.
+- Dashboard Top 5: al elegir prueba y rama, retorna ranking top 5 por tiempo_global_cs ascendente.
+- Ver detalles: abre modal en < 300 ms con tabla de todos los segmentos (1500 SC hasta 60 filas, 1500 LC hasta 30) y resumen global; permite alternar estado "Revisar".
+- Nadadores: búsqueda por nombre devuelve resultados por similitud en ≤ 200 ms con trigram.
+- Analítica: promedio de equipo por segmento de una prueba responde en ≤ 500 ms con los índices definidos.
+
+12. Fuera de alcance / Backlog inmediato
+- Importación CSV/Hy-Tek/FINA; auditoría avanzada (tabla de logs y revertir); exportar PDF/CSV ampliado; FINA points; guardado de comparaciones; multi-equipo; relevos; heat/lane.
+
+13. Tecnologías y arquitectura
+- Frontend: Next.js 15 + TypeScript; UI: Tailwind + shadcn/ui (o MUI); formularios: React Hook Form + Zod; estado: TanStack Query (server state) + Zustand (UI state); gráficas: Chart.js (o ECharts si se requiere más potencia).
+- Backend: FastAPI (Python) con Pydantic para validación y esquemas; cálculos/validaciones en Python; endpoints V1 como arriba.
+- Base de datos: Postgres gestionado (p. ej., Supabase para Auth y realtime). Almacenamiento de tiempos en centésimas (enteros). Segmentos con columnas derivadas almacenadas; globales derivados vía vistas. Índices: sobre prueba/tiempo, nadador/prueba, fechas, rango de fechas (GIST), nombre (trigram), y orden por índice en segmentos.
+
+14. Métricas de éxito (MVP)
+- Tiempo medio de captura completa de un 100/200 en < 60 s con teclado.
+- Latencia media del detalle de resultado < 300 ms.
+- 80% de registros sin marca "Revisar" tras correcciones.
+- Uso semanal: ≥ 3 entrenadores activos.
+
+15. Riesgos y mitigaciones
+- Latencia en analítica: usar índices y vistas; en el MVP evitamos materialized views. Si se requiere rendimiento extra, usar cache/ETag o precómputos ligeros en la API.
+- Errores de captura en vivo: autoguardado local y validaciones inline.
+- Inconsistencias entre preview y backend: backend recalcula y manda estado/resumen oficial para sincronizar UI.
+
+16. Configuración del workspace y despliegue (Vercel)
+- Requisitos locales
+  - Node.js 20 LTS (archivo .nvmrc) y PNPM (o Yarn/NPM). Recomendado: PNPM.
+  - Python 3.11 (o 3.12) con gestor de entornos (uv o venv).
+  - Supabase proyecto (Postgres gestionado) para Auth y BD.
+
+- Variables de entorno (nombres sugeridos)
+  - Web (Next.js, en Vercel):
+    - NEXT_PUBLIC_SUPABASE_URL, NEXT_PUBLIC_SUPABASE_ANON_KEY
+    - NEXT_PUBLIC_API_BASE_URL (URL pública del backend FastAPI)
+  - Backend (FastAPI):
+    - DATABASE_URL (postgresql://user:pass@host:5432/db)
+    - SUPABASE_JWT_SECRET (si valida tokens) y SUPABASE_PROJECT_URL (opcional)
+    - ALLOWED_ORIGINS (dominio de Vercel)
+
+- Tecnologías específicas
+  - Web: Next.js 15, TypeScript estricto, Tailwind + shadcn/ui, TanStack Query, Zustand, React Hook Form + Zod, Chart.js.
+  - Backend: FastAPI, Pydantic v2, SQLModel (o SQLAlchemy 2.x) + Alembic, Uvicorn, pytest, ruff + black (lint/format).
+  - Base de datos: Postgres (Supabase). Índices y vistas conforme a este PRD.
+
+- Scripts de desarrollo
+  - Web: pnpm dev (http://localhost:3000)
+  - API: uvicorn app.main:app --reload --port 8000
+  - Lint/tests: pnpm lint/test; pytest -q
+
+- Despliegue
+  - Web (Vercel):
+    - Project root: apps/web (o raíz si se decide single-app).
+    - Build command: pnpm install && pnpm build
+    - Output: .next
+    - Variables de entorno definidas en Vercel (no commitear claves).
+    - Rewrites opcionales (proxy al backend): vercel.json
+      {
+        "rewrites": [
+          { "source": "/api/:path*", "destination": "https://api.aqualytics.tld/:path*" }
+        ]
+      }
+  - API (FastAPI): Fly.io/Render/Cloud Run (elegir). Configurar CORS (origen: dominio de Vercel), healthchecks y auto-migraciones (Alembic) al iniciar.
+
+- Mapa de estructura del proyecto (sugerido monorepo)
+  - apps/
+    - web/ (Next.js)
+      - app/ (App Router: rutas como dashboard, registrar, nadadores, analisis, auth, landing)
+      - components/ (UI reutilizable: tablas, formularios, gráficos)
+      - features/ (módulos por dominio: dashboard, registrar, nadadores, resultados)
+      - lib/ (utilidades: formateo de tiempos, clientes, hooks)
+      - styles/ (Tailwind y estilos globales)
+      - public/ (assets estáticos)
+    - (opcional) admin/ (si hubiera otra app)
+  - services/
+    - api/ (FastAPI)
+      - app/
+        - api/v1/ (routers: competencias, nadadores, resultados, dashboard, analitica)
+        - core/ (config, seguridad, settings pydantic)
+        - db/ (session, engine, deps)
+        - models/ (SQLModel/SQLAlchemy)
+        - schemas/ (Pydantic)
+        - services/ (cálculos, validaciones)
+        - utils/ (helpers)
+      - migrations/ (Alembic)
+      - tests/ (pytest)
+  - database/
+    - ddl/ (SQL de índices, vistas)
+    - seeds/ (datos de prueba)
+  - .taskmaster/ (PRD y tareas de Taskmaster AI)
+  - scripts/ (scripts de automatización)
+  - docs/ (documentación adicional)
+
+- Notas
+  - Mantener compatibilidad local: archivo .env.local (web) y .env (api) con ejemplos en .env.example.
+  - CORS estricto: solo el dominio de Vercel y localhost en dev.
+  - En producción, preferir proxy por vercel.json o usar NEXT_PUBLIC_API_BASE_URL.
+
+17. Estrategia de repositorio y ramas (GitHub + CI/CD)
+- Rama `main`: producción (Vercel prod + Render prod).
+- Rama `develop`: staging (Vercel preview + Render staging).
+- Ramas `feature/*`: desarrollo por funcionalidad; PR obligatorio hacia `develop` con checks (lint/tests).
+- Releases: merge de `develop` a `main` con tag semántico.
+- CI/CD: GitHub Actions ejecuta linters y tests; Vercel genera Preview en PRs; Render despliega según rama. Convencional Commits recomendado.
+
+18. Guía de creación de base de datos (Supabase) – Alto nivel
+- Extensiones: habilitar `pg_trgm` (búsqueda por similitud) y `btree_gist` (para índice GIST en `daterange`).
+- Tablas principales:
+  - `equipo(id, nombre)`.
+  - `usuario(id, email UNIQUE, rol IN ['entrenador','atleta'], equipo_id FK equipo)`.
+  - `nadador(id, equipo_id FK, nombre_completo, fecha_nacimiento, rama IN ['F','M'], peso?)`.
+  - `competencia(id, equipo_id FK, nombre, curso IN ['SC','LC'], rango_fechas DATERANGE NOT NULL, sede?)`.
+  - `prueba(id, estilo IN ['Libre','Dorso','Pecho','Mariposa','Combinado'], distancia, curso IN ['SC','LC'])` con índice único (estilo,distancia,curso).
+  - `resultado(id, nadador_id FK, competencia_id FK, prueba_id FK, fase IN ['Preliminar','Semifinal','Final'], fecha_registro DATE, tiempo_global_cs INT>0, tiempo_15m_cs INT?, categoria_label TEXT, estado_validacion IN ['valido','revisar'], desviacion_parciales_cs INT DEFAULT 0, capturado_por FK usuario, UNIQUE(nadador_id, competencia_id, prueba_id, fase, fecha_registro))`.
+  - `segmento(id, resultado_id FK ON DELETE CASCADE, indice SMALLINT>=1, estilo_segmento IN ['Libre','Dorso','Pecho','Mariposa'], distancia_m IN (25,50), tiempo_cs INT>0, brazadas SMALLINT>=0, flecha_m NUMERIC(4,1)>=0,
+     dist_sin_flecha_m NUMERIC(5,2) GENERATED ALWAYS AS (GREATEST(distancia_m - flecha_m, 0)) STORED,
+     velocidad_mps NUMERIC(8,4) GENERATED ALWAYS AS (CASE WHEN tiempo_cs>0 THEN distancia_m/(tiempo_cs/100.0) END) STORED,
+     dist_por_brazada_m NUMERIC(8,4) GENERATED ALWAYS AS (CASE WHEN brazadas>0 THEN (GREATEST(distancia_m - flecha_m,0))/NULLIF(brazadas,0) END) STORED
+  ).
+- Índices clave:
+  - `competencia USING GIST(rango_fechas)`, `competencia(equipo_id)`.
+  - `nadador(equipo_id)`, `nadador(rama)`, `nadador USING GIN(nombre_completo gin_trgm_ops)`.
+  - `resultado(prueba_id, tiempo_global_cs)`, `resultado(nadador_id, prueba_id, tiempo_global_cs)`, `resultado(competencia_id, fecha_registro)`, `resultado(fecha_registro)`, `resultado(capturado_por)`.
+  - `segmento(resultado_id, indice)`, `segmento(resultado_id, estilo_segmento)`.
+- Vistas (no materializadas):
+  - `resultado_agregado`: por `resultado_id` expone `suma_parciales_cs`, `desviacion_cs`, `brazadas_globales`, `flecha_total_m`, `distancia_sin_flecha_total_m`, `distancia_total_m` (desde `prueba`), `velocidad_promedio_mps`, `distancia_por_brazada_global_m`.
+- Reglas/validaciones (aplicadas en API, coherentes con BD):
+  - Tiempos en centésimas (enteros); UI mm:ss.cc.
+  - Segmentación: N = distancia/(25 SC, 50 LC); 15m solo distancia=50; flecha ≤ distancia del segmento; brazadas ≥ 0.
+  - Tolerancia: |suma(parciales) − global| ≤ 40 cs → `valido`; si excede → `revisar`.
+  - `fecha_registro` debe caer dentro de `competencia.rango_fechas` (validado en API).
+- Migraciones: Alembic (en `services/api`) o SQL en `database/ddl`.
+- RLS (opcional en MVP): con un equipo fijo, se puede posponer; dejar `equipo_id` listo para multi-equipo.
+- Nota: en MVP no usar materialized views.
+
+19. Flujo de interacción BD–APIs–Webhooks (MVP)
+- Crear resultado (captura):
+  1) UI valida/formatea y envía POST /resultados con centésimas y decimales correctos.
+  2) API valida dominio (segmentación, 15m, tolerancia, límites), calcula `categoria_label`, `estado_validacion`, `desviacion_parciales_cs`.
+  3) Transacción: inserta `resultado` y `segmentos`. Consulta `resultado_agregado`.
+  4) Respuesta: `{resultado, segmentos, resumen}`; UI actualiza cache (TanStack Query).
+  5) Webhook opcional: POST `resultado.creado` a URLs configuradas (con reintentos).
+- Editar resultado/segmentos:
+  1) PATCH /resultados/{id}; API recalcula validaciones/derivadas y responde nuevo resumen.
+  2) Webhook opcional: `resultado.actualizado`.
+- Listados/Dashboard:
+  - API usa índices + vistas normales; responde KPIs, top5, distribución, etc. (sin materialized views).
+- Detalle (modal “Ver detalles”):
+  - GET /resultados/{id}; JOIN a segmentos y lectura de `resultado_agregado`; segmentos ordenados por `indice`.
+- Realtime (MVP):
+  - Sin triggers ni webhooks de base de datos; la UI refresca por foco/intervalo (TanStack Query). Futuro: Supabase Realtime/SSE si se requiere.
+
+20. Apéndice de cambios (Taskmaster) – Integración UI con shadcn y figma-map
+- Contexto: A partir de la Tarea 23 “Integrar UI con shadcn usando figma-map y tema "green"”, se estandariza la interfaz con shadcn/ui y un tema “green” derivado de `figma-map.json`, manteniendo flexibilidad para usar componentes de Figma solo cuando tenga sentido o sea solicitado.
+
+- Artefactos añadidos
+  - `apps/web/src/styles/figma-map.json`: mapa de componentes (tag "ui") con variantes: Button, ButtonGroup, Slider, Checkbox, Input, Alert, Progress y Theme (paleta "green").
+  - Wrappers previstos (shadcn/ui): `Button`, `ButtonGroup`, `Slider`, `Checkbox`, `Input`, `Alert`, `Progress` con variantes por defecto tomadas del mapa.
+  - Utilidad planificada `mapFigmaVariant()` (opcional): activa solo si existe especificación en `figma-map.json`; fallback a shadcn estándar en caso contrario.
+
+- Lineamientos de diseño (flexibilidad)
+  - Figma es opcional: usar componentes Figma solo cuando aporten valor o sean solicitados. Por defecto, usar shadcn/ui con el tema "green" para consistencia.
+  - Tokens/tema “green”: colores, radios y tamaños expuestos como CSS vars/Tailwind para uso transversal (compatibles con 21: tema claro/oscuro y accesibilidad).
+
+- Dependencias agregadas a la Tarea 23 (ancla UI)
+  - Ahora dependen de 23: 12.3, 14.3, 14.4, 14.5, 15, 16, 17, 18, 19, 20, 22.
+  - Se eliminó la dependencia de 23 sobre 12 y 21 para evitar ciclos.
+
+- Notas por tareas afectadas (resumen)
+  - 12.3 (hooks/comp. auth frontend): usar wrappers shadcn (Button, Input, Checkbox, Alert, Progress, Slider) con tema "green"; Figma opcional.
+  - 14.3 (lista/DataTable), 14.4 (formulario), 14.5 (perfil+gráficos): wrappers shadcn + tema; Figma opcional.
+  - 15 (competencias): formularios/listas con wrappers y tema; Figma opcional.
+  - 16 (stepper resultados): usar ButtonGroup/Button/Progress/Slider/Alert coherentes; Figma opcional.
+  - 17 (resultado_agregado): modal y acciones con Button/Alert/Progress; Figma opcional.
+  - 18 (dashboard): aplicar tema "green" y wrappers coherentes; Figma opcional.
+  - 19 (análisis/comparaciones): wrappers y consistencia; Figma opcional.
+  - 20 (listado resultados): Input/filters, Button/acciones, Alert/estados, Progress/cargas; Figma opcional.
+  - 21 (tema claro/oscuro y A11y): verificar compatibilidad de tokens/vars con dark mode y accesibilidad (sin nueva dependencia de 23).
+  - 22 (landing): alinear con wrappers y tema "green"; Figma opcional.
+
+- Alcance backend (sin cambios)
+  - 12.4 (JWT FastAPI) y endpoints (12.5) mantienen su alcance; solo se aplican ajustes visuales en páginas de login/register (UI).
