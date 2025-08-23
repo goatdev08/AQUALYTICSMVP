@@ -12,6 +12,9 @@ export { StepperNavigation, StepperHeader } from './StepperNavigation';
 // Componentes de pasos
 export { CompetenciaFormStepper } from './pasos/CompetenciaFormStepper';
 
+// Componentes reutilizables integrados
+export { NadadorSelector } from '@/components/nadadores';
+
 // Context y hook principal
 export { StepperProvider, useStepper } from '@/contexts/stepper-context';
 

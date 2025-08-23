@@ -454,8 +454,8 @@
               "16.1",
               "16.2"
             ],
-            "details": "Include search-as-you-type functionality, handle selection events, and update stepper state with the chosen nadador.",
-            "status": "pending",
+            "details": "Include search-as-you-type functionality, handle selection events, and update stepper state with the chosen nadador.\n<info added on 2025-08-23T17:52:09.848Z>\nCOMPLETADO: Subtarea 16.3 - Implement nadador search and selection\n\nIMPLEMENTACIÓN EXITOSA DEL PASO 2 DEL STEPPER - SELECCIÓN DE NADADOR:\n\n✅ COMPONENTE NadadorSelector (REUTILIZABLE) CREADO:\n- Búsqueda typeahead con debounce (300ms) usando useNadadorTypeahead hook existente\n- Filtros interactivos por rama (F/M) y categoría (11-12, 13-14, 15-16, 17+) según PRD\n- Panel de filtros collapsible con estado local\n- Navegación por teclado: ↑/↓ para navegar, Enter para seleccionar, Escape para cerrar\n- Estados visuales completos: loading, error, empty state, seleccionado\n- UI consistente con tema green y componentes shadcn\n- Typeahead con máximo 15 resultados configurables\n- Clear selection y clear filters functionality\n\n✅ INTEGRACIÓN STEPPER EN PasoNadador:\n- dispatch({ type: 'ACTUALIZAR_NADADOR' }) para sincronización con estado global\n- Auto-completado de paso cuando se selecciona nadador (dispatch 'COMPLETAR_PASO')\n- Conversión correcta NadadorOption ↔ Nadador types\n- Información contextual de competencia seleccionada en paso anterior\n- Alert de advertencia si no hay competencia (navegación paso anterior)\n- Estados visuales: selección confirmada, instrucciones de ayuda, contexto\n\n✅ ARQUITECTURA SIGUIENDO PATRÓN EXITOSO:\n- Mismo patrón que PasoCompetencia: componente reutilizable + integración\n- NadadorSelector exportado desde /components/nadadores/ (PRD compliance)\n- Reutilización de useNadadorTypeahead hook existente (sin duplicación)\n- TypeScript strict con tipos NadadorOption y NadadorSelectorProps\n- Performance optimizada con useCallback, useMemo, useDebounce\n\n✅ FUNCIONALIDADES PRD IMPLEMENTADAS:\n- ✅ \"Búsqueda por teclado (trigram)\" - useNadadorTypeahead\n- ✅ \"Filtros por rama/categoría\" - Panel de filtros interactivo  \n- ✅ \"Search-as-you-type functionality\" - Debounce + typeahead\n- ✅ \"Handle selection events\" - Callback onSelect con conversión types\n- ✅ \"Update stepper state\" - dispatch ACTUALIZAR_NADADOR + COMPLETAR_PASO\n\n✅ CARACTERÍSTICAS TÉCNICAS DESTACADAS:\n- Componente 100% reutilizable para otros módulos del proyecto\n- Accesibilidad: navegación por teclado, ARIA labels, focus management\n- UX pulida: loading spinners, clear buttons, instrucciones contextuales\n- Error handling robusto con estados de error específicos\n- Responsive design con breakpoints consistentes\n- Integration seamless con sistema de validaciones del stepper\n\n✅ EXPORTS ACTUALIZADOS:\n- /components/nadadores/index.ts incluye NadadorSelector\n- /components/resultados/index.ts incluye re-export\n- Componente disponible para reutilización en otros módulos\n\nRESULTADO: Paso 2 del stepper completamente funcional con búsqueda trigram, filtros rama/categoría, y selección de nadador. Flujo completo Paso 1 → Paso 2 → Paso 3 habilitado. Componente NadadorSelector reutilizable creado siguiendo estándares del proyecto y especificaciones del PRD.\n</info added on 2025-08-23T17:52:09.848Z>",
+            "status": "done",
             "testStrategy": ""
           },
           {
@@ -1156,7 +1156,7 @@
     ],
     "metadata": {
       "created": "2025-08-18T22:30:54.478Z",
-      "updated": "2025-08-23T11:08:32.183Z",
+      "updated": "2025-08-23T17:52:14.947Z",
       "description": "Tasks for master context"
     }
   }
