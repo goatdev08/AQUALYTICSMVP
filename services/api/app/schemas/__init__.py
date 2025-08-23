@@ -28,6 +28,16 @@ from .nadador import (
     NadadorSearchFilters,
     NadadorListResponse,
 )
+from .competencia import (
+    CompetenciaBase,
+    CompetenciaCreate,
+    CompetenciaUpdate,
+    CompetenciaResponse,
+    CompetenciaListResponse,
+    CompetenciaSearchFilters,
+    CompetenciaSelector,
+    CursoEnum,
+)
 
 __all__ = [
     # Autenticación
@@ -51,4 +61,13 @@ __all__ = [
     "NadadorResponse",
     "NadadorSearchFilters",
     "NadadorListResponse",
+    # Competencias
+    "CompetenciaBase",
+    "CompetenciaCreate",
+    "CompetenciaUpdate", 
+    "CompetenciaResponse",
+    "CompetenciaListResponse",
+    "CompetenciaSearchFilters",
+    "CompetenciaSelector",
+    "CursoEnum",
 ]

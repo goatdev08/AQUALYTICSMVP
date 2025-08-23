@@ -9,7 +9,9 @@
 
 import { ProtectedRoute } from '@/components/auth';
 import { useAuth } from '@/hooks/useAuth';
-import { LoaderIcon } from 'lucide-react';
+import { ProximasCompetencias } from '@/components/competencias';
+import { LoaderIcon, CalendarIcon, UsersIcon, BarChartIcon } from 'lucide-react';
+import Link from 'next/link';
 
 
 
@@ -84,57 +86,61 @@ function DashboardContent() {
             </div>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-            <div className="bg-white overflow-hidden shadow rounded-lg">
-              <div className="p-5">
-                <div className="flex items-center">
-                  <div className="flex-shrink-0">
-                    <div className="w-8 h-8 bg-indigo-100 rounded-md flex items-center justify-center">
-                      👥
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+            <Link href="/nadadores">
+              <div className="bg-white overflow-hidden shadow rounded-lg hover:shadow-md transition-shadow cursor-pointer">
+                <div className="p-5">
+                  <div className="flex items-center">
+                    <div className="flex-shrink-0">
+                      <div className="w-8 h-8 bg-indigo-100 rounded-md flex items-center justify-center">
+                        <UsersIcon className="h-4 w-4 text-indigo-600" />
+                      </div>
                     </div>
-                  </div>
-                  <div className="ml-5 w-0 flex-1">
-                    <dl>
-                      <dt className="text-sm font-medium text-gray-500 truncate">
-                        Nadadores
-                      </dt>
-                      <dd className="text-lg font-medium text-gray-900">
-                        En construcción
-                      </dd>
-                    </dl>
+                    <div className="ml-5 w-0 flex-1">
+                      <dl>
+                        <dt className="text-sm font-medium text-gray-500 truncate">
+                          Nadadores
+                        </dt>
+                        <dd className="text-lg font-medium text-gray-900">
+                          Gestionar equipo
+                        </dd>
+                      </dl>
+                    </div>
                   </div>
                 </div>
               </div>
-            </div>
+            </Link>
 
-            <div className="bg-white overflow-hidden shadow rounded-lg">
-              <div className="p-5">
-                <div className="flex items-center">
-                  <div className="flex-shrink-0">
-                    <div className="w-8 h-8 bg-green-100 rounded-md flex items-center justify-center">
-                      🏆
+            <Link href="/competencias">
+              <div className="bg-white overflow-hidden shadow rounded-lg hover:shadow-md transition-shadow cursor-pointer">
+                <div className="p-5">
+                  <div className="flex items-center">
+                    <div className="flex-shrink-0">
+                      <div className="w-8 h-8 bg-green-100 rounded-md flex items-center justify-center">
+                        <CalendarIcon className="h-4 w-4 text-green-600" />
+                      </div>
                     </div>
-                  </div>
-                  <div className="ml-5 w-0 flex-1">
-                    <dl>
-                      <dt className="text-sm font-medium text-gray-500 truncate">
-                        Competencias
-                      </dt>
-                      <dd className="text-lg font-medium text-gray-900">
-                        En construcción
-                      </dd>
-                    </dl>
+                    <div className="ml-5 w-0 flex-1">
+                      <dl>
+                        <dt className="text-sm font-medium text-gray-500 truncate">
+                          Competencias
+                        </dt>
+                        <dd className="text-lg font-medium text-gray-900">
+                          Ver calendario
+                        </dd>
+                      </dl>
+                    </div>
                   </div>
                 </div>
               </div>
-            </div>
+            </Link>
 
-            <div className="bg-white overflow-hidden shadow rounded-lg">
+            <div className="bg-white overflow-hidden shadow rounded-lg opacity-75">
               <div className="p-5">
                 <div className="flex items-center">
                   <div className="flex-shrink-0">
                     <div className="w-8 h-8 bg-blue-100 rounded-md flex items-center justify-center">
-                      📊
+                      <BarChartIcon className="h-4 w-4 text-blue-600" />
                     </div>
                   </div>
                   <div className="ml-5 w-0 flex-1">
@@ -143,7 +149,7 @@ function DashboardContent() {
                         Resultados
                       </dt>
                       <dd className="text-lg font-medium text-gray-900">
-                        En construcción
+                        Próximamente
                       </dd>
                     </dl>
                   </div>
@@ -152,19 +158,27 @@ function DashboardContent() {
             </div>
           </div>
 
+          {/* Widget de Próximas Competencias */}
+          <div className="mb-8">
+            <ProximasCompetencias />
+          </div>
+
           {/* Sección de módulos funcionales */}
           <div className="mt-8 border-t pt-6">
             <h3 className="text-lg font-medium text-gray-900 mb-4">📱 Módulos Disponibles</h3>
             <div className="flex flex-wrap gap-3">
-              <a
+              <Link
                 href="/nadadores"
                 className="inline-flex items-center px-4 py-2 border border-green-300 rounded-md shadow-sm bg-green-50 text-sm font-medium text-green-700 hover:bg-green-100 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500"
               >
-                🏊‍♂️ Gestión de Nadadores (Tarea 14)
-              </a>
-              <span className="inline-flex items-center px-3 py-2 rounded-md text-sm text-gray-500 bg-gray-100">
-                🏆 Competencias próximamente...
-              </span>
+                🏊‍♂️ Gestión de Nadadores
+              </Link>
+              <Link
+                href="/competencias"
+                className="inline-flex items-center px-4 py-2 border border-green-300 rounded-md shadow-sm bg-green-50 text-sm font-medium text-green-700 hover:bg-green-100 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500"
+              >
+                🏆 Gestión de Competencias
+              </Link>
               <span className="inline-flex items-center px-3 py-2 rounded-md text-sm text-gray-500 bg-gray-100">
                 📊 Resultados próximamente...
               </span>
