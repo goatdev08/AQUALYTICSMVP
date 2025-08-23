@@ -424,15 +424,15 @@
           15,
           "23"
         ],
-        "status": "pending",
+        "status": "in-progress",
         "subtasks": [
           {
             "id": 1,
             "title": "Implement stepper navigation and state management",
             "description": "Develop the 4-step stepper logic, including navigation controls, progress indicators, and state management to track the current step and form data.",
             "dependencies": [],
-            "details": "Ensure smooth transitions between steps, disable/enable navigation buttons appropriately, and maintain step state for validation and data persistence.",
-            "status": "pending",
+            "details": "Ensure smooth transitions between steps, disable/enable navigation buttons appropriately, and maintain step state for validation and data persistence.\n<info added on 2025-08-23T10:58:29.630Z>\nCOMPLETADO: Subtarea 16.1 - Stepper Navigation and State Management\n\nLOGROS PRINCIPALES:\n✅ Arquitectura de tipos TypeScript completa (resultados.ts)\n- Definidos todos los tipos para stepper, segmentos, validaciones, API payloads\n- Estados por paso: competencia, nadador, prueba, segmentos  \n- Enums del dominio: fases, estados validación, estilos segmento\n- Configuración autoguardado y localStorage\n\n✅ Context y State Management (stepper-context.tsx)\n- StepperProvider con reducer para manejo completo del estado\n- Navegación entre 4 pasos con validaciones automáticas\n- Sistema de validación por paso con mensajes de error específicos\n- Autoguardado localStorage cada 5s + onBeforeUnload\n- Funciones helper: navegarAPaso, siguientePaso, pasoAnterior, puedeAvanzar\n\n✅ Componente de Navegación Visual (StepperNavigation.tsx)\n- Indicadores de progreso con iconos y estados visuales\n- Tema \"green\" integrado con shadcn components\n- Progress bar, botones anterior/siguiente \n- Estados: actual, completado, error, pendiente\n- Navegación directa a pasos permitidos\n\n✅ Contenedor Principal (StepperContainer.tsx)\n- Layout responsive con cards para navegación y contenido\n- Lazy loading de pasos con Suspense boundaries\n- Error boundary personalizado para captura de errores\n- HOCs para integración con Next.js pages\n- Información contextual y guías de usuario\n\n✅ Estructura de Componentes\n- Placeholders para los 4 pasos del stepper (evitar errores compilación)\n- Página Next.js /resultados/registrar con RBAC (solo entrenadores)\n- Componente Card creado para UI consistency\n- Index.ts con exportaciones organizadas\n\nARQUITECTURA TÉCNICA:\n- Estado global con reducer pattern para predictibilidad\n- Validaciones reactivas por paso con feedback inmediato\n- Cache localStorage con metadata y versioning\n- TypeScript estricto con tipos exhaustivos\n- Lazy loading y error boundaries para performance\n- Integration patterns con hooks existentes (useCompetencias, useNadadores, usePruebas)\n\nNEXT STEPS: Implementar componentes de pasos individuales (subtareas 16.2-16.5)\n</info added on 2025-08-23T10:58:29.630Z>",
+            "status": "done",
             "testStrategy": ""
           },
           {
@@ -442,8 +442,8 @@
             "dependencies": [
               "16.1"
             ],
-            "details": "Integrate search and creation forms, validate input, and update state with selected or newly created competencia.",
-            "status": "pending",
+            "details": "Integrate search and creation forms, validate input, and update state with selected or newly created competencia.\n<info added on 2025-08-23T11:08:25.501Z>\nCOMPLETADO: Subtarea 16.2 - Develop competencia selection (existing/new)\n\nIMPLEMENTACIÓN EXITOSA DEL PASO 1 DEL STEPPER:\n\n✅ COMPONENTE PasoCompetencia COMPLETO:\n- Integración con useCompetencias() hook existente usando useCompetenciasList()\n- Toggle entre dos modos: \"seleccionar existente\" y \"crear nueva\"\n- UI consistente con tema \"green\" y componentes shadcn\n- Estados visuales dinámicos con iconos lucide-react\n\n✅ FUNCIONALIDADES IMPLEMENTADAS:\n- SELECTOR DE MODO: Cards interactivos para elegir entre seleccionar/crear\n- BÚSQUEDA EXISTENTE: CompetenciaSelector con typeahead integrado\n- CREACIÓN NUEVA: CompetenciaForm embebido con instrucciones claras\n- ESTADO DERIVADO: Información detallada de competencia seleccionada\n- CASOS LÍMITE: Empty states cuando no hay competencias disponibles\n\n✅ INTEGRACIÓN CON STEPPER STATE:\n- dispatch() actions para actualizar paso_competencia\n- Conversión de CompetenciaOption a Competencia con todos los campos requeridos\n- Manejo de rango_fechas con bounds '[)' apropiado para PostgreSQL\n- Persistencia automática de selección con autoguardado\n\n✅ UX/UI DESTACADO:\n- Feedback visual inmediato con estados activo/seleccionado\n- Alert informativos con detalles de competencia seleccionada\n- Instrucciones contextuales para guiar al usuario\n- Navegación fluida entre modos con botones \"Volver a buscar\"\n- Estados de loading manejados apropiadamente\n\n✅ ARQUITECTURA TÉCNICA:\n- Reutilización de componentes existentes (CompetenciaSelector, CompetenciaForm)\n- Estado local (modo, competenciaSeleccionada) sincronizado con estado global\n- Handlers con useCallback para performance\n- TypeScript strict sin errores de linting\n- Responsive design con breakpoints md/lg\n\n✅ VALIDACIONES Y CASOS EDGE:\n- Manejo de competenciasLoading state\n- Empty states informativos cuando totalCompetencias === 0\n- Conversión apropiada de tipos CompetenciaOption → Competencia\n- Limpieza de estado al cambiar entre modos\n\nRESULTADO: Paso 1 del stepper completamente funcional, probado sin errores de linting, e integrado con la arquitectura existente del proyecto. El usuario puede seleccionar competencias existentes con typeahead o crear nuevas usando el formulario completo ya implementado.\n</info added on 2025-08-23T11:08:25.501Z>",
+            "status": "done",
             "testStrategy": ""
           },
           {
@@ -1156,7 +1156,7 @@
     ],
     "metadata": {
       "created": "2025-08-18T22:30:54.478Z",
-      "updated": "2025-08-23T09:48:07.091Z",
+      "updated": "2025-08-23T11:08:32.183Z",
       "description": "Tasks for master context"
     }
   }

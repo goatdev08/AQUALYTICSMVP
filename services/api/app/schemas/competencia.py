@@ -8,7 +8,7 @@ from datetime import date, datetime
 from typing import Optional, List
 from enum import Enum
 
-from pydantic import BaseModel, Field, field_validator, computed_field
+from pydantic import BaseModel, Field, field_validator, computed_field # type: ignore
 
 
 class CursoEnum(str, Enum):

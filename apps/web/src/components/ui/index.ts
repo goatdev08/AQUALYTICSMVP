@@ -31,6 +31,7 @@ import {
   CascadingPruebaSelector 
 } from "./prueba-selector"
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "./tabs"
+import { Card, CardHeader, CardContent, CardTitle, CardDescription, CardFooter } from "./card"
 
 // Re-exportar componentes
 export { ShadcnButton as Button, buttonVariants }
@@ -39,6 +40,7 @@ export { ShadcnAlert as Alert, AlertDescription, AlertTitle }
 export { ShadcnProgress as Progress }
 export { ShadcnCheckbox as Checkbox }
 export { ShadcnSlider as Slider }
+export { Card, CardHeader, CardContent, CardTitle, CardDescription, CardFooter }
 
 // Componentes especializados
 export { TimeInput, SimpleTimeInput }
