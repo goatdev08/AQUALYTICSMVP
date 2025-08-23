@@ -209,7 +209,9 @@ export function CompetenciaSelector({
     error: fetchError 
   } = useCompetenciasList(filters);
   
-  const opciones = competenciasData?.items || [];
+  const opciones = competenciasData?.competencias || [];
+  
+  // DEBUG: Logs removidos después de corrección
   
   // ========================================
   // EFFECTS

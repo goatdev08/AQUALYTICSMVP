@@ -149,11 +149,17 @@ function stepperReducer(state: StepperState, action: StepperAction): StepperStat
 function validarPaso1(data: StepperState['paso_competencia']): ValidacionPaso {
   const errores: string[] = [];
   
-  if (!data.competencia && !data.es_nueva_competencia) {
-    errores.push('Debe seleccionar una competencia existente o crear una nueva');
+  // VALIDACIÓN CRÍTICA: Debe tener competencia seleccionada independientemente del modo
+  if (!data.competencia) {
+    if (data.es_nueva_competencia) {
+      errores.push('Debe completar la creación de la nueva competencia antes de continuar');
+    } else {
+      errores.push('Debe seleccionar una competencia existente o crear una nueva');
+    }
   }
   
-  if (data.es_nueva_competencia && data.datos_nueva_competencia) {
+  // Validaciones adicionales si es nueva competencia pero sin datos
+  if (data.es_nueva_competencia && !data.competencia && data.datos_nueva_competencia) {
     const { nombre, curso, fecha_inicio, fecha_fin } = data.datos_nueva_competencia;
     
     if (!nombre?.trim()) {

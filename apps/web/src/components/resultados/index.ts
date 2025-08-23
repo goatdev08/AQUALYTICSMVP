@@ -9,6 +9,9 @@
 export { StepperContainer, RegistrarResultadosPage, StepperErrorBoundary } from './StepperContainer';
 export { StepperNavigation, StepperHeader } from './StepperNavigation';
 
+// Componentes de pasos
+export { CompetenciaFormStepper } from './pasos/CompetenciaFormStepper';
+
 // Context y hook principal
 export { StepperProvider, useStepper } from '@/contexts/stepper-context';
 

@@ -17,7 +17,7 @@ import React, { useState, useCallback } from 'react';
 import { useStepper } from '@/contexts/stepper-context';
 import { useCompetencias } from '@/hooks/useCompetencias';
 import { CompetenciaSelector } from '@/components/competencias/CompetenciaSelector';
-import { CompetenciaForm } from '@/components/competencias/CompetenciaForm';
+import { CompetenciaFormStepper } from './CompetenciaFormStepper';
 import { Button, Alert, AlertDescription, Card, CardContent, CardHeader, CardTitle } from '@/components/ui';
 import { 
   PlusIcon, 
@@ -126,6 +126,40 @@ export function PasoCompetencia() {
     }
   }, [dispatch]);
 
+  const handleCompetenciaCreada = useCallback((competenciaCreada: Competencia) => {
+    // Actualizar estado del stepper con la nueva competencia
+    dispatch({
+      type: 'ACTUALIZAR_COMPETENCIA',
+      data: {
+        competencia: competenciaCreada,
+        es_nueva_competencia: true,
+        datos_nueva_competencia: {
+          nombre: competenciaCreada.nombre,
+          curso: competenciaCreada.curso,
+          fecha_inicio: competenciaCreada.rango_fechas.lower,
+          fecha_fin: competenciaCreada.rango_fechas.upper,
+          sede: competenciaCreada.sede,
+        },
+      },
+    });
+
+    // Convertir también para el estado local
+    const competenciaOption = {
+      id: competenciaCreada.id,
+      nombre: competenciaCreada.nombre,
+      curso: competenciaCreada.curso,
+      rango_fechas: {
+        lower: competenciaCreada.rango_fechas.lower,
+        upper: competenciaCreada.rango_fechas.upper,
+      },
+      sede: competenciaCreada.sede,
+    };
+    setCompetenciaSeleccionada(competenciaOption);
+
+    // Cambiar automáticamente a modo selección para mostrar la confirmación
+    setModo('seleccionar');
+  }, [dispatch]);
+
   // =====================
   // Estado derivado
   // =====================
@@ -134,6 +168,8 @@ export function PasoCompetencia() {
   const tieneCompetenciaSeleccionada = !!competenciaActual;
   const competencias = competenciasResponse?.competencias || [];
   const totalCompetencias = competencias.length;
+
+  // DEBUG: Logs removidos después de corrección
 
   // =====================
   // Render
@@ -263,7 +299,7 @@ export function PasoCompetencia() {
                 onValueChange={handleCompetenciaSeleccionada}
                 placeholder="Escriba para buscar una competencia..."
                 className="w-full"
-                includeFinalizadas={false}
+                includeFinalizadas={true}
                 disabled={competenciasLoading}
               />
 
@@ -324,11 +360,14 @@ export function PasoCompetencia() {
 
               {/* Formulario de creación */}
               <div className="space-y-4">
-                <p className="text-sm text-amber-600 bg-amber-50 border border-amber-200 rounded-lg p-3">
-                  <strong>Nota:</strong> Después de crear la competencia, regrese a este paso para seleccionarla y continuar con el registro.
+                <p className="text-sm text-blue-600 bg-blue-50 border border-blue-200 rounded-lg p-3">
+                  <strong>✨ Flujo integrado:</strong> La competencia se seleccionará automáticamente después de crearla.
                 </p>
                 
-                <CompetenciaForm mode="create" />
+                <CompetenciaFormStepper 
+                  onSuccess={handleCompetenciaCreada}
+                  onCancel={() => handleModoChange('seleccionar')}
+                />
               </div>
             </div>
           )}
