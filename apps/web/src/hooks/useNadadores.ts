@@ -374,7 +374,7 @@ export function useNadadorTypeahead(query: string, limit = 10) {
   return useQuery({
     queryKey: nadadorKeys.typeahead(query),
     queryFn: () => nadadorApi.typeahead(query, limit),
-    enabled: !!user && query.length >= 2,
+    enabled: !!user && query.length >= 1,
     staleTime: 60 * 1000,
     gcTime: 10 * 60 * 1000,
   });

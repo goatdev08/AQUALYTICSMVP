@@ -433,7 +433,7 @@ async def delete_nadador(
 async def search_nadadores_typeahead(
     current_user: CurrentUser,
     db: DatabaseDep,
-    q: str = Query(..., min_length=2, description="Término de búsqueda (min 2 chars)"),
+    q: str = Query(..., min_length=1, description="Término de búsqueda (min 1 char)"),
     limit: int = Query(default=10, le=20, ge=1, description="Máximo 20 resultados")
 ) -> List[NadadorResponse]:
     """
@@ -446,18 +446,39 @@ async def search_nadadores_typeahead(
     audit_access(current_user, "nadadores", "search")
     
     try:
-        # Búsqueda trigram optimizada
+        query_term = q.strip()
+        query_lower = query_term.lower()
+        
+        # Lógica unificada: SIEMPRE combinar ILIKE + trigram en una sola query
+        # para resultados consistentes que se "refinan" en lugar de "saltar"
+        
+        # Definir matching conditions
+        similarity = func.similarity(func.lower(Nadador.nombre_completo), query_lower)
+        ilike_match = Nadador.nombre_completo.ilike(f"%{query_term}%")
+        exact_match = func.lower(Nadador.nombre_completo) == query_lower
+        
+        # Ajustar threshold de similarity según longitud de query
+        # Más estricto para queries cortas para evitar ruido
+        similarity_threshold = 0.3 if len(query_term) <= 2 else 0.15
+        
+        # Filtros: SIEMPRE incluir ambos ILIKE y trigram, pero con threshold ajustado
         nadadores = (
             db.query(Nadador)
             .filter(
                 and_(
                     Nadador.equipo_id == current_user.equipo_id,
-                    func.similarity(Nadador.nombre_completo, q.strip()) > 0.15
+                    or_(
+                        ilike_match,  # Coincidencias de substring (siempre incluidas)
+                        similarity > similarity_threshold  # Coincidencias fuzzy (threshold ajustado)
+                    )
                 )
             )
+            # Ordenar por prioridad: exact > ilike > similarity > alfabético
             .order_by(
-                func.similarity(Nadador.nombre_completo, q.strip()).desc(),
-                Nadador.nombre_completo
+                exact_match.desc(),  # Coincidencias exactas primero
+                ilike_match.desc(),  # Luego coincidencias de substring 
+                similarity.desc(),   # Luego fuzzy matches por relevancia
+                Nadador.nombre_completo  # Finalmente alfabético
             )
             .limit(limit)
             .all()

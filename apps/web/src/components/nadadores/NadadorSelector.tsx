@@ -143,7 +143,7 @@ export function NadadorSelector({
     const newValue = e.target.value;
     setSearchTerm(newValue);
     setSelectedIndex(-1);
-    setIsOpen(newValue.length >= 2);
+    setIsOpen(newValue.length >= 1);
   }, []);
   
   const handleSelect = useCallback((nadador: Nadador) => {
@@ -329,7 +329,7 @@ export function NadadorSelector({
             value={searchTerm}
             onChange={handleSearchChange}
             onKeyDown={handleKeyDown}
-            onFocus={() => searchTerm.length >= 2 && setIsOpen(true)}
+            onFocus={() => searchTerm.length >= 1 && setIsOpen(true)}
             onBlur={() => setTimeout(() => setIsOpen(false), 150)}
             placeholder={placeholder}
             disabled={disabled}
@@ -438,11 +438,11 @@ export function NadadorSelector({
             )}
             
             {/* Instrucciones de búsqueda */}
-            {!isLoading && debouncedSearch.length < 2 && (
+            {!isLoading && debouncedSearch.length < 1 && (
               <div className="px-3 py-4 text-center">
                 <SearchIcon className="w-8 h-8 text-gray-300 mx-auto mb-2" />
                 <p className="text-sm text-gray-500">
-                  Escribe al menos 2 caracteres para buscar
+                  Escribe un carácter para comenzar a buscar
                 </p>
               </div>
             )}

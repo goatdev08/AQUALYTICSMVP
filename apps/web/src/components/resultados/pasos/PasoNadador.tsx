@@ -158,7 +158,7 @@ export function PasoNadador() {
               💡 Consejos de búsqueda:
             </h3>
             <ul className="text-sm text-gray-600 space-y-1">
-              <li>• Escribe al menos 2 caracteres del nombre</li>
+              <li>• Escribe cualquier carácter del nombre para buscar</li>
               <li>• Usa los filtros para refinar por rama o categoría</li>
               <li>• Navega con las flechas ↑/↓ y selecciona con Enter</li>
               <li>• La búsqueda incluye nombres y apellidos</li>
