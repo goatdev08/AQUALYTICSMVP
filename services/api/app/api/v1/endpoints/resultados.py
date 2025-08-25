@@ -482,9 +482,9 @@ async def create_resultado(
     description="Obtiene información detallada de un resultado con segmentos y métricas calculadas"
 )
 async def get_resultado_detalle(
-    resultado_id: int = Path(..., description="ID del resultado", gt=0),
-    db: Session = Depends(DatabaseDep),
-    current_user = Depends(CurrentUser)
+    current_user: CurrentUser,
+    db: DatabaseDep,
+    resultado_id: int = Path(..., description="ID del resultado", gt=0)
 ) -> ResultadoCompletoResponse:
     """
     Obtener detalle completo de un resultado según PRD.
