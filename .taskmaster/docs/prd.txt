@@ -278,6 +278,9 @@ AquaLytics - PRD (Producto Mínimo Viable)
   - Ahora dependen de 23: 12.3, 14.3, 14.4, 14.5, 15, 16, 17, 18, 19, 20, 22.
   - Se eliminó la dependencia de 23 sobre 12 y 21 para evitar ciclos.
 
+- Paquetes npm agregados durante implementación
+  - `@radix-ui/react-dialog`: Requerido para componente Dialog de shadcn/ui. Agregado en Tarea 17.4 para implementar modal de pantalla completa de detalles de resultado. Compatible con tema "green" y arquitectura de componentes UI existente.
+
 - Notas por tareas afectadas (resumen)
   - 12.3 (hooks/comp. auth frontend): usar wrappers shadcn (Button, Input, Checkbox, Alert, Progress, Slider) con tema "green"; Figma opcional.
   - 14.3 (lista/DataTable), 14.4 (formulario), 14.5 (perfil+gráficos): wrappers shadcn + tema; Figma opcional.
