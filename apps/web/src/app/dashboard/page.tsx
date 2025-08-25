@@ -9,15 +9,45 @@
 
 import { ProtectedRoute } from '@/components/auth';
 import { useAuth } from '@/hooks/useAuth';
-import { ProximasCompetencias } from '@/components/competencias';
 import { ResultadoDetailModal } from '@/components/resultados';
-import { LoaderIcon, CalendarIcon, UsersIcon, BarChartIcon } from 'lucide-react';
+import { 
+  KPICard,
+  Top5Chart,
+  PieChart,
+  ProximasCompetenciasList,
+  AtletasDestacadosList,
+  ActividadRecienteTable
+} from '@/components/dashboard';
+import { useDashboardResumen } from '@/hooks/useDashboard';
+import { useDashboardFilters, useDashboardApiFilters } from '@/stores/dashboard-store';
+import { LoaderIcon, CalendarIcon, UsersIcon, BarChartIcon, TrendingUp } from 'lucide-react';
 import Link from 'next/link';
+import { useSearchParams } from 'next/navigation';
+import { useEffect, useState } from 'react';
 
 
 
 function DashboardContent() {
   const { user, signOut, isLoading, isEntrenador } = useAuth();
+  const searchParams = useSearchParams();
+  const [sharedResultadoId, setSharedResultadoId] = useState<number | null>(null);
+  
+  // Hooks del dashboard
+  const { data: resumenData, isLoading: resumenLoading, error: resumenError } = useDashboardResumen();
+  const apiFilters = useDashboardApiFilters();
+
+  // Dashboard funcionando correctamente
+
+  // Manejar compartir vía URL ?detalle={id}
+  useEffect(() => {
+    const detalleParam = searchParams.get('detalle');
+    if (detalleParam) {
+      const resultadoId = parseInt(detalleParam, 10);
+      if (!isNaN(resultadoId) && resultadoId > 0) {
+        setSharedResultadoId(resultadoId);
+      }
+    }
+  }, [searchParams]);
 
   if (isLoading) {
     return (
@@ -77,98 +107,63 @@ function DashboardContent() {
             </div>
           </div>
           
-          <div className="bg-green-50 border border-green-200 rounded-md p-4 mb-6">
-            <div className="text-sm text-green-800">
-              <p className="font-medium">🏊‍♂️ ¡Sistema de Resultados Implementado!</p>
-              <p className="mt-1">
-                Módulo completo de registro de resultados con stepper de 4 pasos, cálculos automáticos 
-                y vista de detalles. Sistema de autenticación y roles funcionando correctamente.
-              </p>
-            </div>
+          {/* KPIs principales */}
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+            <KPICard
+              label="Total Nadadores"
+              value={resumenData?.total_nadadores || 0}
+              icon={<UsersIcon />}
+              isLoading={resumenLoading}
+              variant="default"
+            />
+            <KPICard
+              label="Total Competencias"
+              value={resumenData?.total_competencias || 0}
+              icon={<CalendarIcon />}
+              isLoading={resumenLoading}
+              variant="success"
+            />
+            <KPICard
+              label="Total Registros"
+              value={resumenData?.total_registros || 0}
+              icon={<BarChartIcon />}
+              isLoading={resumenLoading}
+              variant="info"
+            />
+            <KPICard
+              label="PBs Recientes"
+              value={resumenData?.pbs_recientes || 0}
+              icon={<TrendingUp />}
+              isLoading={resumenLoading}
+              variant="warning"
+              description="Últimos 30 días"
+            />
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
-            <Link href="/nadadores">
-              <div className="bg-white overflow-hidden shadow rounded-lg hover:shadow-md transition-shadow cursor-pointer">
-                <div className="p-5">
-                  <div className="flex items-center">
-                    <div className="flex-shrink-0">
-                      <div className="w-8 h-8 bg-indigo-100 rounded-md flex items-center justify-center">
-                        <UsersIcon className="h-4 w-4 text-indigo-600" />
-                      </div>
-                    </div>
-                    <div className="ml-5 w-0 flex-1">
-                      <dl>
-                        <dt className="text-sm font-medium text-gray-500 truncate">
-                          Nadadores
-                        </dt>
-                        <dd className="text-lg font-medium text-gray-900">
-                          Gestionar equipo
-                        </dd>
-                      </dl>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </Link>
-
-            <Link href="/competencias">
-              <div className="bg-white overflow-hidden shadow rounded-lg hover:shadow-md transition-shadow cursor-pointer">
-                <div className="p-5">
-                  <div className="flex items-center">
-                    <div className="flex-shrink-0">
-                      <div className="w-8 h-8 bg-green-100 rounded-md flex items-center justify-center">
-                        <CalendarIcon className="h-4 w-4 text-green-600" />
-                      </div>
-                    </div>
-                    <div className="ml-5 w-0 flex-1">
-                      <dl>
-                        <dt className="text-sm font-medium text-gray-500 truncate">
-                          Competencias
-                        </dt>
-                        <dd className="text-lg font-medium text-gray-900">
-                          Ver calendario
-                        </dd>
-                      </dl>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </Link>
-
-            <Link href="/resultados/registrar">
-              <div className="bg-white overflow-hidden shadow rounded-lg hover:shadow-md transition-shadow cursor-pointer border-l-4 border-l-green-500">
-                <div className="p-5">
-                  <div className="flex items-center">
-                    <div className="flex-shrink-0">
-                      <div className="w-8 h-8 bg-green-100 rounded-md flex items-center justify-center">
-                        <BarChartIcon className="h-4 w-4 text-green-600" />
-                      </div>
-                    </div>
-                    <div className="ml-5 w-0 flex-1">
-                      <dl>
-                        <dt className="text-sm font-medium text-gray-500 truncate">
-                          Resultados
-                        </dt>
-                        <dd className="text-lg font-medium text-gray-900">
-                          Registrar tiempos
-                        </dd>
-                      </dl>
-                    </div>
-                    <div className="flex-shrink-0">
-                      <span className="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-green-100 text-green-800">
-                        ¡Nuevo!
-                      </span>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </Link>
+          {/* Gráficos principales */}
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
+            <Top5Chart
+              initialFilters={apiFilters}
+              className="lg:col-span-1"
+            />
+            <PieChart
+              className="lg:col-span-1"
+            />
           </div>
 
-          {/* Widget de Próximas Competencias */}
+          {/* Listas y actividad */}
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
+            <ProximasCompetenciasList
+              className="lg:col-span-1"
+            />
+            <AtletasDestacadosList
+              className="lg:col-span-1"
+            />
+          </div>
+
+          {/* Actividad reciente */}
           <div className="mb-8">
-            <ProximasCompetencias />
+            <ActividadRecienteTable />
           </div>
 
           {/* Sección de módulos funcionales */}
@@ -202,7 +197,7 @@ function DashboardContent() {
                 resultadoId={14}
                 triggerText="🔍 Probar Modal Detalles"
                 triggerVariant="outline"
-                triggerClassName="border-blue-300 bg-blue-50 text-blue-700 hover:bg-blue-100 relative"
+                className="border-blue-300 bg-blue-50 text-blue-700 hover:bg-blue-100 relative"
               >
                 <span className="absolute -top-1 -right-1 inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-blue-600 text-white">
                   Demo
@@ -216,6 +211,24 @@ function DashboardContent() {
 
         </div>
       </div>
+
+      {/* Modal compartido vía URL */}
+      {sharedResultadoId && (
+        <ResultadoDetailModal
+          resultadoId={sharedResultadoId}
+          triggerText="Detalle Compartido"
+          triggerVariant="ghost"
+          className="hidden" // Trigger oculto, se abre automáticamente
+          autoOpen={true}
+          onClose={() => {
+            setSharedResultadoId(null);
+            // Limpiar query param de la URL
+            const url = new URL(window.location.href);
+            url.searchParams.delete('detalle');
+            window.history.replaceState({}, '', url.toString());
+          }}
+        />
+      )}
     </div>
   );
 }

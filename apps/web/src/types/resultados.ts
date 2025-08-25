@@ -303,19 +303,39 @@ export interface ResultadoListResponse {
   resultados: ResultadoResponse[];
 }
 
-/** Respuesta completa con segmentos */
-export interface ResultadoCompletoResponse extends ResultadoResponse {
-  segmentos: Array<{
-    id: number;
-    resultado_id: number;
-    indice: number;
-    estilo_segmento: EstiloSegmento;
-    distancia_m: number;
-    tiempo_cs: number;
-    brazadas: number;
-    flecha_m: number;
-    dist_sin_flecha_m: number;
-    velocidad_mps: number;
-    dist_por_brazada_m?: number;
-  }>;
+/** Segmento con campos calculados */
+export interface SegmentoResponse {
+  id: number;
+  resultado_id: number;
+  indice: number;
+  estilo_segmento: EstiloSegmento;
+  distancia_m: number;
+  tiempo_cs: number;
+  brazadas: number;
+  flecha_m: number;
+  dist_sin_flecha_m: number;
+  velocidad_mps: number;
+  dist_por_brazada_m?: number;
+  created_at: string;
+}
+
+/** Resumen global con métricas calculadas */
+export interface ResumenGlobal {
+  suma_parciales_cs: number;
+  desviacion_cs: number;
+  desviacion_absoluta_cs: number;
+  requiere_revision: boolean;
+  brazadas_totales: number;
+  flecha_total_m: number;
+  distancia_sin_flecha_total_m: number;
+  distancia_total_m: number;
+  velocidad_promedio_mps: number;
+  distancia_por_brazada_global_m?: number;
+}
+
+/** Respuesta completa del endpoint GET /resultados/{id} */
+export interface ResultadoCompletoResponse {
+  resultado: ResultadoResponse;
+  segmentos: SegmentoResponse[];
+  resumen_global: ResumenGlobal;
 }

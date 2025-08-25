@@ -39,6 +39,11 @@ import { TimeInput, SimpleTimeInput } from "./time-input"
 // PruebaSelector components removed - using PruebaSelectorSimplificado from @/components/pruebas
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "./tabs"
 import { Card, CardHeader, CardContent, CardTitle, CardDescription, CardFooter } from "./card"
+import { Skeleton } from "./skeleton"
+import { 
+  Select, SelectContent, SelectItem, SelectTrigger, 
+  SelectValue, SelectLabel, SelectGroup, SelectSeparator 
+} from "./select"
 
 // Re-exportar componentes
 export { ShadcnButton as Button, buttonVariants }
@@ -49,6 +54,7 @@ export { ShadcnCheckbox as Checkbox }
 export { ShadcnSlider as Slider }
 export { ShadcnBadge as Badge, badgeVariants }
 export { Card, CardHeader, CardContent, CardTitle, CardDescription, CardFooter }
+export { Skeleton }
 
 // Componentes Dialog y Table
 export { 
@@ -63,6 +69,10 @@ export {
 // Componentes especializados
 export { TimeInput, SimpleTimeInput }
 export { Tabs, TabsList, TabsTrigger, TabsContent }
+export { 
+  Select, SelectContent, SelectItem, SelectTrigger, 
+  SelectValue, SelectLabel, SelectGroup, SelectSeparator 
+}
 
 // Tipos derivados de los componentes (para compatibilidad)
 export type ButtonProps = React.ComponentProps<typeof ShadcnButton>

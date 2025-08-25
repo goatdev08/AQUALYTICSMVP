@@ -7,7 +7,7 @@ Incluye todos los routers de endpoints de la aplicación.
 from fastapi import APIRouter
 
 # Importar routers de endpoints
-from app.api.v1.endpoints import auth, catalogos, nadadores, competencias, resultados
+from app.api.v1.endpoints import auth, catalogos, nadadores, competencias, resultados, dashboard, analitica
 from app.api.deps import CurrentUser, create_user_response
 from app.schemas.auth import UsuarioResponse
 
@@ -68,7 +68,7 @@ api_router.include_router(catalogos.router, prefix="/catalogos", tags=["catálog
 api_router.include_router(nadadores.router, prefix="/nadadores", tags=["nadadores"])
 api_router.include_router(competencias.router, prefix="/competencias", tags=["competencias"])
 api_router.include_router(resultados.router, prefix="/resultados", tags=["resultados"])
+api_router.include_router(dashboard.router, prefix="/dashboard", tags=["dashboard"])
+api_router.include_router(analitica.router, prefix="/analitica", tags=["analítica"])
 
 # TODO: Incluir otros routers cuando estén implementados
-# api_router.include_router(dashboard.router, prefix="/dashboard", tags=["dashboard"])
-# api_router.include_router(analitica.router, prefix="/analitica", tags=["analítica"])

@@ -22,6 +22,7 @@ export interface UseAuthReturn {
   // Estado del usuario
   user: AppUser | null;
   session: any; // Session de Supabase
+  token: string | null; // Token de acceso para API calls
   isAuthenticated: boolean;
   
   // Estados de carga y error
@@ -226,6 +227,7 @@ export function useAuth(): UseAuthReturn {
     // Estado del usuario (ahora viene de TanStack Query, no AuthContext)
     user: userQuery.data ?? null,
     session: authContext.session,
+    token: authContext.session?.access_token ?? null,
     isAuthenticated: !!authContext.session && !!userQuery.data,
     
     // Estados combinados (incluye loading de la query)

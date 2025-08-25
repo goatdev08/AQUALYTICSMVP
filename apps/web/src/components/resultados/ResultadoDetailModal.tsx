@@ -27,7 +27,7 @@ import {
   Progress
 } from '@/components/ui';
 import { useResultado } from '@/hooks/useResultados';
-import { Eye, Clock, Users, Trophy, AlertTriangle, CheckCircle } from 'lucide-react';
+import { Eye, Clock, Trophy, AlertTriangle, CheckCircle } from 'lucide-react';
 import { SegmentosTable } from './SegmentosTable';
 import { ResumenGlobal } from './ResumenGlobal';
 import { formatTime, formatDate } from '@/lib/time-utils';
@@ -37,13 +37,19 @@ interface ResultadoDetailModalProps {
   triggerText?: string;
   triggerVariant?: 'default' | 'secondary' | 'outline' | 'ghost';
   className?: string;
+  autoOpen?: boolean;
+  onClose?: () => void;
+  children?: React.ReactNode;
 }
 
 export function ResultadoDetailModal({ 
   resultadoId, 
   triggerText = "Ver detalles",
   triggerVariant = "outline",
-  className 
+  className,
+  autoOpen = false,
+  onClose,
+  children
 }: ResultadoDetailModalProps) {
   const [isOpen, setIsOpen] = React.useState(false);
   
@@ -52,8 +58,20 @@ export function ResultadoDetailModal({
     isOpen // Solo cargar cuando el modal esté abierto
   );
 
+  // Auto-abrir modal si se especifica
+  React.useEffect(() => {
+    if (autoOpen) {
+      setIsOpen(true);
+    }
+  }, [autoOpen]);
+
   const handleOpenChange = (open: boolean) => {
     setIsOpen(open);
+    
+    // Llamar onClose cuando el modal se cierre
+    if (!open && onClose) {
+      onClose();
+    }
   };
 
   const getEstadoBadge = (estado: string) => {
@@ -96,16 +114,19 @@ export function ResultadoDetailModal({
 
   return (
     <Dialog open={isOpen} onOpenChange={handleOpenChange}>
-      <DialogTrigger asChild>
-        <Button 
-          variant={triggerVariant} 
-          size="sm" 
-          className={className}
-        >
-          <Eye className="w-4 h-4 mr-1" />
-          {triggerText}
-        </Button>
-      </DialogTrigger>
+      {!autoOpen && (
+        <DialogTrigger asChild>
+          <Button 
+            variant={triggerVariant} 
+            size="sm" 
+            className={className}
+          >
+            <Eye className="w-4 h-4 mr-1" />
+            {triggerText}
+            {children}
+          </Button>
+        </DialogTrigger>
+      )}
       
       <DialogContent className="max-w-6xl w-[95vw] h-[90vh] p-0 gap-0">
         <div className="flex flex-col h-full">
@@ -115,9 +136,31 @@ export function ResultadoDetailModal({
               <DialogTitle className="text-2xl font-bold text-green-900">
                 Detalle de Resultado
               </DialogTitle>
-              {isLoading && <Progress className="w-32" />}
+              <div className="flex items-center gap-3">
+                {isLoading && <Progress className="w-32" />}
+              </div>
             </div>
           </DialogHeader>
+
+          {/* Alerta de Inconsistencias Automática */}
+          {resultado && Math.abs(resultado.resultado.desviacion_parciales_cs) > 40 && (
+            <div className="px-6 pt-4">
+              <Alert variant="destructive" className="border-yellow-200 bg-yellow-50">
+                <AlertTriangle className="h-4 w-4" />
+                <div>
+                  <h4 className="font-medium text-yellow-800">
+                    ⚠️ Inconsistencias Detectadas en Tiempos
+                  </h4>
+                  <p className="text-sm text-yellow-700 mt-1">
+                    La desviación de <strong>{Math.abs(resultado.resultado.desviacion_parciales_cs)}cs</strong> excede 
+                    el límite aceptable de ±40cs. Esto indica posibles errores en la captura de tiempos parciales.
+                    <br />
+                    <span className="font-medium">Recomendación:</span> Verificar y corregir los tiempos de segmentos antes de usar este resultado para análisis.
+                  </p>
+                </div>
+              </Alert>
+            </div>
+          )}
 
           {/* Contenido Principal */}
           <div className="flex-1 overflow-auto">

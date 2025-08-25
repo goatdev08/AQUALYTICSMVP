@@ -9,6 +9,14 @@ export { default as useNadadorAnalytics } from './useNadadorAnalytics';
 export { default as useNadadores, useNadadores } from './useNadadores';
 export { default as usePruebas, usePruebas } from './usePruebas';
 export { 
+  useAnalitica, 
+  usePromedioEquipo, 
+  useComparacion,
+  estiloToApi,
+  cursoToApi,
+  ramaToApi
+} from './useAnalitica';
+export { 
   useCreateResultado, 
   useResultados, 
   useResultado, 
@@ -38,3 +46,14 @@ export type {
   NadadorFilters, 
   NadadorListResponse 
 } from './useNadadores';
+
+export type {
+  AnaliticaFilters,
+  SegmentoPromedio,
+  PromedioEquipoResponse,
+  ComparacionResponse,
+  ComparacionSegmento,
+  ResultadoComparacion,
+  NadadorInfo,
+  PruebaInfo
+} from './useAnalitica';

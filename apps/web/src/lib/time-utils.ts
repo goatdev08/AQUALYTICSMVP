@@ -171,3 +171,61 @@ export function csToSeconds(centiseconds: number): number {
   
   return centiseconds / 100
 }
+
+/**
+ * Alias para formatCsToTime - Convierte centésimas a formato mm:ss.cc.
+ * 
+ * Esta función existe para compatibilidad con componentes que esperan formatTime.
+ * 
+ * @param centiseconds - Tiempo en centésimas de segundo
+ * @returns String en formato "mm:ss.cc"
+ * 
+ * @example
+ * ```ts
+ * formatTime(8345)  // Returns "01:23.45"
+ * formatTime(3000)  // Returns "00:30.00" 
+ * ```
+ */
+export function formatTime(centiseconds: number | null | undefined): string {
+  if (centiseconds === null || centiseconds === undefined) {
+    return '-'
+  }
+  
+  return formatCsToTime(centiseconds)
+}
+
+/**
+ * Formatea una fecha en formato legible para la UI.
+ * 
+ * @param dateInput - Fecha como string ISO, Date object, o null
+ * @returns Fecha formateada en español o '-' si es null
+ * 
+ * @example
+ * ```ts
+ * formatDate("2024-01-15") // Returns "15 de enero, 2024"
+ * formatDate(null)         // Returns "-"
+ * ```
+ */
+export function formatDate(dateInput: string | Date | null | undefined): string {
+  if (!dateInput) {
+    return '-'
+  }
+  
+  try {
+    const date = typeof dateInput === 'string' ? new Date(dateInput) : dateInput
+    
+    // Verificar si la fecha es válida
+    if (isNaN(date.getTime())) {
+      return '-'
+    }
+    
+    // Formatear en español
+    return date.toLocaleDateString('es-ES', {
+      year: 'numeric',
+      month: 'long', 
+      day: 'numeric'
+    })
+  } catch {
+    return '-'
+  }
+}

@@ -114,11 +114,11 @@ const resultadoApi = {
   },
 
   /**
-   * Marcar resultado para revisión
+   * Alternar estado de revisión (valido ↔ revisar)
    */
-  marcarRevisar: async (id: number): Promise<ResultadoResponse> => {
-    return fetchWithAuth(`${API_BASE_URL}/api/v1/resultados/${id}/marcar-revisar`, {
-      method: 'POST',
+  marcarRevisar: async (id: number): Promise<{ success: boolean; nuevo_estado: string; message: string }> => {
+    return fetchWithAuth(`${API_BASE_URL}/api/v1/resultados/${id}/revisar`, {
+      method: 'PATCH',
     });
   },
 };
@@ -240,7 +240,12 @@ export function useMarcarRevisar() {
 /**
  * Verifica si un resultado necesita revisión
  */
-export function requiereRevision(resultado: ResultadoResponse): boolean {
+export function requiereRevision(resultado: ResultadoResponse | ResultadoCompletoResponse): boolean {
+  // Si es ResultadoCompletoResponse, acceder a la propiedad anidada
+  if ('resultado' in resultado) {
+    return resultado.resultado.estado_validacion === 'revisar';
+  }
+  // Si es ResultadoResponse directo
   return resultado.estado_validacion === 'revisar';
 }
 

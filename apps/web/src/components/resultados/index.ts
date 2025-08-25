@@ -20,6 +20,7 @@ export { PruebaSelectorSimplificado } from '@/components/pruebas';
 export { default as ResultadoDetailModal } from './ResultadoDetailModal';
 export { default as SegmentosTable } from './SegmentosTable';
 export { default as ResumenGlobal } from './ResumenGlobal';
+export { default as ResultadosTable } from './ResultadosTable';
 
 // Context y hook principal
 export { StepperProvider, useStepper } from '@/contexts/stepper-context';

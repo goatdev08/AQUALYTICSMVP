@@ -496,6 +496,8 @@ async def get_resultado_detalle(
     
     Utiliza la vista resultado_agregado validada para cálculos optimizados.
     """
+    import time
+    start_time = time.time()
     
     # 1. Verificar que el resultado existe y obtener datos básicos
     resultado_query = text("""
@@ -618,6 +620,15 @@ async def get_resultado_detalle(
     )
     
     # 5. Retornar respuesta completa
+    end_time = time.time()
+    execution_time = (end_time - start_time) * 1000  # en milisegundos
+    
+    logger.info(f"⏱️  GET /resultados/{resultado_id} ejecutado en {execution_time:.2f}ms")
+    
+    # Log performance warning si excede 300ms
+    if execution_time > 300:
+        logger.warning(f"🚨 PERFORMANCE: Endpoint tardó {execution_time:.2f}ms (>300ms target)")
+    
     return ResultadoCompletoResponse(
         resultado=resultado_response,
         segmentos=segmentos_response,
@@ -625,7 +636,284 @@ async def get_resultado_detalle(
     )
 
 
+@router.patch(
+    "/{resultado_id}/revisar",
+    response_model=dict,
+    summary="Cambiar estado de revisión",
+    description="Alterna el estado de validación entre 'valido' y 'revisar'"
+)
+async def toggle_estado_revision(
+    current_user: CurrentUser,
+    db: DatabaseDep,
+    resultado_id: int = Path(..., description="ID del resultado", gt=0)
+) -> dict:
+    """
+    Cambiar estado de revisión de un resultado.
+    
+    Alterna entre:
+    - 'valido' → 'revisar'  
+    - 'revisar' → 'valido'
+    
+    Solo entrenadores pueden cambiar el estado.
+    """
+    # Verificar permisos: solo entrenadores pueden cambiar estado
+    if current_user.get("role") != "entrenador":
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="Solo entrenadores pueden cambiar el estado de revisión"
+        )
+    
+    # Verificar que el resultado existe
+    resultado_query = text("""
+        SELECT id, estado_validacion, nadador_id
+        FROM resultado 
+        WHERE id = :resultado_id
+    """)
+    resultado = db.execute(resultado_query, {"resultado_id": resultado_id}).fetchone()
+    
+    if not resultado:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail=f"Resultado con ID {resultado_id} no encontrado"
+        )
+    
+    # Alternar estado
+    nuevo_estado = "revisar" if resultado.estado_validacion == "valido" else "valido"
+    
+    # Actualizar en base de datos
+    update_query = text("""
+        UPDATE resultado 
+        SET estado_validacion = :nuevo_estado, 
+            updated_at = CURRENT_TIMESTAMP
+        WHERE id = :resultado_id
+    """)
+    
+    try:
+        db.execute(update_query, {
+            "nuevo_estado": nuevo_estado,
+            "resultado_id": resultado_id
+        })
+        db.commit()
+        
+        logger.info(f"✅ Estado de resultado {resultado_id} cambiado a '{nuevo_estado}' por usuario {current_user.get('id', 'unknown')}")
+        
+        return {
+            "success": True,
+            "message": f"Estado cambiado a '{nuevo_estado}'",
+            "resultado_id": resultado_id,
+            "nuevo_estado": nuevo_estado,
+            "estado_anterior": resultado.estado_validacion
+        }
+        
+    except Exception as e:
+        db.rollback()
+        logger.error(f"❌ Error actualizando estado de resultado {resultado_id}: {e}")
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail="Error interno actualizando estado"
+        )
+
+
+@router.get(
+    "/",
+    response_model=ResultadoListResponse,
+    summary="Listar resultados con filtros avanzados",
+    description="Obtiene lista paginada de resultados con filtros múltiples y ordenamiento según PRD"
+)
+async def list_resultados(
+    current_user: CurrentUser,
+    db: DatabaseDep,
+    # Filtros avanzados
+    nadador_id: Optional[int] = Query(None, description="Filtrar por ID de nadador"),
+    competencia_id: Optional[int] = Query(None, description="Filtrar por ID de competencia"),
+    prueba_id: Optional[int] = Query(None, description="Filtrar por ID de prueba"),
+    rama: Optional[str] = Query(None, description="Filtrar por rama (F/M)"),
+    fecha_inicio: Optional[date] = Query(None, description="Fecha inicio del rango"),
+    fecha_fin: Optional[date] = Query(None, description="Fecha fin del rango"),
+    estado_validacion: Optional[str] = Query(None, description="Filtrar por estado (valido/revisar)"),
+    fase: Optional[str] = Query(None, description="Filtrar por fase"),
+    # Paginación
+    page: int = Query(1, ge=1, description="Número de página (base 1)"),
+    size: int = Query(20, ge=1, le=100, description="Tamaño de página (1-100)"),
+    # Ordenamiento
+    sort_by: str = Query("fecha_registro", description="Campo de ordenamiento"),
+    sort_order: str = Query("desc", description="Orden (asc/desc)")
+) -> ResultadoListResponse:
+    """
+    Listar resultados con filtros avanzados según PRD.
+    
+    Implementa:
+    - Filtros por prueba, competencia, nadador, rama, fechas, estado_validacion
+    - Ordenamiento por tiempo_global_cs, fecha_registro, nadador
+    - Paginación offset-based eficiente
+    - Respuesta optimizada para DataTable frontend
+    
+    Args:
+        current_user: Usuario autenticado
+        db: Sesión de base de datos
+        **filters: Filtros opcionales según ResultadoSearchFilters
+        page: Página actual (1-based)
+        size: Tamaño de página
+        sort_by: Campo de ordenamiento
+        sort_order: Dirección de ordenamiento
+        
+    Returns:
+        ResultadoListResponse: Lista paginada de resultados
+    """
+    import time
+    start_time = time.time()
+    
+    try:
+        # 1. Construir WHERE clause dinámico
+        where_conditions = []
+        query_params = {"equipo_id": current_user.equipo_id}
+        
+        # Solo mostrar resultados del equipo del usuario
+        where_conditions.append("r.nadador_id IN (SELECT id FROM nadador WHERE equipo_id = :equipo_id)")
+        
+        # Aplicar filtros opcionales
+        if nadador_id:
+            where_conditions.append("r.nadador_id = :nadador_id")
+            query_params["nadador_id"] = nadador_id
+            
+        if competencia_id:
+            where_conditions.append("r.competencia_id = :competencia_id")
+            query_params["competencia_id"] = competencia_id
+            
+        if prueba_id:
+            where_conditions.append("r.prueba_id = :prueba_id")
+            query_params["prueba_id"] = prueba_id
+            
+        if rama:
+            where_conditions.append("n.rama = :rama")
+            query_params["rama"] = rama
+            
+        if fecha_inicio:
+            where_conditions.append("r.fecha_registro >= :fecha_inicio")
+            query_params["fecha_inicio"] = fecha_inicio
+            
+        if fecha_fin:
+            where_conditions.append("r.fecha_registro <= :fecha_fin")
+            query_params["fecha_fin"] = fecha_fin
+            
+        if estado_validacion:
+            where_conditions.append("r.estado_validacion = :estado_validacion")
+            query_params["estado_validacion"] = estado_validacion
+            
+        if fase:
+            where_conditions.append("r.fase = :fase")
+            query_params["fase"] = fase
+        
+        # 2. Construir ORDER BY clause
+        valid_sort_fields = {
+            "tiempo_global_cs": "r.tiempo_global_cs",
+            "fecha_registro": "r.fecha_registro",
+            "nadador": "n.nombre_completo",
+            "competencia": "c.nombre",
+            "created_at": "r.created_at"
+        }
+        
+        sort_field = valid_sort_fields.get(sort_by, "r.fecha_registro")
+        sort_direction = "ASC" if sort_order.lower() == "asc" else "DESC"
+        order_clause = f"{sort_field} {sort_direction}"
+        
+        # 3. Query principal para contar total
+        where_clause = " AND ".join(where_conditions)
+        count_query = text(f"""
+            SELECT COUNT(*) as total
+            FROM resultado r
+            INNER JOIN nadador n ON r.nadador_id = n.id
+            INNER JOIN competencia c ON r.competencia_id = c.id
+            INNER JOIN prueba p ON r.prueba_id = p.id
+            WHERE {where_clause}
+        """)
+        
+        total_result = db.execute(count_query, query_params).fetchone()
+        total = total_result.total if total_result else 0
+        
+        # 4. Query principal con paginación
+        offset = (page - 1) * size
+        query_params["limit"] = size
+        query_params["offset"] = offset
+        
+        main_query = text(f"""
+            SELECT 
+                r.id, r.nadador_id, r.competencia_id, r.prueba_id, r.fase,
+                r.fecha_registro, r.tiempo_global_cs, r.tiempo_15m_cs,
+                r.categoria_label, r.estado_validacion, r.desviacion_parciales_cs,
+                r.capturado_por, r.created_at, r.updated_at,
+                -- Datos contextuales para UI
+                n.nombre_completo as nadador_nombre,
+                n.rama as nadador_rama,
+                c.nombre as competencia_nombre,
+                c.curso as competencia_curso,
+                p.estilo as prueba_estilo,
+                p.distancia as prueba_distancia,
+                p.curso as prueba_curso,
+                -- Usuario que capturó
+                u.email as capturado_por_email
+            FROM resultado r
+            INNER JOIN nadador n ON r.nadador_id = n.id
+            INNER JOIN competencia c ON r.competencia_id = c.id
+            INNER JOIN prueba p ON r.prueba_id = p.id
+            LEFT JOIN usuario u ON r.capturado_por = u.id
+            WHERE {where_clause}
+            ORDER BY {order_clause}
+            LIMIT :limit OFFSET :offset
+        """)
+        
+        resultados_raw = db.execute(main_query, query_params).fetchall()
+        
+        # 5. Construir respuesta
+        resultados = []
+        for row in resultados_raw:
+            resultado_response = ResultadoResponse(
+                id=row.id,
+                nadador_id=row.nadador_id,
+                competencia_id=row.competencia_id,
+                prueba_id=row.prueba_id,
+                fase=row.fase,
+                fecha_registro=row.fecha_registro,
+                tiempo_global_cs=row.tiempo_global_cs,
+                tiempo_15m_cs=row.tiempo_15m_cs,
+                categoria_label=row.categoria_label,
+                estado_validacion=row.estado_validacion,
+                desviacion_parciales_cs=row.desviacion_parciales_cs,
+                capturado_por=row.capturado_por,
+                created_at=row.created_at,
+                updated_at=row.updated_at
+            )
+            resultados.append(resultado_response)
+        
+        # 6. Metadatos de paginación
+        total_pages = (total + size - 1) // size  # Ceiling division
+        
+        response = ResultadoListResponse(
+            resultados=resultados,
+            total=total,
+            page=page,
+            size=size,
+            total_pages=total_pages
+        )
+        
+        # 7. Logging de performance
+        end_time = time.time()
+        execution_time = (end_time - start_time) * 1000
+        
+        logger.info(f"⏱️  GET /resultados ejecutado en {execution_time:.2f}ms | Filtros: {len([f for f in [nadador_id, competencia_id, prueba_id, rama, fecha_inicio, fecha_fin, estado_validacion, fase] if f])} | Total: {total}")
+        
+        if execution_time > 500:
+            logger.warning(f"🚨 PERFORMANCE: Listado tardó {execution_time:.2f}ms (>500ms target)")
+        
+        return response
+        
+    except Exception as e:
+        logger.error(f"❌ Error listando resultados: {e}")
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail="Error interno obteniendo lista de resultados"
+        )
+
+
 # TODO: Implementar otros endpoints según PRD
-# - GET /resultados (listado con filtros)
 # - PATCH /resultados/{id} (edición)
-# - POST /resultados/{id}/marcar-revisar (cambiar estado)

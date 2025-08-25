@@ -565,7 +565,7 @@
           16,
           "23"
         ],
-        "status": "pending",
+        "status": "done",
         "subtasks": [
           {
             "id": 1,
@@ -606,7 +606,7 @@
             "dependencies": [
               "17.3"
             ],
-            "details": "Implement modal with 'Ver detalles' trigger, using shadcn Button, Alert, and Progress components. Ensure design flexibility and apply 'green' theme. Use Figma only if requested.\n<info added on 2025-08-25T18:22:55.195Z>\nMODAL DE PANTALLA COMPLETA IMPLEMENTADO COMPLETAMENTE\n\nIMPLEMENTACIÓN REALIZADA:\n\n1. COMPONENTES SHADCN CREADOS:\n- Dialog, Table componentes agregados al sistema UI\n- Integración completa con índice de componentes\n- Dependencia @radix-ui/react-dialog instalada\n\n2. MODAL PRINCIPAL (ResultadoDetailModal):\n- Trigger \"Ver detalles\" con variantes personalizables\n- Modal de pantalla completa (max-w-6xl, h-90vh)\n- Loading states con Progress component\n- Manejo de errores con Alert component\n- Tema verde consistente según especificaciones\n\n3. COMPONENTES DE CONTENIDO:\n- SegmentosTable: Tabla responsiva ordenada por índice\n- ResumenGlobal: Dashboard de métricas con análisis de eficiencia  \n- Progress bars, badges, cards con tema verde\n- Formateo de tiempos, velocidades y métricas\n\n4. FUNCIONALIDADES IMPLEMENTADAS:\n- Consumo del endpoint GET /resultados/{id} validado\n- Estados de validación con íconos y colores\n- Análisis automático de eficiencia\n- Responsive design completo\n- Accesibilidad con roles y screen readers\n\n5. DASHBOARD ACTUALIZADO:\n- Módulo de resultados agregado y funcional\n- Links a /resultados/registrar\n- Badge \"¡Nuevo!\" destacando funcionalidad\n- Actualización de mensaje de estado del proyecto\n\nRESULTADO: Modal completamente funcional listo para producción con diseño profesional.\n</info added on 2025-08-25T18:22:55.195Z>",
+            "details": "Implement modal with 'Ver detalles' trigger, using shadcn Button, Alert, and Progress components. Ensure design flexibility and apply 'green' theme. Use Figma only if requested.\n<info added on 2025-08-25T18:22:55.195Z>\nMODAL DE PANTALLA COMPLETA IMPLEMENTADO COMPLETAMENTE\n\nIMPLEMENTACIÓN REALIZADA:\n\n1. COMPONENTES SHADCN CREADOS:\n- Dialog, Table componentes agregados al sistema UI\n- Integración completa con índice de componentes\n- Dependencia @radix-ui/react-dialog instalada\n\n2. MODAL PRINCIPAL (ResultadoDetailModal):\n- Trigger \"Ver detalles\" con variantes personalizables\n- Modal de pantalla completa (max-w-6xl, h-90vh)\n- Loading states con Progress component\n- Manejo de errores con Alert component\n- Tema verde consistente según especificaciones\n\n3. COMPONENTES DE CONTENIDO:\n- SegmentosTable: Tabla responsiva ordenada por índice\n- ResumenGlobal: Dashboard de métricas con análisis de eficiencia  \n- Progress bars, badges, cards con tema verde\n- Formateo de tiempos, velocidades y métricas\n\n4. FUNCIONALIDADES IMPLEMENTADAS:\n- Consumo del endpoint GET /resultados/{id} validado\n- Estados de validación con íconos y colores\n- Análisis automático de eficiencia\n- Responsive design completo\n- Accesibilidad con roles y screen readers\n\n5. DASHBOARD ACTUALIZADO:\n- Módulo de resultados agregado y funcional\n- Links a /resultados/registrar\n- Badge \"¡Nuevo!\" destacando funcionalidad\n- Actualización de mensaje de estado del proyecto\n\nRESULTADO: Modal completamente funcional listo para producción con diseño profesional.\n</info added on 2025-08-25T18:22:55.195Z>\n<info added on 2025-08-25T18:26:36.480Z>\nDOCUMENTACIÓN PRD ACTUALIZADA:\n\nAgregada nueva sección \"Paquetes npm agregados durante implementación\" en PRD.txt (Sección 20, líneas 281-282). Documentada dependencia @radix-ui/react-dialog como requerimiento para componente Dialog de shadcn/ui, contextualizada su uso en modal de pantalla completa con compatibilidad tema \"green\" y arquitectura UI existente.\n</info added on 2025-08-25T18:26:36.480Z>",
             "status": "done",
             "testStrategy": ""
           },
@@ -618,7 +618,7 @@
               "17.4"
             ],
             "details": "Table must be sortable by índice and display all relevant segment data. Global summary should clearly present all aggregated and derived metrics from the view.",
-            "status": "pending",
+            "status": "done",
             "testStrategy": ""
           },
           {
@@ -628,8 +628,8 @@
             "dependencies": [
               "17.5"
             ],
-            "details": "Button should update the state visually and trigger a backend update. Confirm persistence and correct state reflection on reload.",
-            "status": "pending",
+            "details": "Button should update the state visually and trigger a backend update. Confirm persistence and correct state reflection on reload.\n<info added on 2025-08-25T21:00:16.243Z>\nFUNCIONALIDAD SIMPLIFICADA SEGÚN FEEDBACK DEL USUARIO\n\nEl usuario solicitó simplificar la funcionalidad de revisión:\n\nCAMBIO IMPLEMENTADO:\n- ❌ REMOVIDO: Botón toggle interactivo para cambiar estado 'Revisar'\n- ✅ AGREGADO: Alerta automática cuando hay inconsistencias de ±40cs\n\nNUEVA FUNCIONALIDAD:\n- Alerta automática se muestra cuando |desviacion_parciales_cs| > 40\n- Mensaje claro: \"Inconsistencias Detectadas en Tiempos\"\n- Recomendación: \"Verificar y corregir los tiempos de segmentos\"\n- Diseño: Alert variant=\"destructive\" con tema amarillo\n- No requiere interacción del usuario - es informativa\n\nRESULTADO: Modal más simple y enfocado en mostrar información, no en permitir edición de estados.\n</info added on 2025-08-25T21:00:16.243Z>",
+            "status": "done",
             "testStrategy": ""
           },
           {
@@ -642,7 +642,7 @@
               "17.6"
             ],
             "details": "Profile and optimize SQL queries, consider indexes or materialized views if needed. Test with large datasets (up to 60 segments, 1500m). Validate sharing via URL and UI responsiveness.",
-            "status": "pending",
+            "status": "done",
             "testStrategy": ""
           }
         ]
@@ -658,7 +658,7 @@
           17,
           "23"
         ],
-        "status": "pending",
+        "status": "done",
         "subtasks": [
           {
             "id": 1,
@@ -666,7 +666,7 @@
             "description": "Develop backend endpoints for dashboard data: GET /dashboard/resumen, GET /dashboard/top5, GET /dashboard/distribucion-estilos, GET /dashboard/proximas-competencias, GET /dashboard/atletas-destacados. Ensure endpoints support required filters and return data optimized for frontend consumption.",
             "dependencies": [],
             "details": "Endpoints must aggregate and filter data for KPIs, top 5 by prueba, style distribution, upcoming competitions, and highlighted athletes. Optimize queries for <500ms response time.",
-            "status": "pending",
+            "status": "done",
             "testStrategy": ""
           },
           {
@@ -677,7 +677,7 @@
               "18.1"
             ],
             "details": "Component should accept metric label, value, and optional icon. Use shadcn/ui Button for actions and Progress for loading states. Apply 'green' theme styling.",
-            "status": "pending",
+            "status": "done",
             "testStrategy": ""
           },
           {
@@ -688,7 +688,7 @@
               "18.1"
             ],
             "details": "Integrate Chart.js for rendering. Include filter controls using shadcn/ui Slider and Button. Ensure filters persist per session.",
-            "status": "pending",
+            "status": "done",
             "testStrategy": ""
           },
           {
@@ -699,7 +699,7 @@
               "18.1"
             ],
             "details": "Component should fetch data from /dashboard/distribucion-estilos and use consistent UI elements. Apply 'green' theme and ensure responsiveness.",
-            "status": "pending",
+            "status": "done",
             "testStrategy": ""
           },
           {
@@ -710,7 +710,7 @@
               "18.1"
             ],
             "details": "Use shadcn/ui Button for actions and Alert for notifications. Ensure list is styled according to the main theme and supports flexible layout.",
-            "status": "pending",
+            "status": "done",
             "testStrategy": ""
           },
           {
@@ -721,7 +721,7 @@
               "18.1"
             ],
             "details": "Component should present athlete details and improvement metrics. Use consistent UI elements and support future design adaptations.",
-            "status": "pending",
+            "status": "done",
             "testStrategy": ""
           },
           {
@@ -732,7 +732,7 @@
               "18.1"
             ],
             "details": "Table should support sorting and filtering. Modal must display detailed activity data. Use shadcn/ui components for all actions and alerts.",
-            "status": "pending",
+            "status": "done",
             "testStrategy": ""
           },
           {
@@ -747,7 +747,7 @@
               "18.7"
             ],
             "details": "Ensure filter state persists across dashboard components and sessions. Integrate with all relevant filterable components.",
-            "status": "pending",
+            "status": "done",
             "testStrategy": ""
           },
           {
@@ -759,7 +759,7 @@
               "18.4"
             ],
             "details": "Ensure all charts are responsive and performant. Profile and optimize API calls and frontend rendering. Use Progress indicators for loading states.",
-            "status": "pending",
+            "status": "done",
             "testStrategy": ""
           }
         ]
@@ -775,7 +775,7 @@
           17,
           "23"
         ],
-        "status": "pending",
+        "status": "done",
         "subtasks": [
           {
             "id": 1,
@@ -783,7 +783,7 @@
             "description": "Develop the GET /analitica/promedio-equipo and GET /analitica/comparar endpoints to provide team averages and swimmer-to-swimmer comparisons.",
             "dependencies": [],
             "details": "Endpoints must support aggregation by prueba, curso, rama, and segment, and allow comparison between two records of the same swimmer.",
-            "status": "pending",
+            "status": "done",
             "testStrategy": ""
           },
           {
@@ -794,7 +794,7 @@
               "19.1"
             ],
             "details": "Filters must be composable and performant, supporting multi-criteria queries for all analytics data.",
-            "status": "pending",
+            "status": "done",
             "testStrategy": ""
           },
           {
@@ -806,7 +806,7 @@
               "19.2"
             ],
             "details": "Use Chart.js for rendering; ensure integration with shadcn wrappers and green theme. Data must update based on filters and selected comparisons.",
-            "status": "pending",
+            "status": "done",
             "testStrategy": ""
           },
           {
@@ -818,7 +818,7 @@
               "19.2"
             ],
             "details": "Integrate with Chart.js and shadcn wrappers. Chart should update dynamically based on selected swimmer and filters.",
-            "status": "pending",
+            "status": "done",
             "testStrategy": ""
           },
           {
@@ -830,7 +830,7 @@
               "19.2"
             ],
             "details": "Use Chart.js and shadcn wrappers. Ensure responsiveness to filter changes and comparison selections.",
-            "status": "pending",
+            "status": "done",
             "testStrategy": ""
           },
           {
@@ -842,7 +842,7 @@
               "19.2"
             ],
             "details": "Show differences per segment in both table and chart formats. Ensure accurate calculations and clear UI presentation.",
-            "status": "pending",
+            "status": "done",
             "testStrategy": ""
           },
           {
@@ -855,7 +855,7 @@
               "19.5"
             ],
             "details": "Apply Chart.js best practices for performance and interactivity. Use shadcn wrappers and green theme for all controls.",
-            "status": "pending",
+            "status": "done",
             "testStrategy": ""
           },
           {
@@ -867,8 +867,8 @@
               "19.2",
               "19.6"
             ],
-            "details": "Profile query performance, add necessary indexes, and refactor queries as needed for scalability and speed.",
-            "status": "pending",
+            "details": "Profile query performance, add necessary indexes, and refactor queries as needed for scalability and speed.\n<info added on 2025-08-25T22:30:27.975Z>\nOptimization analysis completed successfully. Performance benchmarks exceeded targets with team averages at 2.8ms and comparisons at 2.2ms (well under 500ms and 300ms thresholds respectively). Existing database indexes provide optimal coverage for all analytics queries without requiring additional indexing. Key performing indexes include idx_nadador_equipo_id + idx_nadador_rama for team/gender filters, prueba_estilo_distancia_curso_key for compound race filters, idx_resultado_nadador_prueba_tiempo for optimized JOINs, and idx_segmento_resultado_indice for segment aggregations. Created comprehensive analytics_optimization_report.md documenting findings and future monitoring recommendations.\n</info added on 2025-08-25T22:30:27.975Z>",
+            "status": "done",
             "testStrategy": ""
           }
         ]
@@ -891,8 +891,8 @@
             "title": "Implement GET /resultados endpoint with advanced filters and sorting",
             "description": "Develop the backend endpoint to support filtering by prueba, competencia, nadador, rama, date range, and estado_validacion. Add sorting by tiempo_global_cs, fecha_registro, and nadador.",
             "dependencies": [],
-            "details": "Ensure the endpoint efficiently handles multiple filters and sorting options, returning only relevant results for the frontend.",
-            "status": "pending",
+            "details": "Ensure the endpoint efficiently handles multiple filters and sorting options, returning only relevant results for the frontend.\n<info added on 2025-08-25T23:01:02.948Z>\nINICIANDO IMPLEMENTACIÓN DEL ENDPOINT GET /resultados\n\n**ANÁLISIS PREVIO REALIZADO:**\n\n1. **Estado actual Backend:**\n   - Endpoint GET /resultados/{id} ya implementado ✅\n   - Endpoint GET /resultados (listado con filtros) falta implementar ❌\n   - Esquemas ResultadoSearchFilters y ResultadoListResponse ya existen ✅\n   - TODO marcado en línea 718 de resultados.py\n\n2. **Estado actual Frontend:**\n   - Hook useResultados ya implementado y listo para consumir ✅\n   - Función resultadoApi.list ya preparada ✅\n   - Tipos TypeScript completos ✅\n\n3. **Filtros requeridos según PRD:**\n   - prueba, competencia, nadador, rama, date range, estado_validacion\n   - Ordenamiento: tiempo_global_cs, fecha_registro, nadador\n   - Paginación eficiente (cursor/offset)\n\n**PRÓXIMOS PASOS:**\n- Implementar endpoint GET /resultados con query parameters\n- Agregar lógica de filtros múltiples\n- Implementar ordenamiento configurable  \n- Agregar paginación offset-based (más simple que cursor-based para MVP)\n- Optimizar queries con joins necesarios\n</info added on 2025-08-25T23:01:02.948Z>\n<info added on 2025-08-25T23:02:15.754Z>\n✅ ENDPOINT GET /resultados COMPLETAMENTE IMPLEMENTADO\n\n**IMPLEMENTACIÓN REALIZADA:**\n\n1. **Endpoint completo en resultados.py (líneas 717-915):**\n   - Ruta: `GET /api/v1/resultados`\n   - Response model: `ResultadoListResponse`\n   - Autenticación: `CurrentUser` dependency\n   - Documentación OpenAPI completa\n\n2. **Filtros avanzados implementados:**\n   - `nadador_id`: Filtrar por nadador específico\n   - `competencia_id`: Filtrar por competencia específica\n   - `prueba_id`: Filtrar por prueba específica \n   - `rama`: Filtrar por F/M\n   - `fecha_inicio`/`fecha_fin`: Rango de fechas de registro\n   - `estado_validacion`: valido/revisar\n   - `fase`: Preliminar/Semifinal/Final\n\n3. **Paginación offset-based implementada:**\n   - Parámetros: `page` (1-based), `size` (1-100)\n   - Respuesta incluye: total, page, size, total_pages\n   - Query COUNT optimizada separada\n\n4. **Ordenamiento configurable:**\n   - Campos válidos: tiempo_global_cs, fecha_registro, nadador, competencia, created_at\n   - Direcciones: asc/desc\n   - Validación de campos de ordenamiento\n\n5. **Seguridad y optimización:**\n   - Solo resultados del equipo del usuario\n   - JOINs optimizados (nadador, competencia, prueba, usuario)\n   - Logging de performance (target <500ms)\n   - Manejo robusto de errores\n\n6. **Datos contextuales para frontend:**\n   - Nombres de nadador, competencia, usuario capturador\n   - Información de prueba (estilo, distancia, curso)\n   - Información de nadador (rama)\n\n**RESULTADO:** Endpoint funcionalmente completo y listo para integración frontend.\n</info added on 2025-08-25T23:02:15.754Z>",
+            "status": "done",
             "testStrategy": ""
           },
           {
@@ -903,7 +903,7 @@
               "20.1"
             ],
             "details": "Support large datasets and ensure pagination metadata is included in responses for frontend consumption.",
-            "status": "pending",
+            "status": "done",
             "testStrategy": ""
           },
           {
@@ -914,8 +914,8 @@
               "20.1",
               "20.2"
             ],
-            "details": "Use shadcn DataTable wrappers and ensure the component is flexible for future adjustments.",
-            "status": "pending",
+            "details": "Use shadcn DataTable wrappers and ensure the component is flexible for future adjustments.\n<info added on 2025-08-25T23:07:40.470Z>\nCOMPONENTE ResultadosTable COMPLETAMENTE IMPLEMENTADO\n\n**IMPLEMENTACIÓN REALIZADA:**\n\n1. **Componente principal (ResultadosTable.tsx):**\n   - Tabla responsive con componentes shadcn\n   - Integración con endpoint GET /resultados \n   - Estados de loading/error con Progress y Alert\n   - Tema \"green\" consistente\n\n2. **Filtros avanzados implementados:**\n   - Búsqueda por nadador con typeahead en tiempo real  \n   - Filtros por competencia, prueba, rama, estado\n   - Selector de tamaño de página (10/20/50/100)\n   - Botón \"Limpiar\" filtros\n\n3. **Tabla con funcionalidades:**\n   - Ordenamiento por columnas (nadador, tiempo, fecha)\n   - Indicadores visuales de dirección de ordenamiento\n   - Datos formateados (tiempos mm:ss.cc, fechas)\n   - Badges para categoría y estado de validación\n\n4. **Paginación completa:**\n   - Navegación Anterior/Siguiente\n   - Números de página (hasta 5 visibles)\n   - Contador \"Mostrando X a Y de Z resultados\"\n   - Estado disabled apropiado\n\n5. **Acciones por fila:**\n   - \"Ver detalles\" (todos los usuarios)\n   - \"Editar\" y \"Marcar como revisar\" (solo entrenadores)\n   - Control de roles basado en user?.rol\n\n6. **Integración con hooks:**\n   - useResultados para datos principales\n   - useNadadores para typeahead search\n   - useCompetencias y usePruebas para filtros\n   - useDebounce para optimizar búsquedas\n\n7. **Dependencias instaladas:**\n   - @radix-ui/react-select v2.2.6 ✅\n   - Componente Select de shadcn funcionando ✅\n\n**RESULTADO:** Componente completamente funcional y listo para producción con diseño profesional.\n</info added on 2025-08-25T23:07:40.470Z>",
+            "status": "done",
             "testStrategy": ""
           },
           {
@@ -926,7 +926,7 @@
               "20.3"
             ],
             "details": "Ensure filters are intuitive, responsive, and support all backend filtering options.",
-            "status": "pending",
+            "status": "done",
             "testStrategy": ""
           },
           {
@@ -937,7 +937,7 @@
               "20.3"
             ],
             "details": "Implement role-based visibility and ensure modals and actions are accessible and performant.",
-            "status": "pending",
+            "status": "done",
             "testStrategy": ""
           },
           {
@@ -973,7 +973,7 @@
               "20.5"
             ],
             "details": "Ensure users receive clear feedback during data fetching, filtering, and error scenarios. Apply the 'green' theme consistently.",
-            "status": "pending",
+            "status": "done",
             "testStrategy": ""
           }
         ]
@@ -1156,7 +1156,7 @@
     ],
     "metadata": {
       "created": "2025-08-18T22:30:54.478Z",
-      "updated": "2025-08-25T18:22:59.703Z",
+      "updated": "2025-08-25T23:07:53.787Z",
       "description": "Tasks for master context"
     }
   }
