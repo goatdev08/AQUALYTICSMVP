@@ -10,6 +10,7 @@
 import { ProtectedRoute } from '@/components/auth';
 import { useAuth } from '@/hooks/useAuth';
 import { ProximasCompetencias } from '@/components/competencias';
+import { ResultadoDetailModal } from '@/components/resultados';
 import { LoaderIcon, CalendarIcon, UsersIcon, BarChartIcon } from 'lucide-react';
 import Link from 'next/link';
 
@@ -195,6 +196,18 @@ function DashboardContent() {
                   ¡Nuevo!
                 </span>
               </Link>
+              
+              {/* BOTÓN DE PRUEBA DEL MODAL - Resultado ID 14 */}
+              <ResultadoDetailModal 
+                resultadoId={14}
+                triggerText="🔍 Probar Modal Detalles"
+                triggerVariant="outline"
+                triggerClassName="border-blue-300 bg-blue-50 text-blue-700 hover:bg-blue-100 relative"
+              >
+                <span className="absolute -top-1 -right-1 inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-blue-600 text-white">
+                  Demo
+                </span>
+              </ResultadoDetailModal>
             </div>
             <p className="mt-2 text-xs text-gray-500">
               Acceso directo a los módulos funcionales de AquaLytics
