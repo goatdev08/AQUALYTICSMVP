@@ -8,6 +8,7 @@ from .catalogos import Prueba
 from .user import Usuario
 from .nadador import Nadador
 from .competencia import Competencia
+from .resultado import Resultado, Segmento, FaseEnum, EstadoValidacionEnum, EstiloSegmentoEnum
 
 __all__ = [
     # Modelos de catálogos
@@ -18,4 +19,10 @@ __all__ = [
     "Nadador",
     # Modelos de competencias
     "Competencia",
+    # Modelos de resultados
+    "Resultado",
+    "Segmento",
+    "FaseEnum",
+    "EstadoValidacionEnum", 
+    "EstiloSegmentoEnum",
 ]

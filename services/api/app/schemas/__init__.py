@@ -38,6 +38,19 @@ from .competencia import (
     CompetenciaSelector,
     CursoEnum,
 )
+from .resultado import (
+    ResultadoCreate,
+    ResultadoResponse,
+    ResultadoCompletoResponse,
+    ResultadoSearchFilters,
+    ResultadoListResponse,
+    SegmentoCreate,
+    SegmentoResponse,
+    ResumenGlobal,
+    FaseEnum,
+    EstadoValidacionEnum,
+    EstiloSegmentoEnum,
+)
 
 __all__ = [
     # Autenticación
@@ -70,4 +83,16 @@ __all__ = [
     "CompetenciaSearchFilters",
     "CompetenciaSelector",
     "CursoEnum",
+    # Resultados
+    "ResultadoCreate",
+    "ResultadoResponse",
+    "ResultadoCompletoResponse",
+    "ResultadoSearchFilters",
+    "ResultadoListResponse",
+    "SegmentoCreate",
+    "SegmentoResponse",
+    "ResumenGlobal",
+    "FaseEnum",
+    "EstadoValidacionEnum",
+    "EstiloSegmentoEnum",
 ]

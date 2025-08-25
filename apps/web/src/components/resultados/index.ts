@@ -14,6 +14,7 @@ export { CompetenciaFormStepper } from './pasos/CompetenciaFormStepper';
 
 // Componentes reutilizables integrados
 export { NadadorSelector } from '@/components/nadadores';
+export { PruebaSelectorSimplificado } from '@/components/pruebas';
 
 // Context y hook principal
 export { StepperProvider, useStepper } from '@/contexts/stepper-context';

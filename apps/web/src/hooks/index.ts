@@ -8,6 +8,17 @@ export { useDebounce } from './useDebounce';
 export { default as useNadadorAnalytics } from './useNadadorAnalytics';
 export { default as useNadadores, useNadadores } from './useNadadores';
 export { default as usePruebas, usePruebas } from './usePruebas';
+export { 
+  useCreateResultado, 
+  useResultados, 
+  useResultado, 
+  useUpdateResultado, 
+  useMarcarRevisar,
+  requiereRevision,
+  calcularPorcentajeDesviacion,
+  formatearTiempo,
+  parsearTiempo
+} from './useResultados';
 
 // Exportar tipos
 export type { 

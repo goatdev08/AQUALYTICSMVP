@@ -279,3 +279,43 @@ export interface ResultadoResponse {
   // Resumen calculado por el backend
   resumen: ResumenPrevisualizacion;
 }
+
+// =====================
+// Tipos adicionales para hooks
+// =====================
+
+/** Filtros de búsqueda para resultados */
+export interface ResultadoSearchFilters {
+  nadador_id?: number;
+  competencia_id?: number;
+  prueba_id?: number;
+  fase?: FaseCompetencia;
+  rama?: 'F' | 'M';
+  fecha_inicio?: string;
+  fecha_fin?: string;
+  estado_validacion?: EstadoValidacion;
+  capturado_por?: number;
+}
+
+/** Lista paginada de resultados */
+export interface ResultadoListResponse {
+  total: number;
+  resultados: ResultadoResponse[];
+}
+
+/** Respuesta completa con segmentos */
+export interface ResultadoCompletoResponse extends ResultadoResponse {
+  segmentos: Array<{
+    id: number;
+    resultado_id: number;
+    indice: number;
+    estilo_segmento: EstiloSegmento;
+    distancia_m: number;
+    tiempo_cs: number;
+    brazadas: number;
+    flecha_m: number;
+    dist_sin_flecha_m: number;
+    velocidad_mps: number;
+    dist_por_brazada_m?: number;
+  }>;
+}

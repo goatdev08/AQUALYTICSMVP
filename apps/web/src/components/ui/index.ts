@@ -22,14 +22,11 @@ import { Alert as ShadcnAlert, AlertDescription, AlertTitle } from "./alert"
 import { Progress as ShadcnProgress } from "./progress"
 import { Checkbox as ShadcnCheckbox } from "./checkbox"
 import { Slider as ShadcnSlider } from "./slider"
+import { Badge as ShadcnBadge, badgeVariants } from "./badge"
 
 // Componentes especializados de AquaLytics
 import { TimeInput, SimpleTimeInput } from "./time-input"
-import { 
-  PruebaSelector, 
-  SimplePruebaSelector, 
-  CascadingPruebaSelector 
-} from "./prueba-selector"
+// PruebaSelector components removed - using PruebaSelectorSimplificado from @/components/pruebas
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "./tabs"
 import { Card, CardHeader, CardContent, CardTitle, CardDescription, CardFooter } from "./card"
 
@@ -40,11 +37,11 @@ export { ShadcnAlert as Alert, AlertDescription, AlertTitle }
 export { ShadcnProgress as Progress }
 export { ShadcnCheckbox as Checkbox }
 export { ShadcnSlider as Slider }
+export { ShadcnBadge as Badge, badgeVariants }
 export { Card, CardHeader, CardContent, CardTitle, CardDescription, CardFooter }
 
 // Componentes especializados
 export { TimeInput, SimpleTimeInput }
-export { PruebaSelector, SimplePruebaSelector, CascadingPruebaSelector }
 export { Tabs, TabsList, TabsTrigger, TabsContent }
 
 // Tipos derivados de los componentes (para compatibilidad)
@@ -54,10 +51,10 @@ export type AlertProps = React.ComponentProps<typeof ShadcnAlert>
 export type ProgressProps = React.ComponentProps<typeof ShadcnProgress>
 export type CheckboxProps = React.ComponentProps<typeof ShadcnCheckbox>
 export type SliderProps = React.ComponentProps<typeof ShadcnSlider>
+export type BadgeProps = React.ComponentProps<typeof ShadcnBadge>
 
 // Tipos de componentes especializados
 export type { TimeInputProps } from "./time-input"
-export type { PruebaSelectorProps } from "./prueba-selector"
 
 // ============================================================================
 // WRAPPERS CON MAPEO FIGMA (OPCIONAL)

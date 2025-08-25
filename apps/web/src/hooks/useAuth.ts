@@ -90,7 +90,8 @@ export function useAuth(): UseAuthReturn {
 
       const token = authContext.session.access_token;
       
-               const response = await fetch('http://localhost:8000/api/v1/me', {
+               const API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL || 'http://localhost:8000';
+      const response = await fetch(`${API_BASE_URL}/api/v1/me`, {
            method: 'GET',
            headers: {
              'Authorization': `Bearer ${token}`,

@@ -314,14 +314,11 @@ export function StepperNavigation({
                 <ChevronRight className="w-4 h-4" />
               </Button>
             ) : (
-              <Button
-                onClick={handleSiguiente}
-                disabled={tieneErrores}
-                className="flex items-center gap-2 bg-green-600 hover:bg-green-700"
-              >
-                <Check className="w-4 h-4" />
-                Finalizar
-              </Button>
+              // En el paso final, no mostramos botón de navegación
+              // El botón de guardado específico está en PasoSegmentos
+              <div className="text-sm text-gray-600 italic">
+                Usa el botón "Guardar Resultado" para finalizar
+              </div>
             )}
           </div>
         </div>

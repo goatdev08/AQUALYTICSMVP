@@ -14,6 +14,43 @@
 import { useQuery, UseQueryResult } from '@tanstack/react-query';
 import { useAuth } from '@/hooks/useAuth';
 
+// ============================================================================
+// CONFIGURACIÓN DE API
+// ============================================================================
+
+const API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL || 'http://localhost:8000';
+
+async function fetchWithAuth(url: string, options: RequestInit = {}) {
+  const { createBrowserClient } = await import('@supabase/ssr');
+  const supabase = createBrowserClient(
+    process.env.NEXT_PUBLIC_SUPABASE_URL!,
+    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
+  );
+
+  const { data: { session } } = await supabase.auth.getSession();
+  
+  const headers: Record<string, string> = {
+    'Content-Type': 'application/json',
+    ...options.headers as Record<string, string>,
+  };
+
+  if (session?.access_token) {
+    headers.Authorization = `Bearer ${session.access_token}`;
+  }
+
+  const response = await fetch(url, {
+    ...options,
+    headers,
+  });
+
+  if (!response.ok) {
+    const errorText = await response.text();
+    throw new Error(`HTTP ${response.status}: ${errorText}`);
+  }
+
+  return response.json();
+}
+
 /**
  * Tipos para el catálogo de pruebas
  */
@@ -77,49 +114,24 @@ export interface UsePruebasReturn {
  * Hook para obtener el catálogo de pruebas de natación
  */
 export function usePruebas(filters?: PruebaFilters): UsePruebasReturn {
-  const { isAuthenticated, session } = useAuth();
-
-  // Construir query params para filtros
-  const queryParams = new URLSearchParams();
-  if (filters?.estilo) queryParams.append('estilo', filters.estilo);
-  if (filters?.distancia) queryParams.append('distancia', filters.distancia.toString());
-  if (filters?.curso) queryParams.append('curso', filters.curso);
-  
-  const queryString = queryParams.toString();
-  const apiUrl = queryString 
-    ? `http://localhost:8000/api/v1/catalogos/pruebas?${queryString}`
-    : 'http://localhost:8000/api/v1/catalogos/pruebas';
+  const { isAuthenticated } = useAuth();
 
   // Query principal
   const query = useQuery<CatalogoPruebasResponse, Error>({
-    queryKey: ['catalogos', 'pruebas', filters, session?.access_token],
+    queryKey: ['catalogos', 'pruebas', filters],
     queryFn: async (): Promise<CatalogoPruebasResponse> => {
-      // Headers con token de autenticación si está disponible
-      const headers: Record<string, string> = {
-        'Content-Type': 'application/json',
-      };
+      // Construir query params para filtros
+      const queryParams = new URLSearchParams();
+      if (filters?.estilo) queryParams.append('estilo', filters.estilo);
+      if (filters?.distancia) queryParams.append('distancia', filters.distancia.toString());
+      if (filters?.curso) queryParams.append('curso', filters.curso);
+      
+      const queryString = queryParams.toString();
+      const apiUrl = queryString 
+        ? `${API_BASE_URL}/api/v1/catalogos/pruebas?${queryString}`
+        : `${API_BASE_URL}/api/v1/catalogos/pruebas`;
 
-      // Incluir token de Authorization si el usuario está autenticado
-      if (session?.access_token) {
-        headers.Authorization = `Bearer ${session.access_token}`;
-      }
-
-      const response = await fetch(apiUrl, {
-        method: 'GET',
-        headers,
-      });
-
-      if (!response.ok) {
-        if (response.status === 401) {
-          throw new Error('No autorizado para acceder al catálogo de pruebas');
-        }
-        if (response.status === 404) {
-          throw new Error('Catálogo de pruebas no encontrado');
-        }
-        throw new Error(`Error del servidor: ${response.status} ${response.statusText}`);
-      }
-
-      const data = await response.json();
+      const data = await fetchWithAuth(apiUrl);
       
       if (!data || !Array.isArray(data.pruebas)) {
         throw new Error('Formato de respuesta inválido del catálogo de pruebas');
@@ -132,7 +144,7 @@ export function usePruebas(filters?: PruebaFilters): UsePruebasReturn {
     gcTime: 30 * 60 * 1000, // 30 minutos en cache
     retry: (failureCount, error) => {
       // No reintentar errores 401
-      if (error.message.includes('401')) {
+      if (error.message.includes('401') || error.message.includes('No autorizado')) {
         return false;
       }
       return failureCount < 2;
