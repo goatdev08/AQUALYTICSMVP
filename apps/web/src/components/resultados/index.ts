@@ -16,6 +16,11 @@ export { CompetenciaFormStepper } from './pasos/CompetenciaFormStepper';
 export { NadadorSelector } from '@/components/nadadores';
 export { PruebaSelectorSimplificado } from '@/components/pruebas';
 
+// Componentes de detalles y visualización
+export { default as ResultadoDetailModal } from './ResultadoDetailModal';
+export { default as SegmentosTable } from './SegmentosTable';
+export { default as ResumenGlobal } from './ResumenGlobal';
+
 // Context y hook principal
 export { StepperProvider, useStepper } from '@/contexts/stepper-context';
 

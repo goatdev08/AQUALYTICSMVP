@@ -78,10 +78,10 @@ function DashboardContent() {
           
           <div className="bg-green-50 border border-green-200 rounded-md p-4 mb-6">
             <div className="text-sm text-green-800">
-              <p className="font-medium">✅ ¡Sistema de Autenticación Funcional!</p>
+              <p className="font-medium">🏊‍♂️ ¡Sistema de Resultados Implementado!</p>
               <p className="mt-1">
-                Middleware, AuthContext, useAuth y ProtectedRoute funcionando correctamente.
-                Tu usuario fue reparado exitosamente.
+                Módulo completo de registro de resultados con stepper de 4 pasos, cálculos automáticos 
+                y vista de detalles. Sistema de autenticación y roles funcionando correctamente.
               </p>
             </div>
           </div>
@@ -135,27 +135,34 @@ function DashboardContent() {
               </div>
             </Link>
 
-            <div className="bg-white overflow-hidden shadow rounded-lg opacity-75">
-              <div className="p-5">
-                <div className="flex items-center">
-                  <div className="flex-shrink-0">
-                    <div className="w-8 h-8 bg-blue-100 rounded-md flex items-center justify-center">
-                      <BarChartIcon className="h-4 w-4 text-blue-600" />
+            <Link href="/resultados/registrar">
+              <div className="bg-white overflow-hidden shadow rounded-lg hover:shadow-md transition-shadow cursor-pointer border-l-4 border-l-green-500">
+                <div className="p-5">
+                  <div className="flex items-center">
+                    <div className="flex-shrink-0">
+                      <div className="w-8 h-8 bg-green-100 rounded-md flex items-center justify-center">
+                        <BarChartIcon className="h-4 w-4 text-green-600" />
+                      </div>
                     </div>
-                  </div>
-                  <div className="ml-5 w-0 flex-1">
-                    <dl>
-                      <dt className="text-sm font-medium text-gray-500 truncate">
-                        Resultados
-                      </dt>
-                      <dd className="text-lg font-medium text-gray-900">
-                        Próximamente
-                      </dd>
-                    </dl>
+                    <div className="ml-5 w-0 flex-1">
+                      <dl>
+                        <dt className="text-sm font-medium text-gray-500 truncate">
+                          Resultados
+                        </dt>
+                        <dd className="text-lg font-medium text-gray-900">
+                          Registrar tiempos
+                        </dd>
+                      </dl>
+                    </div>
+                    <div className="flex-shrink-0">
+                      <span className="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-green-100 text-green-800">
+                        ¡Nuevo!
+                      </span>
+                    </div>
                   </div>
                 </div>
               </div>
-            </div>
+            </Link>
           </div>
 
           {/* Widget de Próximas Competencias */}
@@ -179,9 +186,15 @@ function DashboardContent() {
               >
                 🏆 Gestión de Competencias
               </Link>
-              <span className="inline-flex items-center px-3 py-2 rounded-md text-sm text-gray-500 bg-gray-100">
-                📊 Resultados próximamente...
-              </span>
+              <Link
+                href="/resultados/registrar"
+                className="inline-flex items-center px-4 py-2 border border-green-300 rounded-md shadow-sm bg-green-50 text-sm font-medium text-green-700 hover:bg-green-100 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500 relative"
+              >
+                📊 Registro de Resultados
+                <span className="absolute -top-1 -right-1 inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-green-600 text-white">
+                  ¡Nuevo!
+                </span>
+              </Link>
             </div>
             <p className="mt-2 text-xs text-gray-500">
               Acceso directo a los módulos funcionales de AquaLytics

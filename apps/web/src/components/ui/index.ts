@@ -24,6 +24,16 @@ import { Checkbox as ShadcnCheckbox } from "./checkbox"
 import { Slider as ShadcnSlider } from "./slider"
 import { Badge as ShadcnBadge, badgeVariants } from "./badge"
 
+// Componentes adicionales shadcn
+import { 
+  Dialog, DialogTrigger, DialogContent, DialogHeader, 
+  DialogFooter, DialogTitle, DialogDescription, DialogClose 
+} from "./dialog"
+import { 
+  Table, TableHeader, TableBody, TableCell, 
+  TableHead, TableRow, TableCaption, TableFooter 
+} from "./table"
+
 // Componentes especializados de AquaLytics
 import { TimeInput, SimpleTimeInput } from "./time-input"
 // PruebaSelector components removed - using PruebaSelectorSimplificado from @/components/pruebas
@@ -39,6 +49,16 @@ export { ShadcnCheckbox as Checkbox }
 export { ShadcnSlider as Slider }
 export { ShadcnBadge as Badge, badgeVariants }
 export { Card, CardHeader, CardContent, CardTitle, CardDescription, CardFooter }
+
+// Componentes Dialog y Table
+export { 
+  Dialog, DialogTrigger, DialogContent, DialogHeader, 
+  DialogFooter, DialogTitle, DialogDescription, DialogClose 
+}
+export { 
+  Table, TableHeader, TableBody, TableCell, 
+  TableHead, TableRow, TableCaption, TableFooter 
+}
 
 // Componentes especializados
 export { TimeInput, SimpleTimeInput }

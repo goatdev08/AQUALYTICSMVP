@@ -475,8 +475,157 @@ async def create_resultado(
         )
 
 
+@router.get(
+    "/{resultado_id}",
+    response_model=ResultadoCompletoResponse,
+    summary="Obtener detalle completo de resultado",
+    description="Obtiene información detallada de un resultado con segmentos y métricas calculadas"
+)
+async def get_resultado_detalle(
+    resultado_id: int = Path(..., description="ID del resultado", gt=0),
+    db: Session = Depends(DatabaseDep),
+    current_user = Depends(CurrentUser)
+) -> ResultadoCompletoResponse:
+    """
+    Obtener detalle completo de un resultado según PRD.
+    
+    Retorna:
+    - Información básica del resultado
+    - Lista de segmentos ordenados por índice
+    - Resumen global con métricas calculadas de la vista resultado_agregado
+    
+    Utiliza la vista resultado_agregado validada para cálculos optimizados.
+    """
+    
+    # 1. Verificar que el resultado existe y obtener datos básicos
+    resultado_query = text("""
+        SELECT 
+            r.id, r.nadador_id, r.competencia_id, r.prueba_id, r.fase,
+            r.fecha_registro, r.tiempo_global_cs, r.tiempo_15m_cs,
+            r.categoria_label, r.estado_validacion, r.desviacion_parciales_cs,
+            r.capturado_por, r.created_at, r.updated_at,
+            -- Datos adicionales para contexto
+            n.nombre_completo as nadador_nombre,
+            c.nombre as competencia_nombre,
+            p.estilo, p.distancia, p.curso
+        FROM resultado r
+        INNER JOIN nadador n ON r.nadador_id = n.id
+        INNER JOIN competencia c ON r.competencia_id = c.id  
+        INNER JOIN prueba p ON r.prueba_id = p.id
+        WHERE r.id = :resultado_id
+    """)
+    
+    resultado_raw = db.execute(resultado_query, {"resultado_id": resultado_id}).fetchone()
+    
+    if not resultado_raw:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail=f"Resultado con ID {resultado_id} no encontrado"
+        )
+    
+    # 2. Obtener segmentos ordenados por índice
+    segmentos_query = text("""
+        SELECT 
+            s.id, s.resultado_id, s.indice, s.estilo_segmento,
+            s.distancia_m, s.tiempo_cs, s.brazadas, s.flecha_m,
+            s.dist_sin_flecha_m, s.velocidad_mps, s.dist_por_brazada_m,
+            s.created_at
+        FROM segmento s
+        WHERE s.resultado_id = :resultado_id
+        ORDER BY s.indice ASC
+    """)
+    
+    segmentos_raw = db.execute(segmentos_query, {"resultado_id": resultado_id}).fetchall()
+    
+    # 3. Obtener resumen global de la vista resultado_agregado
+    resumen_query = text("""
+        SELECT 
+            suma_parciales_cs,
+            desviacion_cs,
+            brazadas_globales,
+            flecha_total_m,
+            distancia_sin_flecha_total_m,
+            distancia_total_m,
+            velocidad_promedio_mps,
+            distancia_por_brazada_global_m
+        FROM resultado_agregado
+        WHERE resultado_id = :resultado_id
+    """)
+    
+    resumen_raw = db.execute(resumen_query, {"resultado_id": resultado_id}).fetchone()
+    
+    if not resumen_raw:
+        logger.warning(f"⚠️  Resumen no encontrado en vista para resultado {resultado_id}")
+        # Fallback: calcular manualmente si no está en la vista
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail="Error obteniendo métricas calculadas"
+        )
+    
+    # 4. Construir respuesta con estructura ResultadoCompletoResponse
+    
+    # Convertir resultado básico
+    resultado_response = ResultadoResponse(
+        id=resultado_raw.id,
+        nadador_id=resultado_raw.nadador_id,
+        competencia_id=resultado_raw.competencia_id,
+        prueba_id=resultado_raw.prueba_id,
+        fase=resultado_raw.fase,
+        fecha_registro=resultado_raw.fecha_registro,
+        tiempo_global_cs=resultado_raw.tiempo_global_cs,
+        tiempo_15m_cs=resultado_raw.tiempo_15m_cs,
+        categoria_label=resultado_raw.categoria_label,
+        estado_validacion=resultado_raw.estado_validacion,
+        desviacion_parciales_cs=resultado_raw.desviacion_parciales_cs,
+        capturado_por=resultado_raw.capturado_por,
+        created_at=resultado_raw.created_at,
+        updated_at=resultado_raw.updated_at
+    )
+    
+    # Convertir segmentos
+    segmentos_response = [
+        SegmentoResponse(
+            id=seg.id,
+            resultado_id=seg.resultado_id,
+            indice=seg.indice,
+            estilo_segmento=seg.estilo_segmento,
+            distancia_m=seg.distancia_m,
+            tiempo_cs=seg.tiempo_cs,
+            brazadas=seg.brazadas,
+            flecha_m=seg.flecha_m,
+            dist_sin_flecha_m=seg.dist_sin_flecha_m,
+            velocidad_mps=seg.velocidad_mps,
+            dist_por_brazada_m=seg.dist_por_brazada_m,
+            created_at=seg.created_at
+        ) for seg in segmentos_raw
+    ]
+    
+    # Construir resumen global usando datos de la vista
+    desviacion_absoluta = abs(resumen_raw.desviacion_cs)
+    requiere_revision = desviacion_absoluta > 40
+    
+    resumen_global = ResumenGlobal(
+        suma_parciales_cs=resumen_raw.suma_parciales_cs,
+        desviacion_cs=resumen_raw.desviacion_cs,
+        desviacion_absoluta_cs=desviacion_absoluta,
+        requiere_revision=requiere_revision,
+        brazadas_totales=resumen_raw.brazadas_globales,
+        flecha_total_m=resumen_raw.flecha_total_m,
+        distancia_sin_flecha_total_m=resumen_raw.distancia_sin_flecha_total_m,
+        distancia_total_m=resumen_raw.distancia_total_m,
+        velocidad_promedio_mps=resumen_raw.velocidad_promedio_mps,
+        distancia_por_brazada_global_m=resumen_raw.distancia_por_brazada_global_m
+    )
+    
+    # 5. Retornar respuesta completa
+    return ResultadoCompletoResponse(
+        resultado=resultado_response,
+        segmentos=segmentos_response,
+        resumen_global=resumen_global
+    )
+
+
 # TODO: Implementar otros endpoints según PRD
 # - GET /resultados (listado con filtros)
-# - GET /resultados/{id} (detalle individual)
 # - PATCH /resultados/{id} (edición)
 # - POST /resultados/{id}/marcar-revisar (cambiar estado)

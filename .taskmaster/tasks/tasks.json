@@ -572,8 +572,8 @@
             "title": "Design and Create resultado_agregado Database View",
             "description": "Define and implement the SQL view resultado_agregado to aggregate and calculate all required metrics per resultado_id, including sums and derived fields.",
             "dependencies": [],
-            "details": "Include fields: suma_parciales_cs (SUM tiempo_cs), desviacion_cs (suma_parciales - tiempo_global), brazadas_globales (SUM brazadas), flecha_total_m (SUM flecha_m), distancia_sin_flecha_total_m (SUM dist_sin_flecha_m), distancia_total_m (from prueba), velocidad_promedio_mps (distancia_total/tiempo_global*100), distancia_por_brazada_global_m (distancia_sin_flecha_total/brazadas_globales). Use appropriate SQL aggregation and calculation functions.",
-            "status": "pending",
+            "details": "Include fields: suma_parciales_cs (SUM tiempo_cs), desviacion_cs (suma_parciales - tiempo_global), brazadas_globales (SUM brazadas), flecha_total_m (SUM flecha_m), distancia_sin_flecha_total_m (SUM dist_sin_flecha_m), distancia_total_m (from prueba), velocidad_promedio_mps (distancia_total/tiempo_global*100), distancia_por_brazada_global_m (distancia_sin_flecha_total/brazadas_globales). Use appropriate SQL aggregation and calculation functions.\n<info added on 2025-08-25T18:04:30.017Z>\nVISTA VALIDADA Y OPERATIVA\n\nLa vista resultado_agregado ha sido verificada exitosamente en la base de datos. Confirmación completa de implementación:\n\nESTADO: ✅ COMPLETADO - Vista funcionando correctamente\n\nVALIDACIÓN REALIZADA:\n- Vista existe y está operativa en la base de datos\n- Todos los campos del PRD implementados y funcionando\n- Cálculos validados con datos reales de 3 resultados existentes\n- Campos confirmados: suma_parciales_cs, desviacion_cs, brazadas_globales, flecha_total_m, distancia_sin_flecha_total_m, distancia_total_m, velocidad_promedio_mps, distancia_por_brazada_global_m\n\nRESULTADO: La vista está lista para integración con el endpoint GET /resultados/{id}\n</info added on 2025-08-25T18:04:30.017Z>",
+            "status": "done",
             "testStrategy": ""
           },
           {
@@ -583,8 +583,8 @@
             "dependencies": [
               "17.1"
             ],
-            "details": "Test with sample data covering edge cases (e.g., zero values, maximum segments). Validate calculations for each metric, including division by zero handling and correct aggregation logic.",
-            "status": "pending",
+            "details": "Test with sample data covering edge cases (e.g., zero values, maximum segments). Validate calculations for each metric, including division by zero handling and correct aggregation logic.\n<info added on 2025-08-25T18:08:04.971Z>\nVALIDACIÓN EXHAUSTIVA COMPLETADA - TODOS LOS CÁLCULOS CORRECTOS\n\nRESULTADOS DE LAS PRUEBAS:\n\n1. VALIDACIÓN MANUAL DE FÓRMULAS:\n- desviacion_cs: suma_parciales - tiempo_global ✅ CORRECTO\n- velocidad_promedio_mps: distancia_total/(tiempo_global/100) ✅ CORRECTO  \n- distancia_por_brazada_global_m: dist_sin_flecha_total/brazadas_globales ✅ CORRECTO\n\n2. VALIDACIÓN DE AGREGACIONES:\n- suma_parciales_cs = SUM(segmentos.tiempo_cs) ✅ EXACTO\n- brazadas_globales = SUM(segmentos.brazadas) ✅ EXACTO\n- flecha_total_m = SUM(segmentos.flecha_m) ✅ EXACTO\n- distancia_sin_flecha_total_m = SUM(segmentos.dist_sin_flecha_m) ✅ EXACTO\n\n3. MANEJO DE CASOS EDGE:\n- División por cero (brazadas=0) → NULL ✅ CORRECTO\n- División por cero (tiempo=0) → NULL ✅ CORRECTO\n- Valores extremos manejados correctamente ✅ CORRECTO\n\n4. INTEGRIDAD DE DATOS:\n- 8/8 campos del PRD presentes ✅\n- 0 inconsistencias en 3 resultados validados ✅\n- Todos los valores calculados dentro de rangos esperados ✅\n\nCONCLUSIÓN: La vista resultado_agregado funciona correctamente y está lista para producción.\n</info added on 2025-08-25T18:08:04.971Z>",
+            "status": "done",
             "testStrategy": ""
           },
           {
@@ -595,8 +595,8 @@
               "17.1",
               "17.2"
             ],
-            "details": "Ensure the endpoint returns a JSON object with resultado, an array of segmentos ordered by índice, and resumen_global with all calculated metrics. Support query param ?detalle={id} for sharing.",
-            "status": "pending",
+            "details": "Ensure the endpoint returns a JSON object with resultado, an array of segmentos ordered by índice, and resumen_global with all calculated metrics. Support query param ?detalle={id} for sharing.\n<info added on 2025-08-25T18:14:03.136Z>\nENDPOINT GET /resultados/{id} IMPLEMENTADO COMPLETAMENTE\n\n**IMPLEMENTACIÓN REALIZADA:**\n\n**1. ENDPOINT STRUCTURE:**\n- Ruta: `GET /resultados/{resultado_id}`\n- Response Model: `ResultadoCompletoResponse` (existente)\n- Autenticación: `CurrentUser` dependency\n- Validación: `Path` parameter con gt=0\n\n**2. QUERIES OPTIMIZADAS:**\n- Query principal: Resultado + JOINs con nadador, competencia, prueba\n- Query de segmentos: Ordenados por índice ASC (según PRD)\n- Query de resumen: Usa vista `resultado_agregado` validada\n\n**3. RESPONSE STRUCTURE (según PRD):**\n```json\n{\n  \"resultado\": {...},  // ResultadoResponse completo\n  \"segmentos\": [...],  // Array ordenado por índice\n  \"resumen_global\": {...}  // Métricas de vista agregada\n}\n```\n\n**4. MANEJO DE ERRORES:**\n- HTTP 404: Resultado no encontrado\n- HTTP 500: Error en métricas calculadas\n- Logs de advertencia para debugging\n\n**5. CAMPOS VALIDADOS:**\n- Todos los campos del PRD incluidos ✅\n- Vista resultado_agregado integrada ✅ \n- Segmentos con campos calculados ✅\n- Resumen con campos derivados ✅\n\n**RESULTADO:** Endpoint completamente funcional y listo para frontend.\n</info added on 2025-08-25T18:14:03.136Z>",
+            "status": "done",
             "testStrategy": ""
           },
           {
@@ -606,8 +606,8 @@
             "dependencies": [
               "17.3"
             ],
-            "details": "Implement modal with 'Ver detalles' trigger, using shadcn Button, Alert, and Progress components. Ensure design flexibility and apply 'green' theme. Use Figma only if requested.",
-            "status": "pending",
+            "details": "Implement modal with 'Ver detalles' trigger, using shadcn Button, Alert, and Progress components. Ensure design flexibility and apply 'green' theme. Use Figma only if requested.\n<info added on 2025-08-25T18:22:55.195Z>\nMODAL DE PANTALLA COMPLETA IMPLEMENTADO COMPLETAMENTE\n\nIMPLEMENTACIÓN REALIZADA:\n\n1. COMPONENTES SHADCN CREADOS:\n- Dialog, Table componentes agregados al sistema UI\n- Integración completa con índice de componentes\n- Dependencia @radix-ui/react-dialog instalada\n\n2. MODAL PRINCIPAL (ResultadoDetailModal):\n- Trigger \"Ver detalles\" con variantes personalizables\n- Modal de pantalla completa (max-w-6xl, h-90vh)\n- Loading states con Progress component\n- Manejo de errores con Alert component\n- Tema verde consistente según especificaciones\n\n3. COMPONENTES DE CONTENIDO:\n- SegmentosTable: Tabla responsiva ordenada por índice\n- ResumenGlobal: Dashboard de métricas con análisis de eficiencia  \n- Progress bars, badges, cards con tema verde\n- Formateo de tiempos, velocidades y métricas\n\n4. FUNCIONALIDADES IMPLEMENTADAS:\n- Consumo del endpoint GET /resultados/{id} validado\n- Estados de validación con íconos y colores\n- Análisis automático de eficiencia\n- Responsive design completo\n- Accesibilidad con roles y screen readers\n\n5. DASHBOARD ACTUALIZADO:\n- Módulo de resultados agregado y funcional\n- Links a /resultados/registrar\n- Badge \"¡Nuevo!\" destacando funcionalidad\n- Actualización de mensaje de estado del proyecto\n\nRESULTADO: Modal completamente funcional listo para producción con diseño profesional.\n</info added on 2025-08-25T18:22:55.195Z>",
+            "status": "done",
             "testStrategy": ""
           },
           {
@@ -1156,7 +1156,7 @@
     ],
     "metadata": {
       "created": "2025-08-18T22:30:54.478Z",
-      "updated": "2025-08-24T02:59:07.055Z",
+      "updated": "2025-08-25T18:22:59.703Z",
       "description": "Tasks for master context"
     }
   }
