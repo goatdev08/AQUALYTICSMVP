@@ -45,11 +45,23 @@ import type {
 // Utilidades
 // =====================
 
+/** Valida si un string tiene formato de tiempo válido mm:ss.cc */
+function isValidTimeFormat(timeStr: string): boolean {
+  if (!timeStr || !timeStr.trim()) return false;
+  const regex = /^(\d{1,2}):(\d{2})\.(\d{2})$/;
+  return regex.test(timeStr.trim());
+}
+
 /** Convierte mm:ss.cc a centésimas */
 function parseTimeToCs(timeStr: string): number {
+  if (!timeStr || !timeStr.trim()) return 0;
+  
   const regex = /^(\d{1,2}):(\d{2})\.(\d{2})$/;
-  const match = timeStr.match(regex);
-  if (!match) return 0;
+  const match = timeStr.trim().match(regex);
+  if (!match) {
+    console.warn('⚠️ Formato de tiempo inválido:', timeStr);
+    return 0;
+  }
   
   const [, mm, ss, cc] = match;
   return parseInt(mm) * 6000 + parseInt(ss) * 100 + parseInt(cc);
@@ -83,12 +95,13 @@ const ESTILOS_IM: EstiloSegmento[] = ['Mariposa', 'Dorso', 'Pecho', 'Libre'];
 // =====================
 
 export function PasoSegmentos() {
-  const { state, dispatch } = useStepper();
+  const { state, dispatch, resetearStepper, limpiarAutoguardado } = useStepper();
   const createResultado = useCreateResultado();
   const [resultadoGuardado, setResultadoGuardado] = useState<number | null>(null);
   const [fechaRegistro, setFechaRegistro] = useState<string>(
     new Date().toISOString().split('T')[0]
   );
+  const [errorGuardado, setErrorGuardado] = useState<string | null>(null);
   
   // Estado derivado
   const competencia = state.paso_competencia.competencia;
@@ -115,9 +128,32 @@ export function PasoSegmentos() {
     };
   }, [prueba, competencia]);
   
+  // Detectar reset del stepper y limpiar estado local
+  useEffect(() => {
+    // Si el stepper se resetea (paso actual = 1 y no hay pasos completados), limpiar estado
+    if (state.paso_actual === 1 && state.pasos_completados.size === 0) {
+      console.log('🔄 Detectado reset del stepper - limpiando estado local');
+      setResultadoGuardado(null);
+      setFechaRegistro(new Date().toISOString().split('T')[0]);
+      setErrorGuardado(null);
+    }
+  }, [state.paso_actual, state.pasos_completados]);
+
   // Inicializar segmentos
   useEffect(() => {
-    if (!configuracionPrueba || segmentosData.segmentos.length > 0) return;
+    if (!configuracionPrueba) return;
+    
+    // Si no hay segmentos O el stepper se resetea, inicializar
+    const shouldInitialize = segmentosData.segmentos.length === 0 || 
+                            (state.paso_actual === 1 && state.pasos_completados.size === 0);
+    
+    if (!shouldInitialize) return;
+    
+    console.log('🔄 Inicializando segmentos:', {
+      numSegmentos: configuracionPrueba.numSegmentos,
+      esCombinadoIM: configuracionPrueba.esCombinadoIM,
+      prueba: prueba?.nombre
+    });
     
     const segmentosIniciales: SegmentoData[] = [];
     
@@ -146,7 +182,7 @@ export function PasoSegmentos() {
         },
       },
     });
-  }, [configuracionPrueba, segmentosData.segmentos.length, dispatch, prueba]);
+  }, [configuracionPrueba, segmentosData.segmentos.length, dispatch, prueba, state.paso_actual, state.pasos_completados]);
   
   // Cálculos de previsualización
   const resumen = useMemo((): ResumenPrevisualizacion | null => {
@@ -290,6 +326,18 @@ export function PasoSegmentos() {
       flecha_m: segmento.flecha_m || 0,
     }));
 
+    // Validar formato de tiempos antes de construir payload
+    const tiempo15m = segmentosData.datos_globales.tiempo_15m;
+    if (tiempo15m && tiempo15m.trim() && !isValidTimeFormat(tiempo15m)) {
+      console.error('❌ Formato de tiempo 15m inválido:', tiempo15m);
+      return null; // Esto hará que handleGuardarResultado no proceda
+    }
+
+    if (!isValidTimeFormat(segmentosData.datos_globales.tiempo_global)) {
+      console.error('❌ Formato de tiempo global inválido:', segmentosData.datos_globales.tiempo_global);
+      return null;
+    }
+
     // Construir payload principal
     const payload: CrearResultadoPayload = {
       nadador_id: nadador.id,
@@ -298,8 +346,8 @@ export function PasoSegmentos() {
       fase: fase,
       fecha_registro: fechaRegistro,
       tiempo_global_cs: parseTimeToCs(segmentosData.datos_globales.tiempo_global),
-      tiempo_15m_cs: segmentosData.datos_globales.tiempo_15m 
-        ? parseTimeToCs(segmentosData.datos_globales.tiempo_15m) 
+      tiempo_15m_cs: tiempo15m && tiempo15m.trim()
+        ? parseTimeToCs(tiempo15m) 
         : undefined,
       segmentos: segmentosPayload,
     };
@@ -314,22 +362,53 @@ export function PasoSegmentos() {
     const payload = construirPayloadResultado();
     
     if (!payload) {
+      const errorMsg = 'Error en formato de tiempos:\n- Tiempo global debe tener formato MM:SS.CC\n- Tiempo 15m debe tener formato MM:SS.CC o estar vacío\n- Ejemplo: 1:23.45';
       console.error('No se pudo construir el payload del resultado');
+      setErrorGuardado(errorMsg);
       return;
     }
 
+    console.log('🚀 Enviando payload:', JSON.stringify(payload, null, 2));
+
+    // Limpiar errores previos
+    setErrorGuardado(null);
+
     try {
       const resultado = await createResultado.mutateAsync(payload);
-      console.log('Resultado guardado exitosamente:', resultado);
-      setResultadoGuardado(resultado.id);
+      console.log('✅ Resultado guardado exitosamente:', resultado);
+      setResultadoGuardado(resultado.resultado.id);
       
       // Limpiar cambios sin guardar
       dispatch({ type: 'MARCAR_CAMBIOS', tiene_cambios: false });
       
+      // Reiniciar stepper después de un delay para mostrar el éxito
+      setTimeout(() => {
+        console.log('Iniciando reinicio del stepper...');
+        
+        // Limpiar autoguardado del localStorage
+        limpiarAutoguardado();
+        
+        // Resetear todo el estado del stepper
+        resetearStepper();
+        
+        console.log('Stepper reiniciado - listo para nuevo registro');
+      }, 2000); // 2 segundos para que el usuario vea el mensaje de éxito
+      
     } catch (error) {
-      console.error('Error guardando resultado:', error);
+      console.error('❌ Error guardando resultado:', error);
+      
+      let errorMessage = 'Error desconocido al guardar el resultado';
+      
+      if (error instanceof Error) {
+        errorMessage = error.message;
+        console.error('Error message:', error.message);
+        console.error('Error stack:', error.stack);
+      }
+      
+      // Mostrar error al usuario
+      setErrorGuardado(errorMessage);
     }
-  }, [construirPayloadResultado, createResultado, dispatch]);
+  }, [construirPayloadResultado, createResultado, dispatch, limpiarAutoguardado, resetearStepper]);
 
   // Verificaciones de datos completos
   if (!prueba || !competencia || !configuracionPrueba) {
@@ -583,7 +662,7 @@ export function PasoSegmentos() {
                 </h3>
                 <p className="text-sm text-green-700">
                   {resultadoGuardado 
-                    ? `Resultado ID: ${resultadoGuardado}. Ya puedes cerrar esta ventana.`
+                    ? `Resultado ID: ${resultadoGuardado} guardado exitosamente. Reiniciando stepper para nuevo registro...`
                     : validacionesSegmentos.errores.length === 0 
                       ? 'Todos los datos han sido validados. Haz clic en "Guardar Resultado" para finalizar.'
                       : 'Corrige los errores antes de continuar.'
@@ -624,11 +703,14 @@ export function PasoSegmentos() {
             </div>
 
             {/* Mostrar errores de guardado */}
-            {createResultado.isError && (
+            {(errorGuardado || createResultado.isError) && (
               <Alert className="mt-4 border-red-200 bg-red-50">
                 <AlertTriangleIcon className="h-4 w-4 text-red-600" />
                 <AlertDescription className="text-red-800">
-                  <strong>Error al guardar:</strong> {createResultado.error?.message || 'Error desconocido'}
+                  <strong>Error al guardar:</strong> 
+                  <div className="mt-2 whitespace-pre-line">
+                    {errorGuardado || createResultado.error?.message || 'Error desconocido'}
+                  </div>
                 </AlertDescription>
               </Alert>
             )}

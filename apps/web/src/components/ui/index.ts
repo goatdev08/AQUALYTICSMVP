@@ -42,6 +42,8 @@ import { ThemeToggle, ThemeToggleCompact, ThemeToggleWithLabel } from "./theme-t
 import { SkipLinks, Landmark, useSkipLinks } from "./skip-links"
 import { AccessibilityInfo, AccessibilityInfoCompact } from "./accessibility-info"
 import { Sidebar, MobileSidebar, SidebarContainer } from "./sidebar"
+import { EmptyState } from "./empty-state"
+import { InfoCard } from "./info-card"
 // PruebaSelector components removed - using PruebaSelectorSimplificado from @/components/pruebas
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "./tabs"
 import { Card, CardHeader, CardContent, CardTitle, CardDescription, CardFooter } from "./card"
@@ -80,6 +82,8 @@ export { ThemeToggle, ThemeToggleCompact, ThemeToggleWithLabel }
 export { SkipLinks, Landmark, useSkipLinks }
 export { AccessibilityInfo, AccessibilityInfoCompact }
 export { Sidebar, MobileSidebar, SidebarContainer }
+export { EmptyState }
+export { InfoCard }
 export { Tabs, TabsList, TabsTrigger, TabsContent }
 export { 
   Select, SelectContent, SelectItem, SelectTrigger, 

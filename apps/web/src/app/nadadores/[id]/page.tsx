@@ -12,7 +12,8 @@ import { useParams, notFound, useRouter } from 'next/navigation';
 import { ProtectedRoute, RoleGuard } from '@/components/auth';
 import { useNadador } from '@/hooks/useNadadores';
 import { useNadadorAnalytics } from '@/hooks/useNadadorAnalytics';
-import { LoaderIcon, ArrowLeftIcon, EditIcon, TrendingUp, Award, BarChart3, Trophy } from 'lucide-react';
+
+import { LoaderIcon, ArrowLeftIcon, EditIcon, TrendingUp, Award, BarChart3, Trophy, Activity } from 'lucide-react';
 import { Button, Alert, AlertDescription, Tabs, TabsList, TabsTrigger, TabsContent } from '@/components/ui';
 import { CategoriaInfo } from '@/components/nadadores';
 
@@ -21,6 +22,7 @@ const MejoresMarcas = lazy(() => import('@/components/nadadores/analytics/Mejore
 const EvolucionTemporal = lazy(() => import('@/components/nadadores/analytics/EvolucionTemporal'));
 const DistribucionEstilos = lazy(() => import('@/components/nadadores/analytics/DistribucionEstilos'));
 const RankingIntraEquipo = lazy(() => import('@/components/nadadores/analytics/RankingIntraEquipo'));
+const ResultadosResumen = lazy(() => import('@/components/nadadores/analytics/ResultadosResumen'));
 
 // Loader component para lazy loading
 const TabLoader = ({ title }: { title: string }) => (
@@ -39,7 +41,7 @@ export default function PerfilNadadorPage() {
   const [activeTab, setActiveTab] = useState('informacion');
   
   // Hook para obtener datos del nadador
-  const { data: nadador, isLoading, isError, error } = useNadador(nadadorId);
+  const { data: nadador, isLoading, isError, error, isFetched } = useNadador(nadadorId) as any;
   
   // Hook para obtener analytics (lazy loading)
   const { 
@@ -70,7 +72,13 @@ export default function PerfilNadadorPage() {
     );
   }
 
-  if (isError) {
+  // Si hay error 404 explícito desde el backend, mostrar notFound
+  if (isError && (error as any)?.message && String((error as any).message).includes('404')) {
+    notFound();
+  }
+
+  // Errores distintos de 404: mostrar alerta de error
+  if (isError && !(String((error as any)?.message || '').includes('404'))) {
     return (
       <ProtectedRoute>
         <div className="min-h-screen bg-gray-50 py-8">
@@ -86,8 +94,23 @@ export default function PerfilNadadorPage() {
     );
   }
 
-  if (!nadador) {
+  // Evitar 404 prematuro: solo cuando la query terminó de obtenerse y no hay datos
+  if (isFetched && !isLoading && !nadador) {
     notFound();
+  }
+
+  // Si aún no hay datos del nadador (primera pintura/rehidratación), mostrar loader seguro
+  if (!nadador) {
+    return (
+      <ProtectedRoute>
+        <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+          <div className="text-center">
+            <LoaderIcon className="h-8 w-8 animate-spin mx-auto mb-4 text-green-600" />
+            <p className="text-gray-600">Cargando perfil del nadador...</p>
+          </div>
+        </div>
+      </ProtectedRoute>
+    );
   }
 
   return (
@@ -128,7 +151,7 @@ export default function PerfilNadadorPage() {
 
           {/* Tabs Navigation */}
           <Tabs value={activeTab} onValueChange={setActiveTab}>
-            <TabsList className="grid w-full grid-cols-5">
+            <TabsList className="grid w-full grid-cols-6">
               <TabsTrigger 
                 value="informacion"
                 isActive={activeTab === 'informacion'}
@@ -137,6 +160,15 @@ export default function PerfilNadadorPage() {
               >
                 <span>📋</span>
                 <span>Información</span>
+              </TabsTrigger>
+              <TabsTrigger 
+                value="resultados"
+                isActive={activeTab === 'resultados'}
+                onClick={() => setActiveTab('resultados')}
+                className="flex items-center space-x-2"
+              >
+                <Activity className="h-4 w-4" />
+                <span>Resultados</span>
               </TabsTrigger>
               <TabsTrigger 
                 value="marcas"
@@ -250,7 +282,8 @@ export default function PerfilNadadorPage() {
                         </div>
                         <div className="bg-yellow-50 rounded-lg p-4">
                           <p className="text-2xl font-bold text-yellow-900">
-                            {analyticsData.estadisticas_generales.mejor_lugar_promedio}°
+                            {/* Campo no presente en el tipo actual; mostrar guión hasta definirlo en backend */}
+                            —
                           </p>
                           <p className="text-sm text-yellow-700">Lugar promedio</p>
                         </div>
@@ -265,6 +298,25 @@ export default function PerfilNadadorPage() {
                   )}
                 </div>
               </div>
+            </TabsContent>
+
+            {/* Resultados Resumen */}
+            <TabsContent value="resultados" isActive={activeTab === 'resultados'}>
+              {analyticsError ? (
+                <Alert>
+                  <AlertDescription>
+                    Error al cargar los resultados. Por favor, intenta de nuevo más tarde.
+                  </AlertDescription>
+                </Alert>
+              ) : (
+                <Suspense fallback={<TabLoader title="Resultados" />}>
+                  <ResultadosResumen 
+                    nadador={nadador}
+                    analyticsData={analyticsData}
+                    isLoading={analyticsLoading}
+                  />
+                </Suspense>
+              )}
             </TabsContent>
 
             {/* Mejores Marcas */}
@@ -333,8 +385,18 @@ export default function PerfilNadadorPage() {
                 <Suspense fallback={<TabLoader title="Ranking Intra-Equipo" />}>
                   <RankingIntraEquipo 
                     rankingData={analyticsData?.ranking_intra_equipo || {
+                      prueba_seleccionada: '—',
+                      curso_seleccionado: 'SC',
                       ranking: [],
-                      estadisticas: { total_participantes: 0, mejor_tiempo_equipo: 0, promedio_equipo: 0, nadador_mas_participaciones: '' }
+                      posicion_nadador_actual: 0,
+                      estadisticas: {
+                        total_participantes: 0,
+                        mejor_tiempo_equipo: 0,
+                        mejor_tiempo_equipo_formateado: '0.00',
+                        promedio_equipo: 0,
+                        promedio_equipo_formateado: '0.00',
+                        nadador_mas_participaciones: ''
+                      }
                     }} 
                     nadadorActualId={nadador?.id || 0}
                     isLoading={analyticsLoading}

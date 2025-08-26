@@ -3,6 +3,7 @@ Esquemas para endpoints de análisis y comparaciones.
 
 Define los modelos de datos para análisis de rendimiento,
 comparaciones entre resultados y filtros avanzados.
+Incluye modelos para analytics de nadadores individuales.
 """
 
 from pydantic import BaseModel, Field, validator
@@ -210,3 +211,167 @@ class ComparacionResponse(BaseModel):
     comparacion_global: ComparacionGlobal = Field(description="Comparación global")
     comparacion_segmentos: List[ComparacionSegmento] = Field(description="Comparación por segmentos")
     resumen: ResumenComparacion = Field(description="Resumen de la comparación")
+
+
+# ============================================================================
+# MODELOS PARA ANALYTICS DE NADADOR INDIVIDUAL
+# ============================================================================
+
+class MejorMarca(BaseModel):
+    """Mejor marca personal de un nadador en una prueba específica."""
+    
+    prueba: str = Field(description="Nombre de la prueba (ej: '100 Libre')")
+    curso: CursoEnum = Field(description="Curso de la prueba")
+    tiempo: float = Field(description="Tiempo en segundos")
+    tiempo_formateado: str = Field(description="Tiempo formateado (MM:SS.CC)")
+    fecha: str = Field(description="Fecha del registro (YYYY-MM-DD)")
+    competencia: str = Field(description="Nombre de la competencia")
+    lugar: str = Field(description="Lugar de la competencia")
+
+
+class EvolucionTiempo(BaseModel):
+    """Punto de evolución temporal de un nadador."""
+    
+    fecha: str = Field(description="Fecha del registro (YYYY-MM-DD)")
+    prueba: str = Field(description="Nombre de la prueba")
+    tiempo: float = Field(description="Tiempo en segundos")
+    tiempo_formateado: str = Field(description="Tiempo formateado (MM:SS.CC)")
+    competencia: str = Field(description="Nombre de la competencia")
+
+
+class DistribucionEstilo(BaseModel):
+    """Distribución de pruebas por estilo para un nadador."""
+    
+    estilo: str = Field(description="Nombre del estilo")
+    pruebas_nadadas: int = Field(description="Cantidad de pruebas nadadas en este estilo")
+    mejor_tiempo: float = Field(description="Mejor tiempo en segundos")
+    mejor_tiempo_formateado: str = Field(description="Mejor tiempo formateado")
+    prueba_mejor_tiempo: str = Field(description="Prueba del mejor tiempo")
+    promedio: float = Field(description="Tiempo promedio en segundos")
+    promedio_formateado: str = Field(description="Tiempo promedio formateado")
+    prueba_promedio: str = Field(description="Prueba del promedio")
+    porcentaje: float = Field(description="Porcentaje de participación en este estilo")
+
+
+class RegistroReciente(BaseModel):
+    """Registro reciente de un nadador."""
+    
+    id: int = Field(description="ID del resultado")
+    fecha: str = Field(description="Fecha del registro (YYYY-MM-DD)")
+    competencia: str = Field(description="Nombre de la competencia")
+    prueba: str = Field(description="Nombre de la prueba")
+    tiempo: float = Field(description="Tiempo en segundos")
+    tiempo_formateado: str = Field(description="Tiempo formateado (MM:SS.CC)")
+    lugar: Optional[int] = Field(description="Posición obtenida")
+    puntaje: Optional[int] = Field(description="Puntaje obtenido (si aplica)")
+
+
+class RankingNadador(BaseModel):
+    """Información de un nadador en el ranking del equipo."""
+    
+    nadador_id: int = Field(description="ID del nadador")
+    nombre_completo: str = Field(description="Nombre completo del nadador")
+    posicion_equipo: int = Field(description="Posición en el equipo")
+    posicion_categoria: int = Field(description="Posición en su categoría")
+    mejor_tiempo: float = Field(description="Mejor tiempo en segundos")
+    mejor_tiempo_formateado: str = Field(description="Mejor tiempo formateado")
+    promedio_ultimos_3: float = Field(description="Promedio de últimos 3 tiempos")
+    promedio_formateado: str = Field(description="Promedio formateado")
+    tendencia: float = Field(description="Tendencia de mejora (+) o empeoramiento (-)")
+    total_participaciones: int = Field(description="Total de participaciones")
+    ultima_competencia: str = Field(description="Última competencia")
+    categoria: str = Field(description="Categoría del nadador")
+
+
+class EstadisticasRanking(BaseModel):
+    """Estadísticas del ranking de equipo."""
+    
+    total_participantes: int = Field(description="Total de participantes en el ranking")
+    mejor_tiempo_equipo: float = Field(description="Mejor tiempo del equipo")
+    mejor_tiempo_equipo_formateado: str = Field(description="Mejor tiempo formateado")
+    promedio_equipo: float = Field(description="Promedio del equipo")
+    promedio_equipo_formateado: str = Field(description="Promedio formateado")
+    nadador_mas_participaciones: str = Field(description="Nadador con más participaciones")
+
+
+class RankingData(BaseModel):
+    """Datos completos del ranking intra-equipo."""
+    
+    prueba_seleccionada: Optional[str] = Field(description="Prueba utilizada para el ranking")
+    curso_seleccionado: Optional[str] = Field(description="Curso utilizado para el ranking")
+    categoria_filtro: Optional[str] = Field(description="Categoría filtrada")
+    rama_filtro: Optional[str] = Field(description="Rama filtrada")
+    ranking: List[RankingNadador] = Field(description="Lista de nadadores en el ranking")
+    posicion_nadador_actual: Optional[int] = Field(description="Posición del nadador consultado")
+    estadisticas: EstadisticasRanking = Field(description="Estadísticas generales del ranking")
+
+
+class EstadisticasGenerales(BaseModel):
+    """Estadísticas generales de un nadador."""
+    
+    total_competencias: int = Field(description="Total de competencias participadas")
+    total_pruebas: int = Field(description="Total de pruebas nadadas")
+    mejor_lugar_promedio: float = Field(description="Promedio de lugares obtenidos")
+    eventos_ultimo_mes: int = Field(description="Eventos participados en el último mes")
+
+
+class NadadorAnalytics(BaseModel):
+    """Respuesta completa de analytics para un nadador específico."""
+    
+    nadador_id: int = Field(description="ID del nadador")
+    nombre_completo: str = Field(description="Nombre completo del nadador")
+    mejores_marcas: List[MejorMarca] = Field(description="Mejores marcas personales")
+    evolucion_temporal: List[EvolucionTiempo] = Field(description="Evolución temporal de tiempos")
+    distribucion_estilos: List[DistribucionEstilo] = Field(description="Distribución por estilos")
+    registros_recientes: List[RegistroReciente] = Field(description="Registros más recientes")
+    ranking_intra_equipo: RankingData = Field(description="Ranking dentro del equipo")
+    estadisticas_generales: EstadisticasGenerales = Field(description="Estadísticas generales")
+    
+    
+class NadadorAnalyticsFilters(BaseModel):
+    """Filtros opcionales para analytics de nadador."""
+    
+    # Filtros temporales para limitar el análisis
+    fecha_desde: Optional[date] = Field(
+        None,
+        description="Fecha inicio para análisis histórico (YYYY-MM-DD)"
+    )
+    
+    fecha_hasta: Optional[date] = Field(
+        None,
+        description="Fecha fin para análisis histórico (YYYY-MM-DD)"
+    )
+    
+    # Filtros de prueba para ranking
+    prueba_ranking: Optional[str] = Field(
+        None,
+        description="Prueba específica para calcular ranking (ej: '100 Libre')"
+    )
+    
+    curso_ranking: Optional[CursoEnum] = Field(
+        None,
+        description="Curso específico para ranking"
+    )
+    
+    # Filtros de límite de registros
+    limite_registros_recientes: Optional[int] = Field(
+        10,
+        description="Límite de registros recientes a retornar",
+        gt=0,
+        le=50
+    )
+    
+    limite_evolucion: Optional[int] = Field(
+        20,
+        description="Límite de puntos en evolución temporal",
+        gt=0,
+        le=100
+    )
+    
+    @validator('fecha_hasta')
+    def validate_fecha_rango(cls, fecha_hasta, values):
+        """Validar que fecha_hasta sea posterior a fecha_desde."""
+        fecha_desde = values.get('fecha_desde')
+        if fecha_desde and fecha_hasta and fecha_hasta < fecha_desde:
+            raise ValueError('fecha_hasta debe ser posterior a fecha_desde')
+        return fecha_hasta

@@ -196,27 +196,7 @@ function DashboardContent() {
         </Card>
       </div>
 
-      {/* Acciones rápidas */}
-      <div className="relative z-10 pb-8">
-        <Card className="rounded-xl shadow-sm border-dashed border-2 border-muted-foreground/20 bg-muted/20">
-          <CardContent className="p-8">
-            <div className="text-center space-y-4">
-              <h3 className="text-lg font-medium text-foreground">Acciones Rápidas</h3>
-              <div className="flex flex-wrap justify-center gap-3">
-                <ResultadoDetailModal 
-                  resultadoId={14}
-                  triggerText="🔍 Ver Demo de Detalle"
-                  triggerVariant="outline"
-                  className="rounded-lg"
-                />
-              </div>
-              <p className="text-xs text-muted-foreground">
-                Utiliza la navegación lateral para acceder a todas las funciones
-              </p>
-            </div>
-          </CardContent>
-        </Card>
-      </div>
+
 
       {/* Modal compartido vía URL */}
       {sharedResultadoId && (

@@ -1,0 +1,193 @@
+<context>
+# Overview  
+Este PRD define el plan para eliminar el uso de datos de prueba (mock) en la aplicación Aqualytics y migrar completamente a datos reales provenientes de la base de datos (Supabase + API FastAPI). Se identifican los módulos que aún usan mock data o datos de ejemplo, se describen las adaptaciones necesarias en frontend/backend, y se establecen dependencias lógicas y riesgos.
+
+La app ya es mayormente funcional con datos reales para: autenticación, nadadores, competencias, resultados, dashboard y parte de analítica (promedio por segmento). Persisten datos de ejemplo solo en el módulo de analítica a nivel de perfil de nadador y en secciones demo de la página de analítica.
+
+# Core Features  
+- Eliminación total de datos mock en analítica de perfil de nadador
+- Unificación del consumo de analítica hacia endpoints reales
+- Degradación controlada cuando no existan suficientes datos
+- Conservación de performance con índices y vistas existentes
+
+# User Experience  
+- El usuario (entrenador/atleta) verá métricas de analítica reales cuando existan datos suficientes; si no, la UI mostrará mensajes claros de "sin datos" y guiará a registrar resultados.
+- La página de analítica seguirá mostrando gráficos, pero únicamente con datos reales o vacíos informativos (sin arrays hardcodeados). 
+- El perfil del nadador mostrará mejores marcas, evolución, distribución por estilos, ranking intra-equipo y estadísticas generales provenientes de la API.
+</context>
+
+<PRD>
+# Technical Architecture  
+- Frontend: Next.js (apps/web), TanStack Query, integración Supabase Auth, componentes shadcn.
+- Backend: FastAPI (services/api), SQLAlchemy, Pydantic, RBAC en backend.
+- Base de datos: PostgreSQL (Supabase). Extensiones relevantes: `pg_trgm` (índice trigram), `uuid-ossp`, varias de PostGIS (no usadas en este dominio), `pg_graphql` (no usado por la app), etc.
+
+Tablas clave detectadas:
+- `equipo(id, nombre, ...)` (unique nombre)
+- `usuario(id, email unique, rol, equipo_id, auth_user_id unique)`
+- `nadador(id, equipo_id, nombre_completo, fecha_nacimiento, rama, peso, created_at)`
+  - Índices: `idx_nadador_equipo_id`, `idx_nadador_nombre_completo_gin (gin_trgm_ops)`, `idx_nadador_rama`
+- `competencia(id, equipo_id, nombre, curso in {SC,LC}, rango_fechas, sede, ...)`
+  - Índices: por `equipo_id`, `curso`, y `rango_fechas` (GiST)
+- `prueba(id, estilo, distancia, curso)` (unique: estilo+distancia+curso)
+- `resultado(id, nadador_id, competencia_id, prueba_id, fase, fecha_registro, tiempo_global_cs, tiempo_15m_cs?, categoria_label, estado_validacion, desviacion_parciales_cs, capturado_por, created_at)`
+  - Índices: por combinaciones frecuentes (nadador/prueba/tiempo, competencia/fecha, estado_validacion), unique por (nadador_id, competencia_id, prueba_id, fase, fecha_registro)
+- `segmento(id, resultado_id, indice, estilo_segmento, distancia_m in {25,50}, tiempo_cs, brazadas, flecha_m, campos derivados generados)
+  - Índices: por (resultado_id, indice) y (resultado_id, estilo_segmento)
+
+Vistas:
+- `resultado_agregado`: agrega por resultado (sumas, desviación, brazadas globales, métricas derivadas, etc.). Útil para KPIs y detalle de resultado.
+
+RLS: desactivado en tablas de dominio (el backend aplica RBAC y validaciones).
+
+# Estado actual por módulo (mock vs real)  
+- Nadadores (frontend hooks `useNadadores`) → REAL (CRUD + typeahead contra `/api/v1/nadadores`).
+- Competencias (hooks `useCompetencias`) → REAL (CRUD + filtros y próximas contra `/api/v1/competencias`).
+- Resultados (hooks `useResultados`) → REAL (crear/listar/detalle/patch estado contra `/api/v1/resultados`).
+- Dashboard (hooks `useDashboard`) → REAL (resumen/top5/distribución/proximas/atletas-destacados contra `/api/v1/dashboard/*`).
+- Analítica (hooks `useAnalitica`) → MIXTO:
+  - Promedio por segmento de equipo: REAL (`GET /api/v1/analitica/promedio-equipo`).
+  - Comparación de 2 resultados: REAL (`GET /api/v1/analitica/comparar`).
+  - Analítica de perfil de nadador (mejores marcas, evolución, distribución, ranking, estadísticas): MOCK en `apps/web/src/hooks/useNadadorAnalytics.ts`.
+  - Página `apps/web/src/app/analitica/page.tsx`: usa datos reales para "Promedio del equipo" pero incluye arrays demo para `RadarChart` y `ConsistenciaChart` y fallback de ejemplo para `PacingChart`.
+
+# Mapa de módulos (frontend ↔ backend ↔ BD)
+- Autenticación
+  - Frontend: `apps/web/src/contexts/auth-context.tsx`, `apps/web/src/hooks/useAuth.ts`, componentes `apps/web/src/components/auth/*`
+  - Backend: `services/api/app/api/v1/endpoints/auth.py`
+  - BD: `usuario` (campos: `email`, `rol`, `equipo_id`, `auth_user_id`), `equipo`
+  - Estado de datos: Real
+
+- Nadadores
+  - Frontend: `apps/web/src/hooks/useNadadores.ts`, páginas `apps/web/src/app/nadadores/*`, componentes `apps/web/src/components/nadadores/*`
+  - Backend: `services/api/app/api/v1/endpoints/nadadores.py` (listar, crear, actualizar, eliminar, typeahead)
+  - BD: `nadador` (índices trigram, por `equipo_id` y `rama`)
+  - Estado de datos: Real
+
+- Competencias
+  - Frontend: `apps/web/src/hooks/useCompetencias.ts`, páginas `apps/web/src/app/competencias/*`, componentes `apps/web/src/components/competencias/*`
+  - Backend: `services/api/app/api/v1/endpoints/competencias.py` (listar con filtros, próximas, CRUD)
+  - BD: `competencia` (usa `daterange` en `rango_fechas`, índices GiST)
+  - Estado de datos: Real
+
+- Resultados
+  - Frontend: `apps/web/src/hooks/useResultados.ts`, páginas `apps/web/src/app/resultados/*`, componentes `apps/web/src/components/resultados/*`
+  - Backend: `services/api/app/api/v1/endpoints/resultados.py` (crear resultado+segmentos, listar, detalle, cambiar estado)
+  - BD: `resultado`, `segmento`; vista `resultado_agregado`
+  - Estado de datos: Real
+
+- Dashboard
+  - Frontend: `apps/web/src/hooks/useDashboard.ts`, página `apps/web/src/app/dashboard/page.tsx`, componentes `apps/web/src/components/dashboard/*`
+  - Backend: `services/api/app/api/v1/endpoints/dashboard.py` (resumen, top5, distribución, próximas competencias, atletas destacados)
+  - BD: consultas sobre `nadador`, `competencia`, `resultado`, `prueba`
+  - Estado de datos: Real
+
+- Analítica (promedios/comparación)
+  - Frontend: `apps/web/src/hooks/useAnalitica.ts`, página `apps/web/src/app/analitica/page.tsx`, componentes `apps/web/src/components/analitica/*`
+  - Backend: `services/api/app/api/v1/endpoints/analitica.py` (`GET /analitica/promedio-equipo`, `GET /analitica/comparar`)
+  - BD: `segmento`, `resultado`, `prueba`; vista `resultado_agregado`
+  - Estado de datos: Real
+
+- Analítica (perfil de nadador)
+  - Frontend: `apps/web/src/hooks/useNadadorAnalytics.ts` (actualmente MOCK), usado en `apps/web/src/app/nadadores/[id]/page.tsx`
+  - Backend (plan): exponer endpoints en `endpoints/analitica.py` bajo `/analitica/nadador/{id}` para: mejores marcas, evolución temporal, distribución por estilos, ranking intra-equipo, registros recientes y estadísticas generales (ver Roadmap Fase 1)
+  - BD: `resultado`, `competencia`, `prueba`, `nadador`; reuso de índices existentes y `resultado_agregado`
+  - Estado de datos: Mixto (migrar a Real)
+
+- Catálogos (pruebas)
+  - Frontend: `apps/web/src/hooks/usePruebas.ts` (selector simplificado en `apps/web/src/components/pruebas/*`)
+  - Backend: `services/api/app/api/v1/endpoints/catalogos.py` (funciones `get_pruebas_catalog`, `get_prueba_by_id`)
+  - BD: `prueba` (unique por estilo+distancia+curso)
+  - Estado de datos: Real
+
+- Relación páginas Next y módulos
+  - `/login`, `/register` ↔ Autenticación
+  - `/nadadores`, `/nadadores/[id]` ↔ Nadadores + Analítica de perfil (migrar a datos reales)
+  - `/competencias`, `/competencias/[id]` ↔ Competencias
+  - `/resultados`, `/resultados/registrar` ↔ Resultados
+  - `/analitica` ↔ Analítica (promedios/comparación; sin datos demo)
+  - `/dashboard` ↔ Dashboard
+
+# Identificación exacta de uso de mock/hardcoded  
+- `apps/web/src/hooks/useNadadorAnalytics.ts`: Genera todos los datasets de analítica de perfil con funciones aleatorias (mock). Debe migrarse a consumo de API.
+- `apps/web/src/app/analitica/page.tsx`: Incluye:
+  - `metricasEjemplo` (radar) y `segmentosEjemplo` (consistencia) hardcodeados.
+  - Fallback de ejemplo para `PacingChart` cuando `segmentos_promedio` viene vacío. Debe cambiar a vacío informativo y guías de acción (registrar resultados) sin proveer datos sintéticos.
+- Archivos demo no productivos (no importados en UI):
+  - `apps/web/src/lib/cv-demo.js`
+  - `apps/web/src/lib/coeficiente-variacion-ejemplo.ts`
+  - `apps/web/src/lib/chart-best-practices.md` (solo documentación; contiene snippet con `mockSegmentos`)
+
+# Development Roadmap  
+Fase 1 — Backend (endpoints reales para analítica de perfil de nadador):
+- Diseñar y exponer endpoints bajo `/api/v1/analitica/nadador/{id}` que devuelvan la estructura consolidada `NadadorAnalytics` usada hoy por el hook mock:
+  - `GET /analitica/nadador/{id}/resumen` → objeto con:
+    - `mejores_marcas: MejorMarca[]` (por prueba y curso, derivadas de `resultado` y `prueba`)
+    - `evolucion_temporal: EvolucionTiempo[]` (histórico ordenado por `fecha_registro` de la prueba favorita o por filtros)
+    - `distribucion_estilos: DistribucionEstilo[]` (conteos, mejores y promedios por estilo)
+    - `registros_recientes: RegistroReciente[]` (últimos N resultados del nadador)
+    - `ranking_intra_equipo: RankingData` (ranking relativo vs equipo por prueba/curso)
+    - `estadisticas_generales` (totales para el nadador)
+- Alternativa: endpoints separados por bloque (si rendimiento/latencia lo exige):
+  - `GET /analitica/nadador/{id}/mejores-marcas`
+  - `GET /analitica/nadador/{id}/evolucion`
+  - `GET /analitica/nadador/{id}/distribucion-estilos`
+  - `GET /analitica/nadador/{id}/ranking`
+  - `GET /analitica/nadador/{id}/registros-recientes`
+- Consultas sugeridas (base):
+  - Mejores marcas: `MIN(resultado.tiempo_global_cs)` agrupado por `(prueba_id, curso)`, join con `prueba` para labels, y `competencia` para nombre/fecha.
+  - Evolución: seleccionar resultados del nadador filtrando por `(prueba_id)` y ordenar por `fecha_registro` ascendente.
+  - Distribución de estilos: `COUNT(*)` por `prueba.estilo`, `MIN` y `AVG` de `tiempo_global_cs`, y etiquetas de la prueba más representativa.
+  - Ranking intra-equipo: para la misma prueba/curso, ordenar por `MIN(tiempo_global_cs)` entre los nadadores del `equipo_id` del usuario, devolver top N y posición del nadador.
+  - Estadísticas generales: `COUNT(DISTINCT competencia_id)`, `COUNT(DISTINCT prueba_id)`, min/avg de tiempos, conteo de eventos últimos 30 días.
+- Reusar índices existentes (p.ej. `idx_resultado_nadador_prueba_tiempo`, `idx_resultado_competencia_fecha`) y vista `resultado_agregado` para cálculos derivados. Añadir índices solo si las pruebas de rendimiento lo indican.
+
+Fase 2 — Frontend (migración del hook y UI):
+- Reemplazar `apps/web/src/hooks/useNadadorAnalytics.ts`:
+  - Eliminar generadores mock; implementar fetch hacia los nuevos endpoints.
+  - Mantener shape de tipos actuales para minimizar cambios en componentes.
+  - Manejo de estados: `isLoading`, `isError`, `empty states` claros si no hay datos suficientes.
+- Actualizar `apps/web/src/app/analitica/page.tsx`:
+  - Remover `metricasEjemplo` y `segmentosEjemplo` hardcodeados.
+  - Eliminar fallback de datos sintéticos en `PacingChart`; cuando no hay datos, mostrar tarjeta informativa y atajos a registrar resultados.
+- Confirmar que componentes en `apps/web/src/components/analitica/*` no dependan de mocks.
+
+Fase 3 — UX de datos insuficientes y guías de acción:
+- Estándar de UX para "sin datos":
+  - Mostrar recuadros informativos con: filtros actuales, qué datos faltan, botón para ir a "Registrar resultados".
+  - Mensajes consistentes en analítica, dashboard y tablas.
+
+Fase 4 — Validaciones y performance:
+- Validar latencias objetivo (<500ms para endpoints analíticos típicos, <1s para ranking intra-equipo).
+- Ajustar paginaciones/limit en queries.
+- Solo si es necesario: considerar materializar vistas para heavy reads.
+
+# Logical Dependency Chain  
+1) Backend analítica (endpoints de perfil de nadador)  
+2) Frontend hook de analítica (reemplazo del mock)  
+3) Limpieza de fallbacks hardcodeados en página de analítica  
+4) UX de vacíos y navegación hacia captura de resultados  
+5) Ajustes de performance/índices si aparecen cuellos de botella
+
+# Risks and Mitigations  
+- Poca cantidad de datos actuales: endpoints pueden devolver vacío.
+  - Mitigación: estados vacíos informativos y CTA a registrar resultados.
+- Complejidad de ranking intra-equipo: puede requerir varias agregaciones.
+  - Mitigación: empezar por ranking simple (mejor tiempo por nadador en prueba/curso) y evolucionar.
+- Derivaciones inconsistentes entre app y DB.
+  - Mitigación: centralizar reglas en DB (vista `resultado_agregado`) y/o funciones utilitarias en backend.
+
+# Appendix  
+- Endpoints existentes relevantes:
+  - `GET /api/v1/analitica/promedio-equipo`
+  - `GET /api/v1/analitica/comparar`
+  - `GET /api/v1/dashboard/*` (resumen, top5, distribución, próximas, destacados)
+  - CRUD de `nadadores`, `competencias`, `resultados`
+- Archivos con mock a eliminar/migrar:
+  - `apps/web/src/hooks/useNadadorAnalytics.ts` (mock completo)
+  - `apps/web/src/app/analitica/page.tsx` (arrays demo y fallback sintético)
+- Archivos demo (no productivos, mantener como documentación):
+  - `apps/web/src/lib/cv-demo.js`
+  - `apps/web/src/lib/coeficiente-variacion-ejemplo.ts`
+- Base de datos: Vista `resultado_agregado` (confirmada) y principales índices listados. RLS deshabilitado; control por backend.
+</PRD>

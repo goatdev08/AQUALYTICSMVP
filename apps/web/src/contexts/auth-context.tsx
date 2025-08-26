@@ -85,6 +85,7 @@ export function AuthProvider({ children }: AuthProviderProps) {
     try {
       // Obtener token JWT de la sesión de Supabase
       const token = session.access_token;
+      console.log('🔍 fetchUserData - token exists:', !!token);
       
       if (!token) {
         console.warn('No hay token de acceso disponible');
@@ -93,6 +94,8 @@ export function AuthProvider({ children }: AuthProviderProps) {
 
       // Llamar al endpoint GET /me del backend con JWT en headers
       const API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL || 'http://localhost:8000';
+      console.log('🔍 fetchUserData - calling:', `${API_BASE_URL}/api/v1/me`);
+      
       const response = await fetch(`${API_BASE_URL}/api/v1/me`, {
              method: 'GET',
              headers: {
@@ -100,6 +103,12 @@ export function AuthProvider({ children }: AuthProviderProps) {
                'Content-Type': 'application/json',
              },
            });
+
+      console.log('🔍 fetchUserData - response:', { 
+        status: response.status, 
+        ok: response.ok, 
+        statusText: response.statusText 
+      });
 
       if (!response.ok) {
         // Manejar diferentes tipos de errores
@@ -134,6 +143,12 @@ export function AuthProvider({ children }: AuthProviderProps) {
         updated_at: data.usuario.updated_at,
       };
       
+      console.log('✅ fetchUserData - user data created:', { 
+        email: userData.email, 
+        rol: userData.rol, 
+        equipo_id: userData.equipo_id 
+      });
+      
       return userData;
     } catch (err) {
       // Filtrar errores de red vs errores de logout
@@ -154,16 +169,27 @@ export function AuthProvider({ children }: AuthProviderProps) {
    * Actualiza el estado del usuario basado en la sesión
    */
   const updateUserState = async (session: Session | null) => {
+    console.log('🔍 updateUserState called:', { 
+      hasSession: !!session, 
+      hasUser: !!session?.user, 
+      hasToken: !!session?.access_token 
+    });
+    
     if (session?.user && session.access_token) {
       // Hay sesión activa, obtener datos del usuario via backend GET /me
+      console.log('🔍 Fetching user data...');
       const userData = await fetchUserData(session);
+      console.log('🔍 User data received:', { hasData: !!userData, email: userData?.email });
+      
       if (userData) {
+        console.log('✅ Setting user data and loading=false');
         setUser(userData);
         setSession(session);
         setError(null);
         setLoading(false);
       } else {
         // Usuario autenticado pero sin datos en backend o error de conexión
+        console.log('❌ No user data, setting error');
         setError('Usuario no encontrado en el sistema. Por favor, regístrate nuevamente.');
         setUser(null);
         setSession(session); // Mantener sesión para debugging
@@ -171,6 +197,7 @@ export function AuthProvider({ children }: AuthProviderProps) {
       }
     } else {
       // No hay sesión activa
+      console.log('❌ No session, clearing state');
       setUser(null);
       setSession(null);
       setError(null);
@@ -296,12 +323,22 @@ export function AuthProvider({ children }: AuthProviderProps) {
    * Maneja los cambios de estado de autenticación
    */
   useEffect(() => {
+    // Solo ejecutar en el cliente
+    if (typeof window === 'undefined') {
+      console.log('🔍 AuthContext - SSR detected, skipping initialization');
+      return;
+    }
+
     let isMounted = true;
+    console.log('🔍 AuthContext - Client-side initialization starting');
 
     // Obtener sesión inicial
     const initializeAuth = async () => {
       try {
+        console.log('🔍 AuthContext - Getting initial session');
         const { data: { session: initialSession } } = await supabase.auth.getSession();
+        console.log('🔍 AuthContext - Initial session:', { hasSession: !!initialSession });
+        
         if (isMounted) {
           await updateUserState(initialSession);
         }

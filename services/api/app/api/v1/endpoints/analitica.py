@@ -18,7 +18,12 @@ from app.models import (
     Resultado, Nadador, Competencia, Prueba, Segmento
 )
 from app.schemas.analitica import (
-    AnaliticaFilters, PromedioEquipoResponse, ComparacionResponse
+    AnaliticaFilters, PromedioEquipoResponse, ComparacionResponse,
+    NadadorAnalytics, NadadorAnalyticsFilters
+)
+from app.services.analitica_queries import (
+    get_mejores_marcas, get_evolucion_temporal, get_distribucion_estilos,
+    get_registros_recientes, get_ranking_intra_equipo, get_estadisticas_generales
 )
 
 # Router para endpoints de análisis
@@ -94,7 +99,9 @@ async def get_promedio_equipo(
     try:
         equipo_id = current_user.equipo_id
         
-        # Query base para promedios por segmento
+        # Query optimizada para promedios por segmento
+        # Optimización: Usar select_from para especificar orden de JOINs
+        # y filtrar por estado_validacion temprano para reducir dataset
         query = db.query(
             Segmento.indice,
             func.avg(Segmento.tiempo_cs).label("tiempo_promedio_cs"),
@@ -106,15 +113,22 @@ async def get_promedio_equipo(
             Prueba.distancia,
             Prueba.curso
         )\
+        .select_from(Segmento)\
         .join(Resultado, Segmento.resultado_id == Resultado.id)\
         .join(Nadador, Resultado.nadador_id == Nadador.id)\
         .join(Prueba, Resultado.prueba_id == Prueba.id)\
-        .filter(Nadador.equipo_id == equipo_id)
+        .filter(
+            and_(
+                Nadador.equipo_id == equipo_id,
+                Resultado.estado_validacion == 'valido'
+            )
+        )
         
         # Aplicar filtros usando función de utilidad
         query = apply_analitica_filters(query, filters, base_joins_applied=True)
         
-        # Agrupar por índice de segmento y datos de prueba
+        # Optimización: Agrupar y ordenar de manera eficiente
+        # Primero por índice (más selectivo) luego por datos de prueba
         resultados = query\
             .group_by(
                 Segmento.indice, 
@@ -122,7 +136,11 @@ async def get_promedio_equipo(
                 Prueba.distancia, 
                 Prueba.curso
             )\
-            .order_by(Segmento.indice.asc())\
+            .order_by(
+                Segmento.indice.asc(),
+                Prueba.estilo.asc(),
+                Prueba.distancia.asc()
+            )\
             .all()
         
         # Formatear respuesta por segmento
@@ -376,4 +394,105 @@ async def comparar_resultados(
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
             detail=f"Error comparando resultados: {str(e)}"
+        )
+
+
+@router.get("/nadador/{nadador_id}/resumen", response_model=NadadorAnalytics)
+async def get_nadador_analytics(
+    nadador_id: int,
+    current_user: CurrentUser,
+    db: Session = Depends(get_db),
+    filters: NadadorAnalyticsFilters = Depends()
+):
+    """
+    GET /analitica/nadador/{nadador_id}/resumen - Analytics completos de un nadador.
+    
+    Obtiene todos los datos de análisis para un nadador específico, incluyendo:
+    - Mejores marcas personales por prueba y curso
+    - Evolución temporal de tiempos
+    - Distribución de pruebas por estilo
+    - Registros recientes
+    - Ranking intra-equipo
+    - Estadísticas generales
+    
+    Args:
+        nadador_id: ID del nadador a analizar
+        current_user: Usuario autenticado
+        db: Sesión de base de datos
+        filters: Filtros opcionales para personalizar el análisis
+        
+    Returns:
+        NadadorAnalytics: Datos completos de análisis del nadador
+        
+    Raises:
+        404: Si el nadador no existe o no pertenece al equipo del usuario
+        500: Error interno del servidor
+    """
+    try:
+        equipo_id = current_user.equipo_id
+        
+        # Verificar que el nadador existe y pertenece al equipo
+        nadador = db.query(Nadador).filter(
+            and_(
+                Nadador.id == nadador_id,
+                Nadador.equipo_id == equipo_id
+            )
+        ).first()
+        
+        if not nadador:
+            raise HTTPException(
+                status_code=status.HTTP_404_NOT_FOUND,
+                detail=f"Nadador {nadador_id} no encontrado o no pertenece al equipo"
+            )
+        
+        # Obtener datos de análisis usando las queries implementadas
+        mejores_marcas = get_mejores_marcas(
+            db, nadador_id, equipo_id,
+            filters.fecha_desde, filters.fecha_hasta
+        )
+        
+        evolucion_temporal = get_evolucion_temporal(
+            db, nadador_id, equipo_id,
+            filters.limite_evolucion,
+            filters.fecha_desde, filters.fecha_hasta
+        )
+        
+        distribucion_estilos = get_distribucion_estilos(
+            db, nadador_id, equipo_id,
+            filters.fecha_desde, filters.fecha_hasta
+        )
+        
+        registros_recientes = get_registros_recientes(
+            db, nadador_id, equipo_id,
+            filters.limite_registros_recientes
+        )
+        
+        ranking_intra_equipo = get_ranking_intra_equipo(
+            db, nadador_id, equipo_id,
+            filters.prueba_ranking,
+            filters.curso_ranking.value if filters.curso_ranking else None
+        )
+        
+        estadisticas_generales = get_estadisticas_generales(
+            db, nadador_id, equipo_id
+        )
+        
+        # Construir respuesta completa
+        return NadadorAnalytics(
+            nadador_id=nadador.id,
+            nombre_completo=nadador.nombre_completo,
+            mejores_marcas=mejores_marcas,
+            evolucion_temporal=evolucion_temporal,
+            distribucion_estilos=distribucion_estilos,
+            registros_recientes=registros_recientes,
+            ranking_intra_equipo=ranking_intra_equipo,
+            estadisticas_generales=estadisticas_generales
+        )
+        
+    except HTTPException:
+        raise
+    except Exception as e:
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail=f"Error obteniendo analytics del nadador: {str(e)}"
         )

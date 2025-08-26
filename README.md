@@ -20,6 +20,8 @@ Plataforma para registrar, analizar y comparar resultados de natación.
 │   └── ddl/           # Scripts SQL (tablas, índices, vistas)
 ├── scripts/           # Scripts de automatización
 ├── docs/              # Documentación adicional
+│   ├── legacy/        # Archivos de ejemplo/demo archivados
+│   └── *.md           # Documentación de API y flujo de datos
 └── .taskmaster/       # PRD y tareas del proyecto
 ```
 
@@ -186,6 +188,22 @@ Para despliegue en producción, actualizar:
 El proyecto usa un monorepo con PNPM workspaces. Cada aplicación tiene sus propias dependencias y configuraciones.
 
 Ver [reglas del proyecto](.cursor/rules/aqualytics_project_rules.mdc) para pautas de desarrollo.
+
+## 📁 Archivos Legacy
+
+Los archivos de ejemplo y demostración que ya no se utilizan en producción han sido archivados en `docs/legacy/`. Esto incluye:
+
+- **Utilidades matemáticas de ejemplo:** Cálculos de coeficiente de variación para referencia
+- **Componentes de demostración:** Ejemplos de uso para desarrolladores
+- **Scripts de prueba:** Archivos standalone para testing y debugging
+
+Para más detalles, consultar [`docs/legacy/README.md`](docs/legacy/README.md).
+
+## 📚 Documentación Adicional
+
+- **[API Analytics Documentation](docs/API_ANALYTICS_DOCUMENTATION.md):** Documentación completa de endpoints de analytics
+- **[Frontend Data Flow](docs/FRONTEND_DATA_FLOW.md):** Flujo de datos desde API hasta UI
+- **[Release Notes](docs/RELEASE_NOTES.md):** Historial de cambios y mejoras
 
 ## Contribuir
 

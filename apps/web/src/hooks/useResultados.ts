@@ -29,7 +29,14 @@ async function fetchWithAuth(url: string, options: RequestInit = {}) {
     process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
   );
 
-  const { data: { session } } = await supabase.auth.getSession();
+  console.log('🔐 Obteniendo sesión de autenticación...');
+  const { data: { session }, error: sessionError } = await supabase.auth.getSession();
+  
+  console.log('📊 Estado de sesión:', { 
+    hasSession: !!session, 
+    hasAccessToken: !!session?.access_token,
+    error: sessionError
+  });
   
   const headers: Record<string, string> = {
     'Content-Type': 'application/json',
@@ -38,21 +45,62 @@ async function fetchWithAuth(url: string, options: RequestInit = {}) {
 
   if (session?.access_token) {
     headers.Authorization = `Bearer ${session.access_token}`;
+    console.log('✅ Token de autenticación añadido');
   } else {
+    console.error('❌ No hay token de autenticación activo');
     throw new Error('No hay token de autenticación activo');
   }
 
+  console.log('🌐 Enviando petición a:', url);
   const response = await fetch(url, {
     ...options,
     headers,
   });
 
+  console.log('📡 Respuesta recibida:', { 
+    status: response.status, 
+    statusText: response.statusText,
+    ok: response.ok 
+  });
+
   if (!response.ok) {
     const errorData = await response.json().catch(() => ({}));
-    throw new Error(errorData.detail || `HTTP ${response.status}: ${response.statusText}`);
+    console.error('❌ Error en respuesta:', errorData);
+    console.error('❌ Error detail:', JSON.stringify(errorData, null, 2));
+    
+    // Procesar errores de validación de Pydantic para hacerlos más legibles
+    if (errorData.detail && Array.isArray(errorData.detail)) {
+      const validationErrors = errorData.detail.map((error: any) => {
+        const field = error.loc ? error.loc.join('.') : 'campo desconocido';
+        const message = error.msg || 'error de validación';
+        const value = error.input !== undefined ? ` (valor: ${error.input})` : '';
+        
+        // Traducir algunos errores comunes
+        let translatedMessage = message;
+        if (message.includes('greater than 0')) {
+          translatedMessage = 'debe ser mayor que 0 o estar vacío';
+        } else if (message.includes('ensure this value is greater than')) {
+          translatedMessage = 'debe ser un valor mayor';
+        } else if (message.includes('field required')) {
+          translatedMessage = 'es obligatorio';
+        } else if (message.includes('invalid format')) {
+          translatedMessage = 'formato inválido (usar MM:SS.CC)';
+        }
+        
+        return `${field}: ${translatedMessage}${value}`;
+      });
+      
+      throw new Error(`Errores de validación:\n${validationErrors.join('\n')}`);
+    }
+    
+    // Fallback para otros tipos de error
+    const errorMessage = errorData.detail || errorData.message || `HTTP ${response.status}: ${response.statusText}`;
+    throw new Error(typeof errorMessage === 'string' ? errorMessage : JSON.stringify(errorMessage));
   }
 
-  return response.json();
+  const result = await response.json();
+  console.log('✅ Datos recibidos:', result);
+  return result;
 }
 
 // =====================
@@ -153,7 +201,7 @@ export function useCreateResultado() {
       
       // Actualizar cache del resultado específico
       queryClient.setQueryData(
-        resultadoKeys.detail(data.id),
+        resultadoKeys.detail(data.resultado.id),
         data
       );
     },

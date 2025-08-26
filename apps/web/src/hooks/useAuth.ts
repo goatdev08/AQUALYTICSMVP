@@ -11,7 +11,7 @@
  * - Utilidades convenientes para verificar roles
  */
 
-import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
+import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { useAuthContext, AppUser } from '@/contexts/auth-context';
 import { useRouter } from 'next/navigation';
 
@@ -61,15 +61,6 @@ export interface UseAuthReturn {
   isEntrenador: boolean;
   isAtleta: boolean;
   refreshUser: () => Promise<void>;
-  
-  // Query del usuario actual (con cache de TanStack Query)
-  userQuery: {
-    data: AppUser | null;
-    isLoading: boolean;
-    isError: boolean;
-    error: any;
-    refetch: () => Promise<any>;
-  };
 }
 
 /**
@@ -80,64 +71,11 @@ export function useAuth(): UseAuthReturn {
   const queryClient = useQueryClient();
   const router = useRouter();
 
-  // Query para datos del usuario actual via GET /me del backend (con cache)
-  const userQuery = useQuery<AppUser | null>({
-    queryKey: ['auth', 'user', authContext.session?.access_token],
-    queryFn: async () => {
-      // Solo ejecutar si hay sesión con token
-      if (!authContext.session?.access_token) {
-        return null;
-      }
-
-      const token = authContext.session.access_token;
-      
-               const API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL || 'http://localhost:8000';
-      const response = await fetch(`${API_BASE_URL}/api/v1/me`, {
-           method: 'GET',
-           headers: {
-             'Authorization': `Bearer ${token}`,
-             'Content-Type': 'application/json',
-           },
-         });
-
-      if (!response.ok) {
-        if (response.status === 401) {
-          throw new Error('Token JWT inválido o expirado');
-        }
-        if (response.status === 404) {
-          throw new Error('Usuario no encontrado en el sistema');
-        }
-        throw new Error(`Error del backend: ${response.status} ${response.statusText}`);
-      }
-
-      const data = await response.json();
-      
-      if (!data || !data.usuario) {
-        throw new Error('Respuesta del backend en formato inesperado');
-      }
-
-      // Convertir a formato AppUser con tipos explícitos
-      const userData: AppUser = {
-        id: data.usuario.auth_user_id,
-        email: data.usuario.email,
-        rol: data.usuario.rol,
-        equipo_id: data.usuario.equipo_id,
-        created_at: data.usuario.created_at,
-        updated_at: data.usuario.updated_at,
-      };
-
-      return userData;
-    },
-    enabled: !!authContext.session?.access_token,
-    staleTime: 5 * 60 * 1000, // 5 minutos
-    gcTime: 10 * 60 * 1000, // 10 minutos (antes era cacheTime)
-    retry: (failureCount, error) => {
-      // No reintentar errores 401 (token inválido) o 404 (usuario no encontrado)
-      if (error.message.includes('401') || error.message.includes('404')) {
-        return false;
-      }
-      return failureCount < 2;
-    },
+  // Usar directamente los datos del contexto sin duplicar la lógica
+  console.log('🔍 useAuth - context state:', {
+    user: !!authContext.user,
+    loading: authContext.loading,
+    error: !!authContext.error
   });
 
   // Mutation para inicio de sesión
@@ -209,31 +147,24 @@ export function useAuth(): UseAuthReturn {
     },
   });
 
-  // Estados combinados
-  const isLoading = authContext.loading || signInMutation.isPending || signUpMutation.isPending || signOutMutation.isPending;
-  const isError = !!authContext.error || signInMutation.isError || signUpMutation.isError || signOutMutation.isError;
-  const error = authContext.error || 
-                (signInMutation.error as Error)?.message || 
-                (signUpMutation.error as Error)?.message || 
-                (signOutMutation.error as Error)?.message || 
-                null;
+  // Estados combinados (no necesarios, se usan directamente del contexto)
 
-  // Derivar utilidades de rol desde los datos de la query
-  const user = userQuery.data;
+  // Derivar utilidades de rol desde los datos del contexto
+  const user = authContext.user;
   const isEntrenador = user?.rol === 'entrenador';
   const isAtleta = user?.rol === 'atleta';
 
   return {
-    // Estado del usuario (ahora viene de TanStack Query, no AuthContext)
-    user: userQuery.data ?? null,
+    // Estado del usuario viene directamente del AuthContext
+    user: authContext.user,
     session: authContext.session,
     token: authContext.session?.access_token ?? null,
-    isAuthenticated: !!authContext.session && !!userQuery.data,
+    isAuthenticated: !!authContext.session && !!authContext.user,
     
-    // Estados combinados (incluye loading de la query)
-    isLoading: isLoading || userQuery.isLoading,
-    isError: isError || userQuery.isError,
-    error: error || (userQuery.error as Error)?.message || null,
+    // Estados directos del contexto
+    isLoading: authContext.loading,
+    isError: !!authContext.error,
+    error: authContext.error,
     
     // Mutations
     signIn: {
@@ -262,20 +193,12 @@ export function useAuth(): UseAuthReturn {
       error: signOutMutation.error,
     },
     
-    // Utilidades (ahora basadas en datos de TanStack Query)
+    // Utilidades basadas en datos del contexto
     isEntrenador,
     isAtleta,
     refreshUser: async () => { 
-      await userQuery.refetch(); 
-    },
-    
-    // Query del usuario
-    userQuery: {
-      data: userQuery.data ?? null,
-      isLoading: userQuery.isLoading,
-      isError: userQuery.isError,
-      error: userQuery.error,
-      refetch: userQuery.refetch,
+      // El contexto maneja la actualización automáticamente
+      console.log('🔄 refreshUser - context will handle updates');
     },
   };
 }
