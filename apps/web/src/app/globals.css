@@ -44,7 +44,7 @@
 }
 
 :root {
-  --radius: 0.625rem;
+  --radius: 1rem; /* Bordes más redondeados - 16px */
   --background: oklch(1 0 0);
   --foreground: oklch(0.145 0 0);
   --card: oklch(1 0 0);
@@ -123,4 +123,287 @@
   body {
     @apply bg-background text-foreground;
   }
+
+  /* ===== MEJORAS DE ACCESIBILIDAD ===== */
+  
+  /* Estados de focus mejorados para navegación por teclado */
+  *:focus-visible {
+    @apply outline-2 outline-offset-2 outline-ring;
+  }
+  
+  /* Focus específico para botones */
+  button:focus-visible,
+  [role="button"]:focus-visible {
+    @apply outline-2 outline-offset-2 outline-primary;
+  }
+  
+  /* Focus para elementos interactivos */
+  a:focus-visible,
+  input:focus-visible,
+  select:focus-visible,
+  textarea:focus-visible,
+  [tabindex]:focus-visible {
+    @apply outline-2 outline-offset-2 outline-ring ring-2 ring-ring/20;
+  }
+  
+  /* Estados hover mejorados para accesibilidad */
+  button:hover:not(:disabled),
+  [role="button"]:hover:not([aria-disabled="true"]) {
+    @apply transition-colors duration-200;
+  }
+  
+  /* Contraste mejorado para texto deshabilitado */
+  [disabled],
+  [aria-disabled="true"] {
+    @apply opacity-50 cursor-not-allowed;
+  }
+  
+  /* Skip links para navegación rápida */
+  .skip-link {
+    @apply absolute -top-full left-4 z-50 bg-primary text-primary-foreground px-4 py-2 rounded-md transition-all duration-200;
+    @apply focus:top-4 focus:outline-2 focus:outline-primary-foreground;
+  }
+  
+  /* Indicadores de navegación por teclado */
+  .keyboard-navigation {
+    @apply outline-2 outline-dashed outline-offset-4 outline-primary;
+  }
+  
+  /* Mejoras para tablas accesibles */
+  table {
+    @apply w-full border-collapse;
+  }
+  
+  th, td {
+    @apply text-left;
+  }
+  
+  th:focus-visible,
+  td:focus-visible,
+  tr:focus-visible {
+    @apply outline-2 outline-primary bg-accent/50;
+  }
+  
+  /* Estados de focus para elementos de formulario complejos */
+  [role="combobox"]:focus-visible,
+  [role="listbox"]:focus-visible,
+  [role="option"]:focus-visible {
+    @apply outline-2 outline-primary ring-2 ring-primary/20;
+  }
+  
+  /* Mejoras para contraste en modo oscuro */
+  .dark {
+    /* Asegurar contraste mínimo para texto */
+    --foreground: oklch(0.98 0 0);
+    --muted-foreground: oklch(0.75 0 0);
+  }
+  
+  /* Reducir movimiento para usuarios que prefieren menos animación */
+  @media (prefers-reduced-motion: reduce) {
+    *, *::before, *::after {
+      animation-duration: 0.01ms !important;
+      animation-iteration-count: 1 !important;
+      transition-duration: 0.01ms !important;
+    }
+  }
+  
+  /* Mejoras para alto contraste */
+  @media (prefers-contrast: high) {
+    :root {
+      --border: oklch(0.5 0 0);
+      --ring: oklch(0.3 0 0);
+    }
+    
+    .dark {
+      --border: oklch(0.7 0 0);
+      --ring: oklch(0.8 0 0);
+    }
+  }
+  
+  /* Clase para contenido solo para screen readers */
+  .sr-only {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    padding: 0;
+    margin: -1px;
+    overflow: hidden;
+    clip: rect(0, 0, 0, 0);
+    white-space: nowrap;
+    border-width: 0;
+  }
+  
+  .sr-only:focus {
+    position: static;
+    width: auto;
+    height: auto;
+    padding: inherit;
+    margin: inherit;
+    overflow: visible;
+    clip: auto;
+    white-space: normal;
+  }
+  
+  /* Estilos para elementos kbd (teclas de teclado) */
+  .kbd,
+  kbd {
+    @apply inline-flex items-center justify-center px-2 py-1 text-xs font-mono font-medium;
+    @apply bg-muted text-muted-foreground border border-border rounded;
+    @apply shadow-sm min-w-6 h-6;
+  }
+  
+  /* ===== MEJORAS DE UI/UX MODERNAS ===== */
+  
+  /* Mejores transiciones globales */
+  * {
+    @apply transition-colors duration-200 ease-in-out;
+  }
+  
+  /* Hover effects para cards */
+  .card-hover {
+    @apply transition-all duration-300 ease-out hover:shadow-lg hover:scale-[1.02] hover:-translate-y-1;
+  }
+  
+  /* Efectos de blur para fondos */
+  .backdrop-blur-glass {
+    backdrop-filter: blur(12px) saturate(180%);
+    background-color: rgba(255, 255, 255, 0.8);
+  }
+  
+  .dark .backdrop-blur-glass {
+    background-color: rgba(0, 0, 0, 0.8);
+  }
+  
+  /* Gradientes sutiles para elementos interactivos */
+  .gradient-hover {
+    @apply bg-gradient-to-r from-primary/10 via-primary/5 to-transparent;
+    @apply hover:from-primary/20 hover:via-primary/10 hover:to-primary/5;
+    @apply transition-all duration-300;
+  }
+  
+  /* Bordes brillantes para elementos activos */
+  .border-glow {
+    @apply border-primary/50 shadow-sm;
+    box-shadow: 0 0 0 1px rgba(23, 201, 100, 0.1), 0 2px 4px rgba(0, 0, 0, 0.05);
+  }
+  
+  .dark .border-glow {
+    box-shadow: 0 0 0 1px rgba(23, 201, 100, 0.2), 0 2px 4px rgba(0, 0, 0, 0.2);
+  }
+  
+  /* Animaciones para iconos */
+  .icon-bounce {
+    @apply transition-transform duration-200 hover:scale-110;
+    transform-origin: center;
+  }
+  
+  /* Efectos de loading más elegantes */
+  .loading-shimmer {
+    background: linear-gradient(90deg, 
+      rgba(255, 255, 255, 0) 0%, 
+      rgba(255, 255, 255, 0.2) 50%, 
+      rgba(255, 255, 255, 0) 100%
+    );
+    background-size: 200% 100%;
+    animation: shimmer 1.5s infinite ease-in-out;
+  }
+  
+  .dark .loading-shimmer {
+    background: linear-gradient(90deg, 
+      rgba(255, 255, 255, 0) 0%, 
+      rgba(255, 255, 255, 0.1) 50%, 
+      rgba(255, 255, 255, 0) 100%
+    );
+  }
+  
+  @keyframes shimmer {
+    0% { background-position: -200% 0; }
+    100% { background-position: 200% 0; }
+  }
+  
+  /* Mejores scrollbars */
+  .custom-scrollbar::-webkit-scrollbar {
+    width: 8px;
+    height: 8px;
+  }
+  
+  .custom-scrollbar::-webkit-scrollbar-track {
+    background: transparent;
+  }
+  
+  .custom-scrollbar::-webkit-scrollbar-thumb {
+    background: oklch(0.5 0 0 / 0.2);
+    border-radius: 4px;
+    transition: background 0.2s ease;
+  }
+  
+  .custom-scrollbar::-webkit-scrollbar-thumb:hover {
+    background: oklch(0.5 0 0 / 0.4);
+  }
+  
+  /* Estilos para mensajes de estado */
+  .status-success {
+    @apply bg-green-50 text-green-800 border-green-200 dark:bg-green-950 dark:text-green-200 dark:border-green-800;
+  }
+  
+  .status-warning {
+    @apply bg-amber-50 text-amber-800 border-amber-200 dark:bg-amber-950 dark:text-amber-200 dark:border-amber-800;
+  }
+  
+  .status-error {
+    @apply bg-red-50 text-red-800 border-red-200 dark:bg-red-950 dark:text-red-200 dark:border-red-800;
+  }
+  
+  .status-info {
+    @apply bg-blue-50 text-blue-800 border-blue-200 dark:bg-blue-950 dark:text-blue-200 dark:border-blue-800;
+  }
+  
+  /* ===== MEJORAS DE LAYOUT Y CONTENCIÓN ===== */
+  
+  /* Contención mejorada para gráficos */
+  .chart-container {
+    contain: layout style paint;
+    isolation: isolate;
+  }
+  
+  /* Prevenir overflow en cards */
+  .card-safe {
+    contain: layout;
+    overflow: hidden;
+  }
+  
+  /* Stack context para evitar z-index issues */
+  .stack-context {
+    position: relative;
+    z-index: 0;
+    isolation: isolate;
+  }
+  
+  /* Grid mejorado para dashboard */
+  .dashboard-grid {
+    display: grid;
+    gap: 2rem;
+    contain: layout;
+  }
+  
+  /* Contención para elementos interactivos */
+  .interactive-element {
+    contain: layout style;
+    will-change: transform;
+  }
+  
+  /* Mejoras para texto que se superpone */
+  .text-contained {
+    overflow-wrap: break-word;
+    word-break: break-word;
+    hyphens: auto;
+  }
+  
+  /* Z-index scale para evitar conflictos */
+  .z-base { z-index: 0; }
+  .z-cards { z-index: 10; }
+  .z-dropdowns { z-index: 50; }
+  .z-modals { z-index: 100; }
+  .z-tooltips { z-index: 200; }
+  .z-notifications { z-index: 300; }
 }

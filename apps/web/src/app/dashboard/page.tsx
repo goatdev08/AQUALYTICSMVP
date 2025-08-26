@@ -3,15 +3,18 @@
 /**
  * Página del Dashboard
  * 
- * Página protegida para usuarios autenticados.
- * Integrada con sistema de autenticación y roles.
+ * Dashboard principal con diseño moderno:
+ * - Layout con sidebar colapsible
+ * - KPIs mejorados con bordes redondeados
+ * - Gráficos en cards elegantes
+ * - Tema verde consistente
+ * - Navegación intuitiva
  */
 
 import { ProtectedRoute } from '@/components/auth';
-import { useAuth } from '@/hooks/useAuth';
+import { AppLayout } from '@/components/layout';
 import { ResultadoDetailModal } from '@/components/resultados';
 import { 
-  KPICard,
   Top5Chart,
   PieChart,
   ProximasCompetenciasList,
@@ -19,24 +22,21 @@ import {
   ActividadRecienteTable
 } from '@/components/dashboard';
 import { useDashboardResumen } from '@/hooks/useDashboard';
-import { useDashboardFilters, useDashboardApiFilters } from '@/stores/dashboard-store';
-import { LoaderIcon, CalendarIcon, UsersIcon, BarChartIcon, TrendingUp } from 'lucide-react';
-import Link from 'next/link';
+import { useDashboardApiFilters } from '@/stores/dashboard-store';
+import { CalendarIcon, UsersIcon, BarChartIcon, TrendingUp, Target, Activity } from 'lucide-react';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui';
 import { useSearchParams } from 'next/navigation';
 import { useEffect, useState } from 'react';
 
 
 
 function DashboardContent() {
-  const { user, signOut, isLoading, isEntrenador } = useAuth();
   const searchParams = useSearchParams();
   const [sharedResultadoId, setSharedResultadoId] = useState<number | null>(null);
   
   // Hooks del dashboard
-  const { data: resumenData, isLoading: resumenLoading, error: resumenError } = useDashboardResumen();
+  const { data: resumenData } = useDashboardResumen();
   const apiFilters = useDashboardApiFilters();
-
-  // Dashboard funcionando correctamente
 
   // Manejar compartir vía URL ?detalle={id}
   useEffect(() => {
@@ -49,167 +49,173 @@ function DashboardContent() {
     }
   }, [searchParams]);
 
-  if (isLoading) {
-    return (
-      <div className="min-h-screen flex items-center justify-center">
-        <LoaderIcon className="h-8 w-8 animate-spin text-primary" />
-      </div>
-    );
-  }
-
-  const handleLogout = async () => {
-    try {
-      await signOut.mutateAsync();
-    } catch (error) {
-      console.error('Error en logout:', error);
-    }
-  };
-
   return (
-    <div className="min-h-screen bg-background">
-      <div className="max-w-7xl mx-auto py-6 sm:px-6 lg:px-8">
-        <div className="px-4 py-6 sm:px-0">
-          {/* Header con información del usuario */}
-          <div className="bg-white shadow rounded-lg p-6 mb-6">
-            <div className="flex justify-between items-center">
-              <div>
-                <h1 className="text-3xl font-bold text-gray-900">
-                  🏊‍♂️ Dashboard de AquaLytics
-                </h1>
-                <p className="text-sm text-gray-600 mt-2">
-                  Bienvenido, <span className="font-medium">{user?.email}</span>
+    <div className="p-6 space-y-10 max-w-7xl mx-auto min-h-screen">
+      {/* Welcome Section */}
+      <div className="space-y-2 pb-2">
+        <h2 className="text-lg font-medium text-muted-foreground">
+          Panel de Control
+        </h2>
+        <p className="text-sm text-muted-foreground/80">
+          Vista general de tu equipo de natación
+        </p>
+      </div>
+
+      {/* KPIs principales con diseño mejorado */}
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+        <Card className="border-0 bg-gradient-to-br from-blue-50 to-blue-100 dark:from-blue-950 dark:to-blue-900 shadow-md hover:shadow-lg transition-all duration-200 rounded-xl">
+          <CardContent className="p-6">
+            <div className="flex items-center justify-between">
+              <div className="space-y-1">
+                <p className="text-sm font-medium text-blue-700 dark:text-blue-300">Total Nadadores</p>
+                <p className="text-2xl font-bold text-blue-900 dark:text-blue-100">
+                  {resumenData?.total_nadadores || 0}
                 </p>
-                <div className="flex items-center mt-1">
-                  <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${
-                    isEntrenador ? 'bg-blue-100 text-blue-800' : 'bg-green-100 text-green-800'
-                  }`}>
-                    {isEntrenador ? '👨‍🏫 Entrenador' : '🏊‍♂️ Atleta'}
-                  </span>
-                  <span className="ml-2 text-xs text-gray-500">
-                    Equipo ID: {user?.equipo_id}
-                  </span>
-                </div>
               </div>
-              <button
-                onClick={handleLogout}
-                disabled={signOut.isLoading}
-                className="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-red-600 hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500 disabled:opacity-50"
-              >
-                {signOut.isLoading ? (
-                  <>
-                    <LoaderIcon className="mr-2 h-4 w-4 animate-spin" />
-                    Cerrando sesión...
-                  </>
-                ) : (
-                  'Cerrar Sesión'
-                )}
-              </button>
+              <div className="h-12 w-12 bg-blue-500 rounded-lg flex items-center justify-center">
+                <UsersIcon className="h-6 w-6 text-white" />
+              </div>
             </div>
-          </div>
-          
-          {/* KPIs principales */}
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
-            <KPICard
-              label="Total Nadadores"
-              value={resumenData?.total_nadadores || 0}
-              icon={<UsersIcon />}
-              isLoading={resumenLoading}
-              variant="default"
-            />
-            <KPICard
-              label="Total Competencias"
-              value={resumenData?.total_competencias || 0}
-              icon={<CalendarIcon />}
-              isLoading={resumenLoading}
-              variant="success"
-            />
-            <KPICard
-              label="Total Registros"
-              value={resumenData?.total_registros || 0}
-              icon={<BarChartIcon />}
-              isLoading={resumenLoading}
-              variant="info"
-            />
-            <KPICard
-              label="PBs Recientes"
-              value={resumenData?.pbs_recientes || 0}
-              icon={<TrendingUp />}
-              isLoading={resumenLoading}
-              variant="warning"
-              description="Últimos 30 días"
-            />
-          </div>
+          </CardContent>
+        </Card>
 
-          {/* Gráficos principales */}
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
-            <Top5Chart
-              initialFilters={apiFilters}
-              className="lg:col-span-1"
-            />
-            <PieChart
-              className="lg:col-span-1"
-            />
-          </div>
-
-          {/* Listas y actividad */}
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
-            <ProximasCompetenciasList
-              className="lg:col-span-1"
-            />
-            <AtletasDestacadosList
-              className="lg:col-span-1"
-            />
-          </div>
-
-          {/* Actividad reciente */}
-          <div className="mb-8">
-            <ActividadRecienteTable />
-          </div>
-
-          {/* Sección de módulos funcionales */}
-          <div className="mt-8 border-t pt-6">
-            <h3 className="text-lg font-medium text-gray-900 mb-4">📱 Módulos Disponibles</h3>
-            <div className="flex flex-wrap gap-3">
-              <Link
-                href="/nadadores"
-                className="inline-flex items-center px-4 py-2 border border-green-300 rounded-md shadow-sm bg-green-50 text-sm font-medium text-green-700 hover:bg-green-100 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500"
-              >
-                🏊‍♂️ Gestión de Nadadores
-              </Link>
-              <Link
-                href="/competencias"
-                className="inline-flex items-center px-4 py-2 border border-green-300 rounded-md shadow-sm bg-green-50 text-sm font-medium text-green-700 hover:bg-green-100 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500"
-              >
-                🏆 Gestión de Competencias
-              </Link>
-              <Link
-                href="/resultados/registrar"
-                className="inline-flex items-center px-4 py-2 border border-green-300 rounded-md shadow-sm bg-green-50 text-sm font-medium text-green-700 hover:bg-green-100 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500 relative"
-              >
-                📊 Registro de Resultados
-                <span className="absolute -top-1 -right-1 inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-green-600 text-white">
-                  ¡Nuevo!
-                </span>
-              </Link>
-              
-              {/* BOTÓN DE PRUEBA DEL MODAL - Resultado ID 14 */}
-              <ResultadoDetailModal 
-                resultadoId={14}
-                triggerText="🔍 Probar Modal Detalles"
-                triggerVariant="outline"
-                className="border-blue-300 bg-blue-50 text-blue-700 hover:bg-blue-100 relative"
-              >
-                <span className="absolute -top-1 -right-1 inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-blue-600 text-white">
-                  Demo
-                </span>
-              </ResultadoDetailModal>
+        <Card className="border-0 bg-gradient-to-br from-green-50 to-green-100 dark:from-green-950 dark:to-green-900 shadow-md hover:shadow-lg transition-all duration-200 rounded-xl">
+          <CardContent className="p-6">
+            <div className="flex items-center justify-between">
+              <div className="space-y-1">
+                <p className="text-sm font-medium text-green-700 dark:text-green-300">Competencias</p>
+                <p className="text-2xl font-bold text-green-900 dark:text-green-100">
+                  {resumenData?.total_competencias || 0}
+                </p>
+              </div>
+              <div className="h-12 w-12 bg-green-500 rounded-lg flex items-center justify-center">
+                <CalendarIcon className="h-6 w-6 text-white" />
+              </div>
             </div>
-            <p className="mt-2 text-xs text-gray-500">
-              Acceso directo a los módulos funcionales de AquaLytics
-            </p>
-          </div>
+          </CardContent>
+        </Card>
 
+        <Card className="border-0 bg-gradient-to-br from-purple-50 to-purple-100 dark:from-purple-950 dark:to-purple-900 shadow-md hover:shadow-lg transition-all duration-200 rounded-xl">
+          <CardContent className="p-6">
+            <div className="flex items-center justify-between">
+              <div className="space-y-1">
+                <p className="text-sm font-medium text-purple-700 dark:text-purple-300">Registros</p>
+                <p className="text-2xl font-bold text-purple-900 dark:text-purple-100">
+                  {resumenData?.total_registros || 0}
+                </p>
+              </div>
+              <div className="h-12 w-12 bg-purple-500 rounded-lg flex items-center justify-center">
+                <BarChartIcon className="h-6 w-6 text-white" />
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+
+        <Card className="border-0 bg-gradient-to-br from-amber-50 to-amber-100 dark:from-amber-950 dark:to-amber-900 shadow-md hover:shadow-lg transition-all duration-200 rounded-xl">
+          <CardContent className="p-6">
+            <div className="flex items-center justify-between">
+              <div className="space-y-1">
+                <p className="text-sm font-medium text-amber-700 dark:text-amber-300">PBs Recientes</p>
+                <p className="text-2xl font-bold text-amber-900 dark:text-amber-100">
+                  {resumenData?.pbs_recientes || 0}
+                </p>
+                <p className="text-xs text-amber-600 dark:text-amber-400">Últimos 30 días</p>
+              </div>
+              <div className="h-12 w-12 bg-amber-500 rounded-lg flex items-center justify-center">
+                <TrendingUp className="h-6 w-6 text-white" />
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+      </div>
+
+      {/* Gráficos principales con cards mejorados */}
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+        <Card className="rounded-xl shadow-sm hover:shadow-md transition-shadow duration-200 relative overflow-hidden">
+          <CardHeader className="pb-4 border-b border-border/50">
+            <CardTitle className="flex items-center gap-2 text-base">
+              <Target className="h-5 w-5 text-primary" />
+              Top 5 Nadadores
+            </CardTitle>
+            <CardDescription className="text-sm">
+              Mejores tiempos por prueba y rama
+            </CardDescription>
+          </CardHeader>
+          <CardContent className="p-6">
+            <div className="h-[380px] w-full overflow-hidden">
+              <Top5Chart
+                initialFilters={apiFilters}
+                className="h-full w-full"
+              />
+            </div>
+          </CardContent>
+        </Card>
+
+        <Card className="rounded-xl shadow-sm hover:shadow-md transition-shadow duration-200 relative overflow-hidden">
+          <CardHeader className="pb-4 border-b border-border/50">
+            <CardTitle className="flex items-center gap-2 text-base">
+              <Activity className="h-5 w-5 text-primary" />
+              Distribución por Estilo
+            </CardTitle>
+            <CardDescription className="text-sm">
+              Análisis de especialización del equipo
+            </CardDescription>
+          </CardHeader>
+          <CardContent className="p-6">
+            <div className="h-[380px] w-full overflow-hidden flex items-center justify-center">
+              <PieChart className="h-full w-full max-h-[380px]" />
+            </div>
+          </CardContent>
+        </Card>
+      </div>
+
+      {/* Listas informativas */}
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+        <div className="relative z-10">
+          <ProximasCompetenciasList className="rounded-xl shadow-sm" />
         </div>
+        <div className="relative z-10">
+          <AtletasDestacadosList className="rounded-xl shadow-sm" />
+        </div>
+      </div>
+
+      {/* Actividad reciente */}
+      <div className="relative z-10">
+        <Card className="rounded-xl shadow-sm border border-border/50">
+          <CardHeader className="border-b border-border/50">
+            <CardTitle className="text-base">Actividad Reciente</CardTitle>
+            <CardDescription className="text-sm">
+              Últimos registros y actualizaciones
+            </CardDescription>
+          </CardHeader>
+          <CardContent className="p-6">
+            <div className="overflow-hidden">
+              <ActividadRecienteTable />
+            </div>
+          </CardContent>
+        </Card>
+      </div>
+
+      {/* Acciones rápidas */}
+      <div className="relative z-10 pb-8">
+        <Card className="rounded-xl shadow-sm border-dashed border-2 border-muted-foreground/20 bg-muted/20">
+          <CardContent className="p-8">
+            <div className="text-center space-y-4">
+              <h3 className="text-lg font-medium text-foreground">Acciones Rápidas</h3>
+              <div className="flex flex-wrap justify-center gap-3">
+                <ResultadoDetailModal 
+                  resultadoId={14}
+                  triggerText="🔍 Ver Demo de Detalle"
+                  triggerVariant="outline"
+                  className="rounded-lg"
+                />
+              </div>
+              <p className="text-xs text-muted-foreground">
+                Utiliza la navegación lateral para acceder a todas las funciones
+              </p>
+            </div>
+          </CardContent>
+        </Card>
       </div>
 
       {/* Modal compartido vía URL */}
@@ -218,11 +224,10 @@ function DashboardContent() {
           resultadoId={sharedResultadoId}
           triggerText="Detalle Compartido"
           triggerVariant="ghost"
-          className="hidden" // Trigger oculto, se abre automáticamente
+          className="hidden"
           autoOpen={true}
           onClose={() => {
             setSharedResultadoId(null);
-            // Limpiar query param de la URL
             const url = new URL(window.location.href);
             url.searchParams.delete('detalle');
             window.history.replaceState({}, '', url.toString());
@@ -236,7 +241,12 @@ function DashboardContent() {
 export default function DashboardPage() {
   return (
     <ProtectedRoute>
-      <DashboardContent />
+      <AppLayout 
+        title="Dashboard" 
+        description="Vista general de tu equipo de natación"
+      >
+        <DashboardContent />
+      </AppLayout>
     </ProtectedRoute>
   );
 }

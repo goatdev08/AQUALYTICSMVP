@@ -27,7 +27,9 @@ import { Badge as ShadcnBadge, badgeVariants } from "./badge"
 // Componentes adicionales shadcn
 import { 
   Dialog, DialogTrigger, DialogContent, DialogHeader, 
-  DialogFooter, DialogTitle, DialogDescription, DialogClose 
+  DialogFooter, DialogTitle, DialogDescription, DialogClose,
+  Sheet, SheetTrigger, SheetContent, SheetHeader,
+  SheetFooter, SheetTitle, SheetDescription, SheetClose
 } from "./dialog"
 import { 
   Table, TableHeader, TableBody, TableCell, 
@@ -36,6 +38,10 @@ import {
 
 // Componentes especializados de AquaLytics
 import { TimeInput, SimpleTimeInput } from "./time-input"
+import { ThemeToggle, ThemeToggleCompact, ThemeToggleWithLabel } from "./theme-toggle"
+import { SkipLinks, Landmark, useSkipLinks } from "./skip-links"
+import { AccessibilityInfo, AccessibilityInfoCompact } from "./accessibility-info"
+import { Sidebar, MobileSidebar, SidebarContainer } from "./sidebar"
 // PruebaSelector components removed - using PruebaSelectorSimplificado from @/components/pruebas
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "./tabs"
 import { Card, CardHeader, CardContent, CardTitle, CardDescription, CardFooter } from "./card"
@@ -59,7 +65,9 @@ export { Skeleton }
 // Componentes Dialog y Table
 export { 
   Dialog, DialogTrigger, DialogContent, DialogHeader, 
-  DialogFooter, DialogTitle, DialogDescription, DialogClose 
+  DialogFooter, DialogTitle, DialogDescription, DialogClose,
+  Sheet, SheetTrigger, SheetContent, SheetHeader,
+  SheetFooter, SheetTitle, SheetDescription, SheetClose
 }
 export { 
   Table, TableHeader, TableBody, TableCell, 
@@ -68,6 +76,10 @@ export {
 
 // Componentes especializados
 export { TimeInput, SimpleTimeInput }
+export { ThemeToggle, ThemeToggleCompact, ThemeToggleWithLabel }
+export { SkipLinks, Landmark, useSkipLinks }
+export { AccessibilityInfo, AccessibilityInfoCompact }
+export { Sidebar, MobileSidebar, SidebarContainer }
 export { Tabs, TabsList, TabsTrigger, TabsContent }
 export { 
   Select, SelectContent, SelectItem, SelectTrigger, 

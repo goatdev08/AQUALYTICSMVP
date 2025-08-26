@@ -12,14 +12,23 @@
 
 'use client'
 
-import React, { useState, useMemo, useCallback } from 'react'
+import React, { useMemo, useCallback } from 'react'
 import { useAuth } from '@/hooks/useAuth'
 import { useResultados, formatearTiempo } from '@/hooks/useResultados'
 import { useNadadores } from '@/hooks/useNadadores'
 import { useCompetencias } from '@/hooks/useCompetencias'
 import { usePruebas } from '@/hooks/usePruebas'
 import { useDebounce } from '@/hooks/useDebounce'
-import type { ResultadoSearchFilters, ResultadoResponse, EstadoValidacion } from '@/types/resultados'
+import type { ResultadoSearchFilters, ResultadoResponse } from '@/types/resultados'
+
+// Store de Zustand para persistencia
+import {
+  useResultadosFilters,
+  useResultadosSorting,
+  useResultadosPagination,
+  useResultadosUI,
+  type ResultadosFilterState
+} from '@/stores/resultados-store'
 
 // Componentes UI shadcn
 import {
@@ -52,27 +61,7 @@ import { ResultadoDetailModal } from './ResultadoDetailModal'
 // =====================
 // Tipos internos
 // =====================
-
-interface FilterState {
-  nadador_id?: number;
-  competencia_id?: number;
-  prueba_id?: number;
-  rama?: 'F' | 'M';
-  fecha_inicio?: string;
-  fecha_fin?: string;
-  estado_validacion?: EstadoValidacion;
-  fase?: string;
-}
-
-interface SortState {
-  sort_by: string;
-  sort_order: 'asc' | 'desc';
-}
-
-interface PaginationState {
-  page: number;
-  size: number;
-}
+// Tipos movidos a @/stores/resultados-store
 
 // =====================
 // Componente principal
@@ -81,23 +70,20 @@ interface PaginationState {
 export default function ResultadosTable() {
   const { user } = useAuth()
   
-  // Estados de filtros y paginación
-  const [filters, setFilters] = useState<FilterState>({})
-  const [sorting, setSorting] = useState<SortState>({
-    sort_by: 'fecha_registro',
-    sort_order: 'desc'
-  })
-  const [pagination, setPagination] = useState<PaginationState>({
-    page: 1,
-    size: 20
-  })
+  // Estados desde Zustand store (persistentes)
+  const { filters, setFilter, clearFilters } = useResultadosFilters()
+  const { sorting, updateSorting } = useResultadosSorting()
+  const { pagination, goToPage, changePageSize } = useResultadosPagination()
+  const { 
+    uiState, 
+    setNadadorSearch, 
+    setSelectedResultado 
+  } = useResultadosUI()
   
-  // Estado para búsqueda de nadador
-  const [nadadorSearch, setNadadorSearch] = useState('')
+  // Estados derivados
+  const nadadorSearch = uiState.nadadorSearch
+  const selectedResultadoId = uiState.selectedResultadoId
   const debouncedNadadorSearch = useDebounce(nadadorSearch, 300)
-  
-  // Estado del modal de detalles
-  const [selectedResultadoId, setSelectedResultadoId] = useState<number | null>(null)
   
   // Hooks de datos
   const resultadosQuery = useResultados(
@@ -119,47 +105,37 @@ export default function ResultadosTable() {
   // Handlers de filtros
   // =====================
   
-  const updateFilter = useCallback((key: keyof FilterState, value: any) => {
-    setFilters(prev => ({
-      ...prev,
-      [key]: value || undefined
-    }))
-    setPagination(prev => ({ ...prev, page: 1 })) // Reset a página 1
-  }, [])
+  const updateFilter = useCallback((key: keyof ResultadosFilterState, value: any) => {
+    setFilter(key, value)
+  }, [setFilter])
   
-  const clearFilters = useCallback(() => {
-    setFilters({})
-    setNadadorSearch('')
-    setPagination({ page: 1, size: 20 })
-  }, [])
+  const handleClearFilters = useCallback(() => {
+    clearFilters()
+  }, [clearFilters])
   
-  const updateSorting = useCallback((field: string) => {
-    setSorting(prev => ({
-      sort_by: field,
-      sort_order: prev.sort_by === field && prev.sort_order === 'asc' ? 'desc' : 'asc'
-    }))
-    setPagination(prev => ({ ...prev, page: 1 }))
-  }, [])
+  const handleUpdateSorting = useCallback((field: string) => {
+    updateSorting(field)
+  }, [updateSorting])
   
   // =====================
   // Handlers de paginación
   // =====================
   
-  const goToPage = useCallback((page: number) => {
-    setPagination(prev => ({ ...prev, page }))
-  }, [])
+  const handleGoToPage = useCallback((page: number) => {
+    goToPage(page)
+  }, [goToPage])
   
-  const changePageSize = useCallback((size: number) => {
-    setPagination({ page: 1, size })
-  }, [])
+  const handleChangePageSize = useCallback((size: number) => {
+    changePageSize(size)
+  }, [changePageSize])
   
   // =====================
   // Handlers de acciones
   // =====================
   
   const handleVerDetalles = useCallback((resultadoId: number) => {
-    setSelectedResultadoId(resultadoId)
-  }, [])
+    setSelectedResultado(resultadoId)
+  }, [setSelectedResultado])
   
   const handleEditar = useCallback((resultado: ResultadoResponse) => {
     // TODO: Implementar navegación a edición
@@ -345,14 +321,14 @@ export default function ResultadosTable() {
             <div className="flex gap-2">
               <Button
                 variant="outline"
-                onClick={clearFilters}
+                onClick={handleClearFilters}
                 className="flex-1"
               >
                 Limpiar
               </Button>
               <Select
                 value={pagination.size.toString()}
-                onValueChange={(value: string) => changePageSize(parseInt(value))}
+                onValueChange={(value: string) => handleChangePageSize(parseInt(value))}
               >
                 <SelectTrigger className="w-20">
                   <SelectValue />
@@ -387,7 +363,7 @@ export default function ResultadosTable() {
             <TableRow>
               <TableHead 
                 className="cursor-pointer hover:bg-muted/50"
-                onClick={() => updateSorting('nadador')}
+                onClick={() => handleUpdateSorting('nadador')}
               >
                 Nadador
                 {sorting.sort_by === 'nadador' && (
@@ -400,7 +376,7 @@ export default function ResultadosTable() {
               <TableHead>Competencia</TableHead>
               <TableHead 
                 className="cursor-pointer hover:bg-muted/50"
-                onClick={() => updateSorting('tiempo_global_cs')}
+                onClick={() => handleUpdateSorting('tiempo_global_cs')}
               >
                 Tiempo
                 {sorting.sort_by === 'tiempo_global_cs' && (
@@ -413,7 +389,7 @@ export default function ResultadosTable() {
               <TableHead>Estado</TableHead>
               <TableHead 
                 className="cursor-pointer hover:bg-muted/50"
-                onClick={() => updateSorting('fecha_registro')}
+                onClick={() => handleUpdateSorting('fecha_registro')}
               >
                 Fecha
                 {sorting.sort_by === 'fecha_registro' && (
@@ -511,7 +487,7 @@ export default function ResultadosTable() {
             <Button
               variant="outline"
               size="sm"
-              onClick={() => goToPage(pagination.page - 1)}
+              onClick={() => handleGoToPage(pagination.page - 1)}
               disabled={pagination.page === 1}
             >
               <ChevronLeft className="h-4 w-4" />
@@ -528,7 +504,7 @@ export default function ResultadosTable() {
                     key={pageNum}
                     variant={pageNum === pagination.page ? "default" : "outline"}
                     size="sm"
-                    onClick={() => goToPage(pageNum)}
+                    onClick={() => handleGoToPage(pageNum)}
                   >
                     {pageNum}
                   </Button>
@@ -539,7 +515,7 @@ export default function ResultadosTable() {
             <Button
               variant="outline"
               size="sm"
-              onClick={() => goToPage(pagination.page + 1)}
+              onClick={() => handleGoToPage(pagination.page + 1)}
               disabled={pagination.page === totalPages}
             >
               Siguiente
@@ -554,7 +530,7 @@ export default function ResultadosTable() {
         <ResultadoDetailModal
           resultadoId={selectedResultadoId}
           autoOpen={true}
-          onClose={() => setSelectedResultadoId(null)}
+          onClose={() => setSelectedResultado(null)}
         />
       )}
     </div>

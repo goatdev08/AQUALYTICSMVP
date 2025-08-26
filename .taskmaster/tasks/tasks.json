@@ -884,7 +884,7 @@
           17,
           "23"
         ],
-        "status": "pending",
+        "status": "done",
         "subtasks": [
           {
             "id": 1,
@@ -947,8 +947,8 @@
             "dependencies": [
               "20.4"
             ],
-            "details": "Ensure state is modular, supports middleware for persistence, and integrates seamlessly with the UI and backend.",
-            "status": "pending",
+            "details": "Ensure state is modular, supports middleware for persistence, and integrates seamlessly with the UI and backend.\n<info added on 2025-08-26T00:05:19.208Z>\nZUSTAND STORE COMPLETAMENTE IMPLEMENTADO Y FUNCIONAL\n\nStore de Zustand (resultados-store.ts) creado con gestión completa de estado persistente incluyendo filtros, ordenamiento, paginación y preferencias de usuario. Hooks de conveniencia implementados: useResultadosFilters, useResultadosSorting, useResultadosPagination, useResultadosUI para acceso modular al estado.\n\nResultadosTable completamente migrado del estado local a Zustand store. Todos los useState reemplazados por hooks del store, garantizando persistencia automática de filtros, ordenamiento y preferencias entre sesiones. Handlers actualizados para usar métodos centralizados del store.\n\nFuncionalidades de persistencia configuradas: filtros se guardan automáticamente según preferencias del usuario, ordenamiento siempre persistente, tamaño de página configurable, página reinicia en 1 para UX optimizada.\n\nFiltros rápidos predefinidos implementados (solo-validos, femenil, esta-semana) con preferencias granulares para compact mode, timestamps y auto-refresh. Estado de UI separado para elementos temporales con actions centralizadas para debugging.\n\nPágina dedicada /resultados creada con AppLayout integrado, headers informativos, indicadores de funcionalidades y diseño consistente con tema verde. Los usuarios mantienen automáticamente sus filtros y preferencias entre sesiones, mejorando significativamente la experiencia de usuario.\n</info added on 2025-08-26T00:05:19.208Z>",
+            "status": "done",
             "testStrategy": ""
           },
           {
@@ -960,7 +960,7 @@
               "20.2"
             ],
             "details": "Work with the backend/database team to ensure indexes match the most common filter and sort combinations.",
-            "status": "pending",
+            "status": "done",
             "testStrategy": ""
           },
           {
@@ -990,7 +990,7 @@
           19,
           20
         ],
-        "status": "pending",
+        "status": "done",
         "subtasks": [
           {
             "id": 1,
@@ -998,7 +998,7 @@
             "description": "Set up the theme provider using Tailwind CSS to support both light and dark modes. Ensure Tailwind is configured for manual theme switching and compatible with Figma tokens/variables.",
             "dependencies": [],
             "details": "Update tailwind.config.js to use 'darkMode: class'. Integrate theme tokens from figma-map, verifying compatibility with dark mode and accessibility requirements. Ensure flexibility for future design changes.",
-            "status": "pending",
+            "status": "done",
             "testStrategy": ""
           },
           {
@@ -1009,7 +1009,7 @@
               "21.1"
             ],
             "details": "Develop a toggle button that updates the theme provider and adds/removes the 'dark' class on the root element. Store and retrieve the user's theme preference from localStorage on app load.",
-            "status": "pending",
+            "status": "done",
             "testStrategy": ""
           },
           {
@@ -1020,7 +1020,7 @@
               "21.1"
             ],
             "details": "Define CSS variables for key color properties. Ensure variables update dynamically based on the active theme and are compatible with both Tailwind utilities and imported Figma tokens.",
-            "status": "pending",
+            "status": "done",
             "testStrategy": ""
           },
           {
@@ -1033,7 +1033,7 @@
               "21.3"
             ],
             "details": "Audit color contrast ratios for WCAG compliance. Implement custom focus styles for buttons, links, and form controls. Enable full keyboard navigation and tab order for all interactive components.",
-            "status": "pending",
+            "status": "done",
             "testStrategy": ""
           },
           {
@@ -1044,7 +1044,7 @@
               "21.4"
             ],
             "details": "Insert skip links at the top of the DOM for main content and navigation. Review and update ARIA roles, aria-labels, and semantic HTML to maximize accessibility for assistive technologies.",
-            "status": "pending",
+            "status": "done",
             "testStrategy": ""
           },
           {
@@ -1056,7 +1056,7 @@
               "21.5"
             ],
             "details": "Run automated accessibility audits and manual keyboard navigation tests. Confirm that capture shortcuts do not conflict with navigation or accessibility features. Document and fix any issues found.",
-            "status": "pending",
+            "status": "done",
             "testStrategy": ""
           }
         ]
@@ -1072,7 +1072,7 @@
           21,
           "23"
         ],
-        "status": "pending",
+        "status": "done",
         "subtasks": [
           {
             "id": 1,
@@ -1080,7 +1080,7 @@
             "description": "Implement the landing page layout using Tailwind CSS for responsive design and shadcn/ui wrappers. Ensure the theme is 'green' and consistent with the rest of the application.",
             "dependencies": [],
             "details": "Set up the Next.js project with Tailwind CSS. Integrate shadcn/ui components and apply the green theme. Maintain flexibility for rapid design iterations and use Figma only if specifically requested.",
-            "status": "pending",
+            "status": "done",
             "testStrategy": ""
           },
           {
@@ -1091,7 +1091,7 @@
               "22.1"
             ],
             "details": "Write and structure content for each section. Ensure clarity and alignment with the product's value proposition. Position the CTA prominently.",
-            "status": "pending",
+            "status": "done",
             "testStrategy": ""
           },
           {
@@ -1102,8 +1102,8 @@
               "22.1",
               "22.2"
             ],
-            "details": "Configure NEXT_PUBLIC_SUPABASE_URL, NEXT_PUBLIC_SUPABASE_ANON_KEY, and NEXT_PUBLIC_API_BASE_URL in Vercel. Set up build commands and rewrites for backend proxying.",
-            "status": "pending",
+            "details": "Configure NEXT_PUBLIC_SUPABASE_URL, NEXT_PUBLIC_SUPABASE_ANON_KEY, and NEXT_PUBLIC_API_BASE_URL in Vercel. Set up build commands and rewrites for backend proxying.\n<info added on 2025-08-26T00:12:57.663Z>\nCOMPLETED: Vercel deployment configuration fully implemented with professional-grade setup including optimized monorepo build commands with pnpm, automated API proxy rewrites to backend, comprehensive security headers (CORS, X-Frame-Options, X-Content-Type-Options, Referrer-Policy, Permissions-Policy), production optimizations (regions iad1/fra1, 30s function timeout, telemetry disabled), and complete documentation in VERCEL_SETUP.md with step-by-step guide and troubleshooting. All required environment variables documented and ready for production deployment.\n</info added on 2025-08-26T00:12:57.663Z>",
+            "status": "done",
             "testStrategy": ""
           },
           {
@@ -1113,8 +1113,8 @@
             "dependencies": [
               "22.3"
             ],
-            "details": "Set DATABASE_URL, SUPABASE_JWT_SECRET, and ALLOWED_ORIGINS. Ensure backend is reachable from the frontend and properly integrated.",
-            "status": "pending",
+            "details": "Set DATABASE_URL, SUPABASE_JWT_SECRET, and ALLOWED_ORIGINS. Ensure backend is reachable from the frontend and properly integrated.\n<info added on 2025-08-26T00:15:52.041Z>\nBackend deployment configuration completely implemented with multi-platform support. Created comprehensive deployment setup including render.yaml for Render.com with auto-deploy from GitHub, fly.toml for Fly.io with health checks and auto-rollback, and multi-stage Dockerfile for any platform. Added complete documentation in BACKEND_DEPLOYMENT.md with step-by-step guides for all three deployment options, troubleshooting guide, and production configuration recommendations. All required environment variables identified and documented: DATABASE_URL, SUPABASE_URL, SUPABASE_JWT_SECRET, ALLOWED_ORIGINS, and SECRET_KEY. Backend is now production-ready for deployment on multiple platforms with robust configuration and monitoring capabilities.\n</info added on 2025-08-26T00:15:52.041Z>",
+            "status": "done",
             "testStrategy": ""
           },
           {
@@ -1125,8 +1125,8 @@
               "22.3",
               "22.4"
             ],
-            "details": "Create CI/CD pipelines that run on push to main. Ensure deployments are triggered automatically and verify build integrity.",
-            "status": "pending",
+            "details": "Create CI/CD pipelines that run on push to main. Ensure deployments are triggered automatically and verify build integrity.\n<info added on 2025-08-26T00:21:52.942Z>\nGITHUB ACTIONS CI/CD COMPLETAMENTE IMPLEMENTADO\n\n**IMPLEMENTACIÓN REALIZADA:**\n\n1. **Workflow Principal CI/CD (ci-cd.yml):**\n   - Detección inteligente de cambios para optimizar ejecución\n   - CI paralelo para frontend (lint + build) y backend (lint + test + security)\n   - Deploy automático a Vercel (frontend) y Render (backend) en push a main\n   - Verificación post-deploy con health checks\n   - Notificaciones de fallos integradas\n\n2. **Workflow de PR Checks (pr-check.yml):**\n   - CI ligero y rápido específicamente para Pull Requests\n   - Solo ejecuta checks en archivos modificados\n   - Sin deployment para feedback rápido\n   - Resumen automático de estado en PR\n\n3. **Workflow de Releases (release.yml):**\n   - Trigger automático en tags de versión (v*.*.*)\n   - Generación automática de artifacts de build\n   - Creación de GitHub Releases con changelog\n   - Assets incluyen: frontend build, backend source, deployment configs\n\n4. **Workflow de Security (security-scan.yml):**\n   - CodeQL analysis para detección de vulnerabilidades\n   - Dependency scanning con audit de npm y safety de Python\n   - SAST analysis con Bandit y Semgrep\n   - Secret scanning con TruffleHog\n   - Code quality metrics con ESLint y Ruff\n\n5. **Workflow de Cleanup (cleanup.yml):**\n   - Limpieza automática semanal de artifacts antiguos (>30 días)\n   - Limpieza de workflow runs completados (>90 días)\n   - Optimización de storage de GitHub Actions\n\n6. **Configuración de Dependabot (.github/dependabot.yml):**\n   - Updates automáticos semanales para frontend (npm)\n   - Updates automáticos semanales para backend (pip)\n   - Updates mensuales para GitHub Actions y Docker\n   - Configuración de reviewers y labels automáticos\n\n7. **Documentación completa (GITHUB_ACTIONS_SETUP.md):**\n   - Guía paso a paso para configurar todos los secrets\n   - Configuración detallada de Vercel y Render\n   - Troubleshooting para problemas comunes\n   - Best practices implementadas y monitoring\n\n**RESULTADO:** Pipeline CI/CD completamente automatizado con testing, security scanning, deployment automático y maintenance, siguiendo las mejores prácticas de DevOps.\n</info added on 2025-08-26T00:21:52.942Z>",
+            "status": "done",
             "testStrategy": ""
           },
           {
@@ -1136,8 +1136,8 @@
             "dependencies": [
               "22.4"
             ],
-            "details": "Add healthcheck endpoint for monitoring. Set CORS policy to restrict origins to Vercel and localhost, ensuring security and proper API access.",
-            "status": "pending",
+            "details": "Add healthcheck endpoint for monitoring. Set CORS policy to restrict origins to Vercel and localhost, ensuring security and proper API access.\n<info added on 2025-08-26T00:26:58.344Z>\nHEALTHCHECK ENDPOINTS Y CORS ESTRICTO COMPLETAMENTE IMPLEMENTADOS\n\n**IMPLEMENTACIÓN REALIZADA:**\n\n1. **Health Check Endpoints Mejorados:**\n   - `/health`: Health check básico y rápido para monitoring externo (<50ms)\n   - `/health/detailed`: Health check completo con verificación de base de datos y métricas de performance\n   - `/ready`: Readiness check para Kubernetes/container orchestration\n   - Timestamps dinámicos con timezone UTC\n   - Verificación de conectividad de base de datos con timing\n   - Status \"degraded\" cuando fallan dependencias críticas\n\n2. **Configuración CORS Estricta:**\n   - Headers CORS restrictivos con lista específica de allowed headers\n   - Configuración de cors_origins desde settings.cors_origins (property que maneja la conversión de string a lista)\n   - Expose headers optimizado para paginación y debugging (X-Total-Count, X-Request-ID, X-Response-Time-Ms)\n   - Max-age de 600 segundos para cache de preflight requests\n\n3. **Middlewares de Seguridad Personalizados:**\n   - **Security Headers Middleware**: X-Content-Type-Options, X-Frame-Options, X-XSS-Protection, Referrer-Policy, Permissions-Policy, HSTS (producción), CSP para HTML\n   - **CORS Preflight Middleware**: Manejo granular de preflight requests con validación estricta de origins y logging de intentos no autorizados\n   - **Request Logging Middleware**: Logging de performance con request IDs únicos, alertas para requests lentos (>1000ms) y tracking de errores\n\n4. **Headers de Seguridad Implementados:**\n   - Request tracking con X-Request-ID único por request\n   - Performance monitoring con X-Response-Time-Ms\n   - Content Security Policy para endpoints HTML (docs/redoc)\n   - Permissions Policy restringiendo acceso a camera, microphone, geolocation\n   - HSTS solo en producción con HTTPS\n\n5. **Documentación Completa (HEALTHCHECK_CORS_GUIDE.md):**\n   - Guía detallada de todos los endpoints de health check\n   - Configuración CORS con ejemplos de testing\n   - Troubleshooting guide para problemas comunes\n   - Best practices de monitoreo y alertas\n   - Scripts de testing para desarrollo y producción\n\n**RESULTADO:** Sistema robusto de health checks y seguridad CORS preparado para producción con monitoreo completo, debugging capabilities y protección contra ataques comunes.\n</info added on 2025-08-26T00:26:58.344Z>",
+            "status": "done",
             "testStrategy": ""
           }
         ]
@@ -1156,7 +1156,7 @@
     ],
     "metadata": {
       "created": "2025-08-18T22:30:54.478Z",
-      "updated": "2025-08-25T23:07:53.787Z",
+      "updated": "2025-08-26T00:34:14.143Z",
       "description": "Tasks for master context"
     }
   }

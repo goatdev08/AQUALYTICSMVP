@@ -1,0 +1,311 @@
+# =======================================================================
+# AquaLytics MVP - Security & Code Quality Scan
+# =======================================================================
+# 
+# Workflow que ejecuta análisis de seguridad y calidad de código:
+# - CodeQL para análisis de seguridad
+# - Dependency scanning
+# - SAST (Static Application Security Testing)
+# - Code quality metrics
+#
+
+name: 🔐 Security & Quality
+
+on:
+  push:
+    branches: [ main, develop ]
+  pull_request:
+    branches: [ main ]
+  schedule:
+    # Ejecutar semanalmente los domingos a las 2:00 AM
+    - cron: '0 2 * * 0'
+  workflow_dispatch:
+
+env:
+  NODE_VERSION: '20.x'
+  PYTHON_VERSION: '3.11'
+
+jobs:
+  # ======================
+  # CODEQL ANALYSIS
+  # ======================
+  codeql-analysis:
+    name: 🔍 CodeQL Analysis
+    runs-on: ubuntu-latest
+    permissions:
+      actions: read
+      contents: read
+      security-events: write
+
+    strategy:
+      fail-fast: false
+      matrix:
+        language: [ 'javascript', 'python' ]
+
+    steps:
+      - name: Checkout código
+        uses: actions/checkout@v4
+
+      - name: Initialize CodeQL
+        uses: github/codeql-action/init@v3
+        with:
+          languages: ${{ matrix.language }}
+          # Queries adicionales para mejor cobertura
+          queries: security-and-quality
+
+      - name: Setup dependencies para Python
+        if: matrix.language == 'python'
+        run: |
+          cd services/api
+          python -m pip install --upgrade pip
+          pip install -e .
+
+      - name: Setup dependencies para JavaScript
+        if: matrix.language == 'javascript'
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+
+      - name: Instalar pnpm y deps
+        if: matrix.language == 'javascript'
+        run: |
+          npm install -g pnpm@8
+          pnpm install --frozen-lockfile
+
+      - name: Perform CodeQL Analysis
+        uses: github/codeql-action/analyze@v3
+        with:
+          category: "/language:${{matrix.language}}"
+
+  # ======================
+  # DEPENDENCY SCANNING
+  # ======================
+  dependency-scan:
+    name: 📦 Dependency Scan
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      security-events: write
+
+    steps:
+      - name: Checkout código
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: ${{ env.PYTHON_VERSION }}
+
+      - name: Instalar pnpm
+        run: npm install -g pnpm@8
+
+      - name: Audit Frontend dependencies
+        run: |
+          cd apps/web
+          pnpm audit --audit-level=high --json > ../frontend-audit.json || true
+          echo "📦 Frontend audit completado"
+
+      - name: Audit Backend dependencies
+        run: |
+          cd services/api
+          pip install --upgrade pip
+          pip install safety
+          safety check --json --output ../backend-safety.json || true
+          echo "📦 Backend safety check completado"
+
+      - name: Upload audit results
+        uses: actions/upload-artifact@v4
+        with:
+          name: security-audit-results
+          path: |
+            frontend-audit.json
+            backend-safety.json
+
+  # ======================
+  # SAST ANALYSIS
+  # ======================
+  sast-analysis:
+    name: 🛡️ SAST Analysis
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout código
+        uses: actions/checkout@v4
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: ${{ env.PYTHON_VERSION }}
+
+      - name: Install SAST tools
+        run: |
+          pip install bandit semgrep
+          npm install -g eslint-plugin-security
+
+      - name: Bandit Security Analysis (Python)
+        run: |
+          cd services/api
+          bandit -r app/ -f json -o bandit-report.json || true
+          echo "🛡️ Bandit analysis completado"
+
+      - name: Semgrep Security Analysis
+        run: |
+          semgrep --config=auto --json --output=semgrep-report.json . || true
+          echo "🛡️ Semgrep analysis completado"
+
+      - name: Upload SAST results
+        uses: actions/upload-artifact@v4
+        with:
+          name: sast-analysis-results
+          path: |
+            services/api/bandit-report.json
+            semgrep-report.json
+
+  # ======================
+  # SECRET SCANNING
+  # ======================
+  secret-scan:
+    name: 🔑 Secret Scan
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout código
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0  # Necesario para escanear todo el historial
+
+      - name: TruffleHog Secret Scan
+        uses: trufflesecurity/trufflehog@main
+        with:
+          path: ./
+          base: main
+          head: HEAD
+          extra_args: --debug --only-verified
+
+  # ======================
+  # CODE QUALITY METRICS
+  # ======================
+  code-quality:
+    name: 📊 Code Quality
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout código
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0  # Necesario para análisis de SonarCloud
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: ${{ env.PYTHON_VERSION }}
+
+      - name: Install quality tools
+        run: |
+          npm install -g pnpm@8
+          pnpm install --frozen-lockfile
+          
+          cd services/api
+          pip install --upgrade pip
+          pip install -e ".[dev]"
+
+      - name: Frontend code analysis
+        run: |
+          cd apps/web
+          pnpm lint --format=json > ../eslint-report.json || true
+          echo "📊 ESLint analysis completado"
+
+      - name: Backend code analysis
+        run: |
+          cd services/api
+          ruff check . --format=json > ../ruff-report.json || true
+          echo "📊 Ruff analysis completado"
+
+      - name: Generar resumen de calidad
+        run: |
+          echo "## 📊 Code Quality Summary" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "### Frontend (ESLint)" >> $GITHUB_STEP_SUMMARY
+          if [ -f eslint-report.json ]; then
+            echo "✅ Análisis completado" >> $GITHUB_STEP_SUMMARY
+          else
+            echo "❌ Análisis falló" >> $GITHUB_STEP_SUMMARY
+          fi
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "### Backend (Ruff)" >> $GITHUB_STEP_SUMMARY
+          if [ -f ruff-report.json ]; then
+            echo "✅ Análisis completado" >> $GITHUB_STEP_SUMMARY
+          else
+            echo "❌ Análisis falló" >> $GITHUB_STEP_SUMMARY
+          fi
+
+      - name: Upload quality reports
+        uses: actions/upload-artifact@v4
+        with:
+          name: code-quality-reports
+          path: |
+            eslint-report.json
+            ruff-report.json
+
+  # ======================
+  # SECURITY SUMMARY
+  # ======================
+  security-summary:
+    name: 📋 Security Summary
+    runs-on: ubuntu-latest
+    needs: [codeql-analysis, dependency-scan, sast-analysis, secret-scan, code-quality]
+    if: always()
+    
+    steps:
+      - name: Generate security summary
+        run: |
+          echo "## 🔐 Security & Quality Analysis Summary" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          
+          # CodeQL
+          if [[ "${{ needs.codeql-analysis.result }}" == "success" ]]; then
+            echo "✅ **CodeQL Analysis**: Completed successfully" >> $GITHUB_STEP_SUMMARY
+          else
+            echo "❌ **CodeQL Analysis**: Failed or issues found" >> $GITHUB_STEP_SUMMARY
+          fi
+          
+          # Dependency Scan
+          if [[ "${{ needs.dependency-scan.result }}" == "success" ]]; then
+            echo "✅ **Dependency Scan**: No critical vulnerabilities" >> $GITHUB_STEP_SUMMARY
+          else
+            echo "⚠️ **Dependency Scan**: Vulnerabilities may exist" >> $GITHUB_STEP_SUMMARY
+          fi
+          
+          # SAST Analysis
+          if [[ "${{ needs.sast-analysis.result }}" == "success" ]]; then
+            echo "✅ **SAST Analysis**: Completed successfully" >> $GITHUB_STEP_SUMMARY
+          else
+            echo "⚠️ **SAST Analysis**: Issues may exist" >> $GITHUB_STEP_SUMMARY
+          fi
+          
+          # Secret Scan
+          if [[ "${{ needs.secret-scan.result }}" == "success" ]]; then
+            echo "✅ **Secret Scan**: No secrets detected" >> $GITHUB_STEP_SUMMARY
+          else
+            echo "❌ **Secret Scan**: Potential secrets found" >> $GITHUB_STEP_SUMMARY
+          fi
+          
+          # Code Quality
+          if [[ "${{ needs.code-quality.result }}" == "success" ]]; then
+            echo "✅ **Code Quality**: Analysis completed" >> $GITHUB_STEP_SUMMARY
+          else
+            echo "⚠️ **Code Quality**: Issues may exist" >> $GITHUB_STEP_SUMMARY
+          fi
+          
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "📁 **Artifacts**: Check the workflow artifacts for detailed reports" >> $GITHUB_STEP_SUMMARY

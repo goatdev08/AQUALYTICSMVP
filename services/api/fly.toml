@@ -1,0 +1,86 @@
+# =========================================
+# Fly.io - Configuración de Deployment  
+# AquaLytics FastAPI Backend
+# =========================================
+
+app = "aqualytics-api"
+primary_region = "iad"
+
+[build]
+  [build.args]
+    PYTHON_VERSION = "3.11"
+
+[env]
+  AQUALYTICS_ENVIRONMENT = "production"
+  AQUALYTICS_DEBUG = "false"
+  AQUALYTICS_LOG_LEVEL = "INFO"
+  AQUALYTICS_API_V1_STR = "/api/v1"
+  PORT = "8080"
+
+[experimental]
+  auto_rollback = true
+
+[[services]]
+  protocol = "tcp"
+  internal_port = 8080
+  processes = ["app"]
+
+  [[services.ports]]
+    port = 80
+    handlers = ["http"]
+    force_https = true
+
+  [[services.ports]]
+    port = 443
+    handlers = ["tls", "http"]
+  
+  [services.concurrency]
+    type = "connections"
+    hard_limit = 25
+    soft_limit = 20
+
+  [[services.tcp_checks]]
+    interval = "15s"
+    timeout = "2s"
+    grace_period = "5s"
+    restart_limit = 0
+
+  [[services.http_checks]]
+    interval = "10s"
+    timeout = "5s"
+    grace_period = "5s"
+    restart_limit = 0
+    method = "get"
+    path = "/health"
+    protocol = "http"
+    tls_skip_verify = false
+
+[deploy]
+  release_command = "echo 'Deployment ready'"
+
+# =========================================
+# SETUP INSTRUCTIONS FOR FLY.IO
+# =========================================
+# 
+# 1. Install Fly CLI: https://fly.io/docs/getting-started/installing-flyctl/
+# 
+# 2. Login to Fly:
+#    flyctl auth login
+# 
+# 3. Create app (from services/api directory):
+#    flyctl apps create aqualytics-api --org personal
+# 
+# 4. Set environment variables:
+#    flyctl secrets set AQUALYTICS_DATABASE_URL="postgresql://username:password@hostname:port/database"
+#    flyctl secrets set AQUALYTICS_ALLOWED_ORIGINS="https://aqualytics-mvp.vercel.app,https://localhost:3000"
+#    flyctl secrets set AQUALYTICS_SECRET_KEY="your-32-character-secret-key"
+#    flyctl secrets set AQUALYTICS_SUPABASE_URL="https://your-project.supabase.co"
+#    flyctl secrets set AQUALYTICS_SUPABASE_JWT_SECRET="your-jwt-secret"
+# 
+# 5. Deploy:
+#    flyctl deploy
+# 
+# 6. Open app:
+#    flyctl open
+#
+# =========================================

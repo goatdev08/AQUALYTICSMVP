@@ -5,6 +5,11 @@
 export { useAuth, useAuthState } from './useAuth';
 export { default as useCompetencias, useCompetencias } from './useCompetencias';
 export { useDebounce } from './useDebounce';
+export { 
+  useKeyboardNavigation, 
+  useGlobalKeyboardShortcuts, 
+  useTableKeyboardNavigation 
+} from './useKeyboardNavigation';
 export { default as useNadadorAnalytics } from './useNadadorAnalytics';
 export { default as useNadadores, useNadadores } from './useNadadores';
 export { default as usePruebas, usePruebas } from './usePruebas';

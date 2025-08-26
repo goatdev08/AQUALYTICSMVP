@@ -92,7 +92,7 @@ export function AuthProvider({ children }: AuthProviderProps) {
       }
 
       // Llamar al endpoint GET /me del backend con JWT en headers
-      const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000';
+      const API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL || 'http://localhost:8000';
       const response = await fetch(`${API_BASE_URL}/api/v1/me`, {
              method: 'GET',
              headers: {

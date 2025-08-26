@@ -1,0 +1,70 @@
+# =========================================
+# Render.com - Configuración de Deployment
+# AquaLytics FastAPI Backend
+# =========================================
+
+services:
+  - type: web
+    name: aqualytics-api
+    env: python
+    region: oregon
+    plan: free
+    buildCommand: "pip install --upgrade pip && pip install -e ."
+    startCommand: "uvicorn app.main:app --host 0.0.0.0 --port $PORT"
+    
+    # Configuración del entorno
+    envVars:
+      - key: PYTHON_VERSION
+        value: "3.11.8"
+      
+      - key: AQUALYTICS_ENVIRONMENT
+        value: production
+        
+      - key: AQUALYTICS_DEBUG
+        value: false
+        
+      - key: AQUALYTICS_LOG_LEVEL
+        value: INFO
+        
+      - key: AQUALYTICS_API_V1_STR
+        value: /api/v1
+
+    # Auto-deploy desde GitHub
+    autoDeploy: true
+    
+    # Configuración de recursos
+    scaling:
+      minInstances: 1
+      maxInstances: 1
+    
+    # Configuración de salud
+    healthCheck:
+      path: /health
+      
+    # Configuración de dominios
+    domains:
+      - aqualytics-api.onrender.com
+
+# =========================================
+# Variables de entorno críticas
+# =========================================
+# Las siguientes variables deben configurarse
+# manualmente en el dashboard de Render:
+#
+# AQUALYTICS_DATABASE_URL:
+#   postgresql://username:password@hostname:port/database
+#   (obtener de Supabase Dashboard > Settings > Database)
+#
+# AQUALYTICS_ALLOWED_ORIGINS:
+#   https://aqualytics-mvp.vercel.app,https://localhost:3000
+#   (dominios del frontend separados por comas)
+#
+# AQUALYTICS_SECRET_KEY:
+#   [generar clave segura de 32+ caracteres]
+#   
+# AQUALYTICS_SUPABASE_URL:
+#   https://your-project.supabase.co
+#   
+# AQUALYTICS_SUPABASE_JWT_SECRET:
+#   [obtener de Supabase Dashboard > Settings > API]
+# =========================================

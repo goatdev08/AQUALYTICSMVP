@@ -111,20 +111,22 @@ export default function LoginPage() {
 
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-background px-4 py-12">
+    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-green-50 via-blue-50 to-white dark:from-green-950 dark:via-blue-950 dark:to-gray-900 px-4 py-12">
       <div className="w-full max-w-md space-y-8">
-        {/* Header */}
-        <div className="text-center">
-          <div className="mx-auto h-12 w-12 flex items-center justify-center rounded-full bg-primary/10 mb-4">
-            <span className="text-2xl">🏊‍♂️</span>
+        {/* Card Container */}
+        <div className="bg-card/80 backdrop-blur-sm border rounded-2xl p-8 shadow-xl">
+          {/* Header */}
+          <div className="text-center mb-8">
+            <div className="mx-auto h-16 w-16 bg-primary rounded-2xl flex items-center justify-center mb-4 shadow-lg">
+              <span className="text-white font-bold text-lg">🏊</span>
+            </div>
+            <h1 className="text-3xl font-bold tracking-tight text-foreground">
+              AquaLytics
+            </h1>
+            <p className="mt-2 text-sm text-muted-foreground">
+              Inicia sesión en tu cuenta
+            </p>
           </div>
-          <h2 className="text-3xl font-bold tracking-tight text-foreground">
-            AquaLytics
-          </h2>
-          <p className="mt-2 text-sm text-muted-foreground">
-            Inicia sesión en tu cuenta
-          </p>
-        </div>
 
         {/* Formulario */}
         <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
@@ -211,7 +213,7 @@ export default function LoginPage() {
         </form>
 
         {/* Enlaces adicionales */}
-        <div className="text-center space-y-2">
+        <div className="text-center space-y-2 mt-6">
           <p className="text-sm text-muted-foreground">
             ¿No tienes una cuenta?{' '}
             <Link
@@ -221,16 +223,17 @@ export default function LoginPage() {
               Regístrate aquí
             </Link>
           </p>
-          
-          {/* MVP: Link a la página principal por si necesitan volver */}
-          <p className="text-xs text-muted-foreground">
-            <Link
-              href="/"
-              className="hover:underline"
-            >
-              ← Volver al inicio
-            </Link>
-          </p>
+        </div>
+        </div>
+
+        {/* Link externo a la landing */}
+        <div className="text-center">
+          <Link
+            href="/"
+            className="text-sm text-muted-foreground hover:text-foreground transition-colors"
+          >
+            ← Volver al inicio
+          </Link>
         </div>
       </div>
     </div>
