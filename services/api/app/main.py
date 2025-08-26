@@ -159,20 +159,41 @@ async def detailed_health_check():
         from sqlalchemy import text
         
         db_gen = get_db()
-        db = next(db_gen)
+        db = None
         try:
+            db = next(db_gen)
             result = db.execute(text("SELECT 1"))
             result.fetchone()
+            
+            end_time = datetime.now(timezone.utc) 
+            response_time = int((end_time - start_time).total_seconds() * 1000)
+            
+            health_data["checks"]["database"] = {
+                "status": "healthy",
+                "response_time_ms": response_time
+            }
+        except Exception as db_error:
+            # Ensure proper error handling and connection cleanup
+            logger.error(f"❌ Database health check failed: {str(db_error)}")
+            health_data["status"] = "degraded"
+            health_data["checks"]["database"] = {
+                "status": "unhealthy", 
+                "error": str(db_error)[:100],  # Limitar longitud del error
+                "response_time_ms": None
+            }
         finally:
-            db.close()
-        
-        end_time = datetime.now(timezone.utc) 
-        response_time = int((end_time - start_time).total_seconds() * 1000)
-        
-        health_data["checks"]["database"] = {
-            "status": "healthy",
-            "response_time_ms": response_time
-        }
+            # Ensure database connection is properly closed
+            if db is not None:
+                try:
+                    db.close()
+                except Exception as close_error:
+                    logger.warning(f"⚠️ Error closing database connection: {str(close_error)}")
+            # Also close the generator if needed
+            try:
+                db_gen.close()
+            except (AttributeError, Exception):
+                # Generator may not have close method or may already be closed
+                pass
         
     except Exception as e:
         health_data["status"] = "degraded"
