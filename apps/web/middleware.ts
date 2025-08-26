@@ -10,6 +10,13 @@ import { createServerClient } from '@supabase/ssr';
 import { NextResponse } from 'next/server';
 import type { NextRequest } from 'next/server';
 
+// Simple logger for middleware (since we can't use external logging libraries)
+const logger = {
+  warning: (message: string) => console.warn(`[MIDDLEWARE] ${message}`),
+  debug: (message: string) => console.debug(`[MIDDLEWARE] ${message}`),
+  error: (message: string, error?: any) => console.error(`[MIDDLEWARE] ${message}`, error)
+};
+
 /**
  * Rutas que NO requieren autenticación.
  * Estas rutas son accesibles para usuarios no autenticados.
@@ -151,8 +158,36 @@ export async function middleware(request: NextRequest) {
 
       // CASO 3: Rutas específicas de entrenador
       if (isRouteInList(pathname, TRAINER_ONLY_ROUTES)) {
-        // El backend validará permisos específicos de rol en cada endpoint
-        // El middleware permite el acceso y la validación detallada se hace en el backend
+        try {
+          // Obtener información del usuario para validar rol
+          const {
+            data: { user },
+            error: userError,
+          } = await supabase.auth.getUser();
+
+          if (userError || !user) {
+            logger.warning(`⚠️ No se pudo obtener información del usuario para ruta de entrenador: ${pathname}`);
+            return NextResponse.redirect(new URL('/login', request.url));
+          }
+
+          // Obtener metadatos del usuario desde Supabase Auth
+          const userRole = user.user_metadata?.rol || user.app_metadata?.rol;
+          
+          // Si no hay rol definido o no es entrenador, denegar acceso
+          if (!userRole || userRole !== 'entrenador') {
+            logger.warning(`⚠️ Acceso denegado a ruta de entrenador: ${pathname} - Usuario: ${user.email} - Rol: ${userRole || 'undefined'}`);
+            // Redirigir a dashboard con mensaje de error
+            const dashboardUrl = new URL('/dashboard', request.url);
+            dashboardUrl.searchParams.set('error', 'insufficient_permissions');
+            dashboardUrl.searchParams.set('message', 'Esta función requiere permisos de entrenador');
+            return NextResponse.redirect(dashboardUrl);
+          }
+
+          logger.debug(`✅ Acceso autorizado a ruta de entrenador: ${pathname} - Usuario: ${user.email}`);
+        } catch (error) {
+          logger.error(`❌ Error validando permisos de entrenador para ${pathname}:`, error);
+          return NextResponse.redirect(new URL('/dashboard', request.url));
+        }
       }
     }
 

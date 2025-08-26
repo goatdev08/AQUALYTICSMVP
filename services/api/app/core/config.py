@@ -102,6 +102,56 @@ class Settings(BaseSettings):
             raise ValueError(f"LOG_LEVEL debe ser uno de: {allowed_levels}")
         return v.upper()
 
+    @validator("SECRET_KEY")
+    def validate_secret_key(cls, v, values):
+        """
+        Valida que la clave secreta JWT sea segura en producción.
+
+        Args:
+            v: Valor de la clave secreta
+            values: Otros valores del modelo
+
+        Returns:
+            str: Clave secreta validada
+
+        Raises:
+            ValueError: Si la clave es insegura en producción
+        """
+        environment = values.get("ENVIRONMENT", "development")
+        
+        # En producción, la clave no puede ser la default
+        if environment == "production" and v == "dev-secret-key-change-in-production":
+            raise ValueError(
+                "SECRET_KEY must be changed from default value in production environment. "
+                "Set AQUALYTICS_SECRET_KEY environment variable with a secure random string."
+            )
+        
+        # Validar longitud mínima en cualquier entorno
+        if len(v) < 32:
+            raise ValueError(
+                "SECRET_KEY must be at least 32 characters long for security. "
+                "Generate a secure key using: python -c 'import secrets; print(secrets.token_urlsafe(32))'"
+            )
+            
+        # Advertir sobre claves débiles
+        weak_keys = [
+            "dev-secret-key-change-in-production",
+            "secret",
+            "password",
+            "123456",
+            "change-me"
+        ]
+        
+        if v.lower() in [key.lower() for key in weak_keys]:
+            import warnings
+            warnings.warn(
+                f"Using weak SECRET_KEY: '{v[:10]}...'. "
+                "Consider using a cryptographically secure random key.",
+                UserWarning
+            )
+        
+        return v
+
     class Config:
         """Configuración de pydantic-settings."""
 
