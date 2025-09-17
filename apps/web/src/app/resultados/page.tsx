@@ -42,9 +42,9 @@ function ResultadosContent() {
           </div>
         </div>
 
-        <div className="flex items-center space-x-3 p-3 rounded-lg bg-blue-50 dark:bg-blue-950 border border-blue-200 dark:border-blue-800">
-          <div className="h-8 w-8 bg-blue-100 dark:bg-blue-900 rounded-lg flex items-center justify-center">
-            <Filter className="h-4 w-4 text-blue-600 dark:text-blue-400" />
+        <div className="flex items-center space-x-3 p-3 rounded-lg bg-accent/20 border border-accent/30">
+          <div className="h-8 w-8 bg-accent/30 rounded-lg flex items-center justify-center">
+            <Filter className="h-4 w-4 text-accent-foreground" />
           </div>
           <div>
             <p className="text-sm font-medium text-foreground">Filtros Persistentes</p>
@@ -52,9 +52,9 @@ function ResultadosContent() {
           </div>
         </div>
 
-        <div className="flex items-center space-x-3 p-3 rounded-lg bg-green-50 dark:bg-green-950 border border-green-200 dark:border-green-800">
-          <div className="h-8 w-8 bg-green-100 dark:bg-green-900 rounded-lg flex items-center justify-center">
-            <Table2 className="h-4 w-4 text-green-600 dark:text-green-400" />
+        <div className="flex items-center space-x-3 p-3 rounded-lg bg-primary/20 border border-primary/30">
+          <div className="h-8 w-8 bg-primary/30 rounded-lg flex items-center justify-center">
+            <Table2 className="h-4 w-4 text-primary" />
           </div>
           <div>
             <p className="text-sm font-medium text-foreground">Ordenamiento</p>
@@ -62,9 +62,9 @@ function ResultadosContent() {
           </div>
         </div>
 
-        <div className="flex items-center space-x-3 p-3 rounded-lg bg-purple-50 dark:bg-purple-950 border border-purple-200 dark:border-purple-800">
-          <div className="h-8 w-8 bg-purple-100 dark:bg-purple-900 rounded-lg flex items-center justify-center">
-            <BarChart3 className="h-4 w-4 text-purple-600 dark:text-purple-400" />
+        <div className="flex items-center space-x-3 p-3 rounded-lg bg-secondary/20 border border-secondary/30">
+          <div className="h-8 w-8 bg-secondary/30 rounded-lg flex items-center justify-center">
+            <BarChart3 className="h-4 w-4 text-secondary-foreground" />
           </div>
           <div>
             <p className="text-sm font-medium text-foreground">Análisis Rápido</p>

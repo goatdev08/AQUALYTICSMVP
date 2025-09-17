@@ -1,0 +1,49 @@
+# Task ID: 9
+# Title: Quality Assurance and Acceptance Criteria Validation
+# Status: pending
+# Dependencies: 8
+# Priority: high
+# Description: Systematically test all features against PRD acceptance criteria and risk mitigations.
+# Details:
+Develop integration and end-to-end tests for dashboard, profile, registration, search, navigation, and theming. Use Playwright for frontend E2E and pytest-asyncio/httpx for backend. Validate empty states, button visibility, modal reuse, and latency. Document test coverage and QA results.
+
+# Test Strategy:
+Run automated and manual tests for all acceptance criteria. Log issues and verify fixes. Ensure risk mitigations are effective.
+
+# Subtasks:
+## 1. Setup E2E Testing Infrastructure with Playwright [pending]
+### Dependencies: None
+### Description: Configure Playwright testing framework for frontend end-to-end testing and pytest-asyncio/httpx for backend integration testing.
+### Details:
+Install and configure Playwright with TypeScript support. Set up test configuration files (playwright.config.ts) with browser settings, base URLs, and test directories. Configure pytest-asyncio and httpx for backend API testing. Create test utilities for authentication, database seeding, and common test helpers. Set up CI/CD integration for automated test execution.
+
+## 2. Dashboard Feature Testing and Validation [pending]
+### Dependencies: 9.1
+### Description: Implement comprehensive E2E tests for dashboard components including PieChart, upcoming competitions, featured athletes, and recent activity.
+### Details:
+Create Playwright tests for dashboard page loading, PieChart rendering with correct green color palette, data fetching via TanStack Query hooks. Test 'Ver todas (N)' button functionality and accurate counts. Validate chart.js layout padding and container overflow settings. Test backend endpoints /dashboard/piechart, /dashboard/proximas-competencias, /dashboard/atletas-destacados, /dashboard/actividad-reciente for correct data structure and pagination.
+
+## 3. Profile and Registration Flow Testing [pending]
+### Dependencies: 9.1
+### Description: Test swimmer profile features including unified tabs, filters, metrics display, and user registration workflows.
+### Details:
+Create E2E tests for nadador profile pages with unified 'Marcas' tab containing PRs and recent results sub-sections. Test filter functionality (style/date/prueba) using useResultados hook. Validate CategoriaInfo component hides redundant alerts for 17+ category. Test ResultadoDetailModal reuse across different contexts. Implement registration flow testing including form validation, error handling, and success states.
+
+## 4. Search and Navigation Functionality Testing [pending]
+### Dependencies: 9.1
+### Description: Validate typeahead search functionality and navigation consistency across all application pages.
+### Details:
+Test typeahead search with min_length=1 for nadadores, competencias, and pruebas. Validate debounce functionality (150-200ms) and keyboard navigation. Test ARIA roles and accessibility compliance for dropdown components. Verify AppLayout consistency across main pages with sidebar, header, and theme toggle. Test navigation between different sections and deep linking functionality.
+
+## 5. Theme Management and UI Consistency Testing [pending]
+### Dependencies: 9.1
+### Description: Test theme switching functionality and validate consistent green/black palette across light and dark modes.
+### Details:
+Test theme toggle functionality between light and dark modes. Validate green color palette consistency and deep black colors in dark mode. Test gradient variants and color contrast ratios meet accessibility standards. Verify shadcn/ui theming utilities work correctly across all components. Test theme persistence across browser sessions and page refreshes.
+
+## 6. Test Coverage Documentation and QA Results Compilation [pending]
+### Dependencies: 9.2, 9.3, 9.4, 9.5
+### Description: Generate comprehensive test coverage reports, document QA results, and validate all acceptance criteria are met.
+### Details:
+Generate test coverage reports using Playwright and pytest coverage tools. Document all test results, including pass/fail status, performance metrics, and identified issues. Create acceptance criteria validation matrix mapping each requirement to corresponding tests. Document empty state validations, button visibility tests, modal reuse verification, and latency measurements. Compile final QA report with recommendations for production readiness.
+

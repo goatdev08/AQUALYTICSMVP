@@ -51,23 +51,23 @@ export default function CategoriaInfo({
   return (
     <div className={`space-y-4 ${className}`}>
       {/* Información actual */}
-      <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
+      <div className="bg-accent/20 border border-accent/30 rounded-lg p-4">
         <div className="flex items-center mb-3">
-          <Users className="h-5 w-5 text-blue-600 mr-2" />
-          <h3 className="text-lg font-semibold text-blue-900">Categoría Actual</h3>
+          <Users className="h-5 w-5 text-accent-foreground mr-2" />
+          <h3 className="text-lg font-semibold text-accent-foreground">Categoría Actual</h3>
         </div>
         
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <div>
-            <p className="text-sm text-blue-700 mb-1">Categoría</p>
-            <p className="text-2xl font-bold text-blue-900">{getNombreCategoria(categoriaActual)}</p>
-            <p className="text-xs text-blue-600 mt-1">{infoCategoria.descripcion}</p>
+            <p className="text-sm text-muted-foreground mb-1">Categoría</p>
+            <p className="text-2xl font-bold text-foreground">{getNombreCategoria(categoriaActual)}</p>
+            <p className="text-xs text-muted-foreground mt-1">{infoCategoria.descripcion}</p>
           </div>
           
           <div>
-            <p className="text-sm text-blue-700 mb-1">Edad actual</p>
-            <p className="text-2xl font-bold text-blue-900">{edadActual} años</p>
-            <p className="text-xs text-blue-600 mt-1">
+            <p className="text-sm text-muted-foreground mb-1">Edad actual</p>
+            <p className="text-2xl font-bold text-foreground">{edadActual} años</p>
+            <p className="text-xs text-muted-foreground mt-1">
               Rango de categoría: {infoCategoria.edadMinima}
               {infoCategoria.edadMaxima ? `-${infoCategoria.edadMaxima}` : '+'} años
             </p>
@@ -112,23 +112,29 @@ export default function CategoriaInfo({
         </div>
       )}
 
-      {/* Información adicional */}
-      {!proximoCambio && (
-        <div className="bg-green-50 border border-green-200 rounded-lg p-4">
+      {/* Información adicional - Solo mostrar para menores de 17 años */}
+      {!proximoCambio && edadActual < 17 && (
+        <div className="bg-primary/10 border border-primary/20 rounded-lg p-4">
           <div className="flex items-center">
-            <Info className="h-4 w-4 text-green-600 mr-2" />
-            <p className="text-sm text-green-800">
+            <Info className="h-4 w-4 text-primary mr-2" />
+            <p className="text-sm text-foreground">
               <strong>Categoría Mayor:</strong> Este nadador ya se encuentra en la categoría de mayor edad (17+).
             </p>
           </div>
         </div>
       )}
 
-      {/* Nota informativa */}
-      <div className="text-xs text-gray-500 bg-gray-50 rounded p-3">
-        💡 <strong>Nota:</strong> Las categorías se calculan según la edad del nadador al momento de la competencia. 
-        La información mostrada refleja la categoría actual basada en la fecha de hoy.
-      </div>
+      {/* Nota informativa - Compacta para 17+, completa para menores */}
+      {edadActual >= 17 ? (
+        <div className="text-xs text-muted-foreground text-center">
+          💡 Categoría calculada según edad al momento de la competencia.
+        </div>
+      ) : (
+        <div className="text-xs text-muted-foreground bg-muted/50 rounded p-3">
+          💡 <strong>Nota:</strong> Las categorías se calculan según la edad del nadador al momento de la competencia. 
+          La información mostrada refleja la categoría actual basada en la fecha de hoy.
+        </div>
+      )}
     </div>
   );
 }

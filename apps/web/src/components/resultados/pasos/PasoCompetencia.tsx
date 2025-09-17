@@ -55,10 +55,8 @@ export function PasoCompetencia() {
       id: state.paso_competencia.competencia.id,
       nombre: state.paso_competencia.competencia.nombre,
       curso: state.paso_competencia.competencia.curso,
-      rango_fechas: {
-        lower: state.paso_competencia.competencia.rango_fechas.lower,
-        upper: state.paso_competencia.competencia.rango_fechas.upper,
-      },
+      fecha_inicio: state.paso_competencia.competencia.rango_fechas.lower,
+      fecha_fin: state.paso_competencia.competencia.rango_fechas.upper,
       sede: state.paso_competencia.competencia.sede,
     } : null
   );
@@ -94,8 +92,8 @@ export function PasoCompetencia() {
         nombre: competencia.nombre,
         curso: competencia.curso as 'SC' | 'LC',
         rango_fechas: {
-          lower: competencia.rango_fechas.lower,
-          upper: competencia.rango_fechas.upper,
+          lower: competencia.fecha_inicio,
+          upper: competencia.fecha_fin,
           bounds: '[)',
         },
         sede: competencia.sede,
@@ -179,18 +177,11 @@ export function PasoCompetencia() {
     <div className="space-y-6">
       {/* Encabezado del paso */}
       <div className="text-center space-y-2">
-        <div className="flex items-center justify-center gap-3 mb-2">
-          <div className="w-12 h-12 rounded-full bg-green-100 flex items-center justify-center">
-            <TrophyIcon className="w-6 h-6 text-green-600" />
-          </div>
-          <div className="text-left">
-            <h2 className="text-xl font-semibold text-gray-900">
-              Paso 1: Seleccionar Competencia
-            </h2>
-            <p className="text-sm text-gray-600">
-              Elija una competencia existente o cree una nueva
-            </p>
-          </div>
+        {/* Header simplificado - FormSection ya maneja los indicadores visuales */}
+        <div className="text-center mb-4">
+          <h2 className="text-xl font-semibold text-gray-900">
+            Seleccionar Competencia
+          </h2>
         </div>
       </div>
 
@@ -222,7 +213,7 @@ export function PasoCompetencia() {
               <div className="flex items-start gap-3">
                 <SearchIcon className={cn(
                   "w-5 h-5 mt-0.5 flex-shrink-0",
-                  modo === 'seleccionar' ? "text-green-600" : "text-gray-400"
+                  modo === 'seleccionar' ? "text-primary" : "text-gray-400"
                 )} />
                 <div>
                   <h3 className={cn(
@@ -231,15 +222,8 @@ export function PasoCompetencia() {
                   )}>
                     Seleccionar existente
                   </h3>
-                  <p className="text-sm text-gray-600 mt-1">
-                    Busque entre las competencias registradas
-                  </p>
-                  {modo === 'seleccionar' && (
-                    <div className="flex items-center gap-1 mt-2 text-xs text-green-600">
-                      <CheckCircleIcon className="w-3 h-3" />
-                      Opción seleccionada
-                    </div>
-                  )}
+                  {/* Descripción innecesaria */}
+                  {/* Indicador redundante - sticky panel ya muestra la selección */}
                 </div>
               </div>
             </button>
@@ -258,7 +242,7 @@ export function PasoCompetencia() {
               <div className="flex items-start gap-3">
                 <PlusIcon className={cn(
                   "w-5 h-5 mt-0.5 flex-shrink-0",
-                  modo === 'crear' ? "text-green-600" : "text-gray-400"
+                  modo === 'crear' ? "text-primary" : "text-gray-400"
                 )} />
                 <div>
                   <h3 className={cn(
@@ -267,15 +251,8 @@ export function PasoCompetencia() {
                   )}>
                     Crear nueva competencia
                   </h3>
-                  <p className="text-sm text-gray-600 mt-1">
-                    Registre una nueva competencia en el sistema
-                  </p>
-                  {modo === 'crear' && (
-                    <div className="flex items-center gap-1 mt-2 text-xs text-green-600">
-                      <CheckCircleIcon className="w-3 h-3" />
-                      Opción seleccionada
-                    </div>
-                  )}
+                  {/* Descripción innecesaria */}
+                  {/* Indicador redundante - sticky panel ya muestra la selección */}
                 </div>
               </div>
             </button>
@@ -289,7 +266,7 @@ export function PasoCompetencia() {
           {modo === 'seleccionar' ? (
             <div className="space-y-4">
               <div className="flex items-center gap-2 mb-4">
-                <SearchIcon className="w-5 h-5 text-green-600" />
+                <SearchIcon className="w-5 h-5 text-primary" />
                 <h3 className="font-medium text-gray-900">Buscar competencia existente</h3>
               </div>
               
@@ -303,49 +280,15 @@ export function PasoCompetencia() {
                 disabled={competenciasLoading}
               />
 
-              {/* Información de la competencia seleccionada */}
-              {tieneCompetenciaSeleccionada && competenciaActual && (
-                <Alert>
-                  <InfoIcon className="h-4 w-4" />
-                  <AlertDescription>
-                    <div className="space-y-2">
-                      <div className="font-medium text-green-900">
-                        Competencia seleccionada: {competenciaActual.nombre}
-                      </div>
-                      <div className="text-sm space-y-1">
-                        <div>• Curso: {competenciaActual.curso === 'SC' ? 'Piscina corta (25m)' : 'Piscina larga (50m)'}</div>
-                        <div>• Fechas: {competenciaActual.rango_fechas.lower} - {competenciaActual.rango_fechas.upper}</div>
-                        {competenciaActual.sede && <div>• Sede: {competenciaActual.sede}</div>}
-                      </div>
-                    </div>
-                  </AlertDescription>
-                </Alert>
-              )}
+              {/* Información ahora solo en sticky panel */}
 
-              {/* Estado vacío cuando no hay competencias */}
-              {!competenciasLoading && totalCompetencias === 0 && (
-                <div className="text-center py-8 text-gray-500">
-                  <TrophyIcon className="w-12 h-12 mx-auto mb-4 text-gray-300" />
-                  <p className="text-sm">
-                    No hay competencias registradas en su equipo.
-                  </p>
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    onClick={() => handleModoChange('crear')}
-                    className="mt-3"
-                  >
-                    <PlusIcon className="w-4 h-4 mr-2" />
-                    Crear primera competencia
-                  </Button>
-                </div>
-              )}
+              {/* Estado vacío innecesario - sticky panel guía al usuario */}
             </div>
           ) : (
             <div className="space-y-4">
               <div className="flex items-center justify-between mb-4">
                 <div className="flex items-center gap-2">
-                  <PlusIcon className="w-5 h-5 text-green-600" />
+                  <PlusIcon className="w-5 h-5 text-primary" />
                   <h3 className="font-medium text-gray-900">Crear nueva competencia</h3>
                 </div>
                 <Button
@@ -374,20 +317,7 @@ export function PasoCompetencia() {
         </CardContent>
       </Card>
 
-      {/* Información contextual */}
-      <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
-        <div className="flex items-start gap-3">
-          <InfoIcon className="w-5 h-5 text-blue-600 mt-0.5 flex-shrink-0" />
-          <div className="space-y-1">
-            <h4 className="font-medium text-blue-900">Información importante</h4>
-            <ul className="text-sm text-blue-800 space-y-1">
-              <li>• Todas las competencias se asocian automáticamente a su equipo</li>
-              <li>• Puede cambiar entre las opciones en cualquier momento</li>
-              <li>• El progreso se guarda automáticamente</li>
-            </ul>
-          </div>
-        </div>
-      </div>
+      {/* Información contextual eliminada - sticky panel ya proporciona toda la orientación */}
     </div>
   );
 }

@@ -1,0 +1,15 @@
+---
+description: Shadcn agents workflow guide
+alwaysApply: false
+---
+## Agentes MCP shadcn para tareas de UI/UX
+- Cuándo usarlos
+  - Tareas simples (poca planificación): usar `express_agent.mdc` para resolver rápido (descubre → ve componente/ejemplo → genera comando add → integra).
+  - Tareas complejas (sección/feature completa): encadenar `agent1.mdc` → `agent2.mdc` → `agent3.mdc`.
+- Encadenamiento (sin repetir sus instrucciones internas)
+  - `agent1.mdc`: al iniciar una tarea compleja de UI/UX, descompone el requerimiento en componentes y produce `design-docs/[task]/requirements.md`.
+  - `agent2.mdc`: con ese requirements, investiga items/ejemplos del registry y produce `design-docs/[task]/component-research.md` + comando `add` agrupado.
+  - `agent3.mdc`: implementa usando imports exactos y jerarquía, ejecuta auditoría de checklist y deja instrucciones de setup/ubicación.
+- Integración con Taskmaster
+  - Al parsear el PRD, las tareas de UI/UX deben detonar automáticamente el agente correcto según complejidad: simple → `express_agent.mdc`; compleja → `agent1`→`agent2`→`agent3`.
+  - Los artefactos `requirements.md` y `component-research.md` se guardan en `design-docs/[task]/`.

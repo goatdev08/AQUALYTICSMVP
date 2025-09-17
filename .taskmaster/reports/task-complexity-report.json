@@ -1,77 +1,85 @@
 {
 	"meta": {
-		"generatedAt": "2025-08-26T17:38:14.935Z",
-		"tasksAnalyzed": 8,
-		"totalTasks": 8,
-		"analysisCount": 8,
-		"thresholdScore": 5,
+		"generatedAt": "2025-08-27T02:14:49.087Z",
+		"tasksAnalyzed": 9,
+		"totalTasks": 9,
+		"analysisCount": 9,
+		"thresholdScore": 7,
 		"projectName": "Taskmaster",
 		"usedResearch": true
 	},
 	"complexityAnalysis": [
 		{
 			"taskId": 1,
-			"taskTitle": "Design and Implement Backend Endpoints for Nadador Analytics",
-			"complexityScore": 9,
+			"taskTitle": "Initialize Monorepo and Core Project Structure",
+			"complexityScore": 8,
 			"recommendedSubtasks": 7,
-			"expansionPrompt": "Break down the backend analytics endpoint implementation into: (1) endpoint design/specification, (2) SQLAlchemy ORM query development for each analytics type, (3) Pydantic model definition and validation, (4) endpoint implementation for each analytics route, (5) query optimization and profiling, (6) unit and integration test development, (7) documentation updates.",
-			"reasoning": "This task involves designing multiple endpoints, complex data aggregation, ORM query optimization, strict latency requirements, and comprehensive testing. It requires deep backend expertise, careful schema mapping, and performance profiling, making it highly complex and suitable for decomposition into at least seven focused subtasks."
+			"expansionPrompt": "Break down the initialization into: (1) Monorepo setup and workspace configuration, (2) Next.js frontend scaffolding with dependencies, (3) FastAPI backend scaffolding with async and Pydantic v2, (4) Supabase integration and environment variable setup, (5) Pre-commit hooks and linting/formatting configuration for both stacks, (6) Basic API connectivity and health check, (7) Vercel deployment compatibility setup.",
+			"reasoning": "This task involves multi-stack orchestration (TypeScript/Next.js, Python/FastAPI, Supabase), strict separation of concerns, and best-practice tooling for both frontend and backend. It requires careful environment management, cross-stack integration, and deployment readiness, making it a high-complexity foundational task that benefits from granular subtasks for maintainability and clarity."
 		},
 		{
 			"taskId": 2,
-			"taskTitle": "Migrate Frontend Hook to Consume Real Analytics Endpoints",
-			"complexityScore": 6,
-			"recommendedSubtasks": 5,
-			"expansionPrompt": "Expand the migration into: (1) removal of mock data logic, (2) implementation of TanStack Query fetchers, (3) integration with Supabase Auth, (4) state handling for loading/error/empty, (5) unit test coverage for all states.",
-			"reasoning": "The task requires replacing mock logic with real API integration, handling authentication, ensuring robust state management, and maintaining type safety. While not as complex as backend design, it spans several critical areas and should be split for clarity and testability."
+			"taskTitle": "Implement Authentication and User Management",
+			"complexityScore": 7,
+			"recommendedSubtasks": 6,
+			"expansionPrompt": "Expand into: (1) Supabase Auth configuration and environment setup, (2) Frontend integration with supabase-js and user context hooks, (3) Backend JWT validation and protected endpoint setup, (4) Schema validation (Zod frontend, Pydantic backend), (5) User data storage and migration in 'usuario' table, (6) Session management and token refresh logic.",
+			"reasoning": "Authentication spans both frontend and backend, requiring secure token handling, route protection, schema validation, and session management. Industry standards dictate robust separation and testing of each concern, and the integration with Supabase adds external dependency complexity."
 		},
 		{
 			"taskId": 3,
-			"taskTitle": "Remove Hardcoded Demo Data and Fallbacks from Analítica Page",
-			"complexityScore": 4,
-			"recommendedSubtasks": 3,
-			"expansionPrompt": "Divide the work into: (1) identification and removal of all hardcoded demo data, (2) refactoring components to handle empty states, (3) updating and running UI tests to verify correct behavior.",
-			"reasoning": "This is a focused refactor and cleanup task with moderate complexity, mainly involving code removal, minor refactoring, and regression testing. It is straightforward but should be split to ensure thoroughness."
+			"taskTitle": "Dashboard Core Features and Endpoints",
+			"complexityScore": 7,
+			"recommendedSubtasks": 7,
+			"expansionPrompt": "Decompose into: (1) PieChart component with Chart.js and color theming, (2) Upcoming competitions list and endpoint, (3) Featured athletes component and endpoint, (4) Recent activity feed and endpoint, (5) TanStack Query hooks for each data source, (6) Backend endpoint implementation with efficient queries and indices, (7) Metrics normalization and pagination.",
+			"reasoning": "This task requires coordinated frontend and backend development, real-time data fetching, efficient query/index design, and UI/UX consistency. Each dashboard feature is a distinct concern, and best practices recommend modularizing both UI and API logic for testability and maintainability."
 		},
 		{
 			"taskId": 4,
-			"taskTitle": "Implement Consistent UX for Empty Analytics States",
-			"complexityScore": 5,
-			"recommendedSubtasks": 4,
-			"expansionPrompt": "Break down into: (1) design of reusable empty state components, (2) implementation in analytics and dashboard pages, (3) consistency review and visual QA, (4) automated and manual UX testing.",
-			"reasoning": "This task involves both design and implementation across multiple UI areas, requiring coordination for consistency and quality. It is moderately complex and benefits from clear separation of design, implementation, and validation."
+			"taskTitle": "Nadador Profile: Tabs, Filters, and Metrics",
+			"complexityScore": 6,
+			"recommendedSubtasks": 6,
+			"expansionPrompt": "Split into: (1) Refactor CategoriaInfo and alert logic, (2) Merge and redesign 'Resultados'/'Marcas' tabs, (3) Implement frontend filters (style/date/prueba), (4) Update labels and badges for metrics, (5) Backend endpoint filtering and grouping by 'nadador_id' and 'fecha_registro', (6) Modal reuse and data grouping logic.",
+			"reasoning": "This task involves UI refactoring, new filter logic, and backend query updates. While not as foundational as repo setup, it requires careful coordination between frontend state, backend filtering, and UX consistency, warranting multiple subtasks."
 		},
 		{
 			"taskId": 5,
-			"taskTitle": "Validate and Optimize Backend Analytics Performance",
-			"complexityScore": 7,
+			"taskTitle": "Result Registration: Unified UX and Time Masking",
+			"complexityScore": 6,
 			"recommendedSubtasks": 5,
-			"expansionPrompt": "Expand into: (1) profiling current endpoint performance, (2) query optimization and index/materialized view evaluation, (3) implementation of DB schema changes if needed, (4) load and regression testing, (5) documentation of optimizations.",
-			"reasoning": "Performance optimization is inherently complex, requiring profiling, potential schema changes, and rigorous testing. Each step is distinct and critical for meeting latency and scalability goals."
+			"expansionPrompt": "Break down into: (1) Container component for registration flow, (2) Step components (PasoCompetencia, PasoNadador, PasoPrueba, PasoSegmentos), (3) Time input masking and validation logic, (4) Segment auto-generation logic, (5) Backend endpoint updates for segmented results and time format validation.",
+			"reasoning": "This task is moderately complex due to the need for a seamless multi-step UX, custom input handling, and backend validation. Each step and validation concern should be isolated for clarity and maintainability."
 		},
 		{
 			"taskId": 6,
-			"taskTitle": "Audit and Refactor Analytics Components for Mock Independence",
-			"complexityScore": 5,
-			"recommendedSubtasks": 4,
-			"expansionPrompt": "Divide into: (1) audit of all analytics components for mock/demo data usage, (2) refactor to remove mock dependencies, (3) update documentation and Storybook stories, (4) component-level and Storybook testing.",
-			"reasoning": "This task is a systematic audit and refactor, requiring careful review and updates across multiple files and documentation. It is moderately complex and benefits from a structured approach."
+			"taskTitle": "Unified Typeahead Search and Accessible Dropdowns",
+			"complexityScore": 6,
+			"recommendedSubtasks": 6,
+			"expansionPrompt": "Expand into: (1) Lower min_length and debounce logic for typeahead hooks, (2) Extract and refactor common utilities (debounce, keyboard navigation, ARIA roles), (3) Implement unified dropdown pattern for nadadores, (4) Implement for competencias, (5) Implement for pruebas, (6) Backend trigram index and endpoint optimization.",
+			"reasoning": "This task requires both frontend accessibility improvements and backend search optimization. Accessibility and performance are critical, and each entity (nadadores, competencias, pruebas) should be handled as a separate subtask for modularity."
 		},
 		{
 			"taskId": 7,
-			"taskTitle": "Document API Contracts and Data Flow for Analytics",
-			"complexityScore": 3,
-			"recommendedSubtasks": 3,
-			"expansionPrompt": "Split into: (1) update OpenAPI specs and FastAPI schema, (2) write markdown documentation for endpoints and data flow, (3) peer review and validation of documentation.",
-			"reasoning": "Documentation tasks are less complex but require accuracy and review. Splitting ensures both technical and user-facing docs are covered and validated."
+			"taskTitle": "Navigation Consistency and Theme Management",
+			"complexityScore": 5,
+			"recommendedSubtasks": 4,
+			"expansionPrompt": "Decompose into: (1) AppLayout integration across main pages, (2) Theme token/variable refinement for green/black palette, (3) Component audit for gradient and dark mode consistency, (4) shadcn/ui theming utility integration.",
+			"reasoning": "This is a lower-complexity task focused on UI consistency and theming. While important for UX, the technical depth is moderate, and subtasks should focus on layout, theming, and audit steps."
 		},
 		{
 			"taskId": 8,
-			"taskTitle": "Cleanup and Archive Legacy Mock/Demo Files",
-			"complexityScore": 2,
-			"recommendedSubtasks": 2,
-			"expansionPrompt": "Break into: (1) removal or archival of all mock/demo files, (2) update documentation and verify no production references remain.",
-			"reasoning": "This is a low-complexity cleanup task, mainly involving file operations and verification, but should be split to ensure both code and documentation are addressed."
+			"taskTitle": "Database Index Optimization and Metrics Normalization",
+			"complexityScore": 7,
+			"recommendedSubtasks": 5,
+			"expansionPrompt": "Expand into: (1) Audit existing indices on all relevant tables, (2) Create/modify trigram index for competencia.nombre, (3) Update backend queries to use 'fecha_registro', (4) Benchmark and validate query performance, (5) Document index and query changes.",
+			"reasoning": "Database optimization and metrics normalization require careful analysis, migration, and validation. Each step (audit, index creation, query update, benchmarking, documentation) is distinct and critical for data integrity and performance."
+		},
+		{
+			"taskId": 9,
+			"taskTitle": "Quality Assurance and Acceptance Criteria Validation",
+			"complexityScore": 8,
+			"recommendedSubtasks": 6,
+			"expansionPrompt": "Break down into: (1) Develop integration tests for dashboard, (2) Develop E2E tests for profile and registration, (3) Test search, navigation, and theming, (4) Validate empty states, button visibility, and modal reuse, (5) Benchmark latency and risk mitigations, (6) Document test coverage and QA results.",
+			"reasoning": "Comprehensive QA requires systematic coverage of all features, automated and manual testing, and documentation. Each major feature area and test type should be a subtask to ensure thorough validation and traceability."
 		}
 	]
 }

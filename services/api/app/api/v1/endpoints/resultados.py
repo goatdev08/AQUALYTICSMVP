@@ -805,12 +805,15 @@ async def list_resultados(
             query_params["fase"] = fase
         
         # 2. Construir ORDER BY clause
+        # Política de normalización temporal (PRDv2):
+        # - Toda métrica y orden cronológico deben usar fecha_registro
+        # - Mantenemos la clave "created_at" por compatibilidad, mapeando a fecha_registro
         valid_sort_fields = {
             "tiempo_global_cs": "r.tiempo_global_cs",
             "fecha_registro": "r.fecha_registro",
             "nadador": "n.nombre_completo",
             "competencia": "c.nombre",
-            "created_at": "r.created_at"
+            "created_at": "r.fecha_registro"
         }
         
         sort_field = valid_sort_fields.get(sort_by, "r.fecha_registro")
@@ -881,7 +884,16 @@ async def list_resultados(
                 desviacion_parciales_cs=row.desviacion_parciales_cs,
                 capturado_por=row.capturado_por,
                 created_at=row.created_at,
-                updated_at=row.updated_at
+                updated_at=row.updated_at,
+                # ✅ Agregar los campos contextuales que ya están en la query SQL
+                nadador_nombre=row.nadador_nombre,
+                nadador_rama=row.nadador_rama,
+                competencia_nombre=row.competencia_nombre,
+                competencia_curso=row.competencia_curso,
+                prueba_estilo=row.prueba_estilo,
+                prueba_distancia=row.prueba_distancia,
+                prueba_curso=row.prueba_curso,
+                capturado_por_email=row.capturado_por_email
             )
             resultados.append(resultado_response)
         

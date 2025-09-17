@@ -139,21 +139,33 @@ export function Top5Chart({
         beginAtZero: false,
         title: {
           display: true,
-          text: 'Tiempo (segundos)'
+          text: 'Tiempo (segundos)',
+          color: 'hsl(var(--foreground))'
         },
         ticks: {
+          color: 'hsl(var(--muted-foreground))',
           callback: function(value: any) {
             const totalSeconds = parseFloat(value);
             const minutes = Math.floor(totalSeconds / 60);
             const seconds = (totalSeconds % 60).toFixed(2);
             return minutes > 0 ? `${minutes}:${seconds.padStart(5, '0')}` : `${seconds}s`;
           }
+        },
+        grid: {
+          color: 'hsl(var(--border))'
         }
       },
       x: {
         title: {
           display: true,
-          text: 'Ranking'
+          text: 'Ranking',
+          color: 'hsl(var(--foreground))'
+        },
+        ticks: {
+          color: 'hsl(var(--muted-foreground))'
+        },
+        grid: {
+          color: 'hsl(var(--border))'
         }
       }
     }
@@ -177,7 +189,7 @@ export function Top5Chart({
       <Card className={className}>
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
-            <TrendingUp className="h-5 w-5 text-green-600" />
+            <TrendingUp className="h-5 w-5 text-primary" />
             Top 5 Mejores Tiempos
           </CardTitle>
         </CardHeader>
@@ -205,7 +217,7 @@ export function Top5Chart({
       <CardHeader>
         <div className="flex items-center justify-between">
           <CardTitle className="flex items-center gap-2">
-            <TrendingUp className="h-5 w-5 text-green-600" />
+            <TrendingUp className="h-5 w-5 text-primary" />
             Top 5 Mejores Tiempos
           </CardTitle>
           <div className="flex gap-2">
@@ -231,16 +243,16 @@ export function Top5Chart({
 
         {/* Panel de filtros */}
         {showFilters && (
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-4 p-4 bg-green-50 rounded-lg">
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-4 p-4 bg-primary/10 border border-primary/20 rounded-lg">
             {/* Filtro Estilo */}
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">
+              <label className="block text-sm font-medium text-foreground mb-1">
                 Estilo
               </label>
               <select
                 value={filters.estilo || ''}
                 onChange={(e) => applyFilters({ ...filters, estilo: e.target.value || undefined })}
-                className="w-full p-2 border border-gray-300 rounded-md text-sm"
+                className="w-full p-2 border border-border rounded-md text-sm"
               >
                 <option value="">Todos</option>
                 {filterOptions.estilos.map(estilo => (
@@ -251,13 +263,13 @@ export function Top5Chart({
 
             {/* Filtro Distancia */}
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">
+              <label className="block text-sm font-medium text-foreground mb-1">
                 Distancia
               </label>
               <select
                 value={filters.distancia || ''}
                 onChange={(e) => applyFilters({ ...filters, distancia: e.target.value ? parseInt(e.target.value) : undefined })}
-                className="w-full p-2 border border-gray-300 rounded-md text-sm"
+                className="w-full p-2 border border-border rounded-md text-sm"
               >
                 <option value="">Todas</option>
                 {filterOptions.distancias.map(distancia => (
@@ -268,13 +280,13 @@ export function Top5Chart({
 
             {/* Filtro Curso */}
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">
+              <label className="block text-sm font-medium text-foreground mb-1">
                 Curso
               </label>
               <select
                 value={filters.curso || ''}
                 onChange={(e) => applyFilters({ ...filters, curso: e.target.value || undefined })}
-                className="w-full p-2 border border-gray-300 rounded-md text-sm"
+                className="w-full p-2 border border-border rounded-md text-sm"
               >
                 <option value="">Todos</option>
                 {filterOptions.cursos.map(curso => (
@@ -285,13 +297,13 @@ export function Top5Chart({
 
             {/* Filtro Rama */}
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">
+              <label className="block text-sm font-medium text-foreground mb-1">
                 Rama
               </label>
               <select
                 value={filters.rama || ''}
                 onChange={(e) => applyFilters({ ...filters, rama: e.target.value || undefined })}
-                className="w-full p-2 border border-gray-300 rounded-md text-sm"
+                className="w-full p-2 border border-border rounded-md text-sm"
               >
                 <option value="">Todas</option>
                 {filterOptions.ramas.map(rama => (
@@ -333,7 +345,7 @@ export function Top5Chart({
             
             {/* Información adicional */}
             {top5Data && top5Data.length > 0 && (
-              <div className="mt-4 text-sm text-gray-600">
+              <div className="mt-4 text-sm text-muted-foreground">
                 <p>
                   Mostrando {top5Data.length} resultado{top5Data.length !== 1 ? 's' : ''} 
                   {Object.keys(filters).length > 0 && ' con filtros aplicados'}
@@ -342,8 +354,8 @@ export function Top5Chart({
             )}
             
             {top5Data && top5Data.length === 0 && (
-              <div className="text-center py-8 text-gray-500">
-                <TrendingUp className="h-12 w-12 mx-auto mb-4 text-gray-300" />
+              <div className="text-center py-8 text-muted-foreground">
+                <TrendingUp className="h-12 w-12 mx-auto mb-4 text-muted-foreground" />
                 <p>No se encontraron resultados</p>
                 <p className="text-sm mt-1">
                   {Object.keys(filters).length > 0 

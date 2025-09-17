@@ -63,16 +63,16 @@ function DashboardContent() {
 
       {/* KPIs principales con diseño mejorado */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-        <Card className="border-0 bg-gradient-to-br from-blue-50 to-blue-100 dark:from-blue-950 dark:to-blue-900 shadow-md hover:shadow-lg transition-all duration-200 rounded-xl">
+        <Card className="border-0 bg-gradient-to-br from-accent/20 to-accent/30 shadow-md hover:shadow-lg transition-all duration-200 rounded-xl">
           <CardContent className="p-6">
             <div className="flex items-center justify-between">
               <div className="space-y-1">
-                <p className="text-sm font-medium text-blue-700 dark:text-blue-300">Total Nadadores</p>
-                <p className="text-2xl font-bold text-blue-900 dark:text-blue-100">
+                <p className="text-sm font-medium text-accent-foreground">Total Nadadores</p>
+                <p className="text-2xl font-bold text-foreground">
                   {resumenData?.total_nadadores || 0}
                 </p>
               </div>
-              <div className="h-12 w-12 bg-blue-500 rounded-lg flex items-center justify-center">
+              <div className="h-12 w-12 bg-accent rounded-lg flex items-center justify-center">
                 <UsersIcon className="h-6 w-6 text-white" />
               </div>
             </div>
@@ -104,7 +104,7 @@ function DashboardContent() {
                   {resumenData?.total_registros || 0}
                 </p>
               </div>
-              <div className="h-12 w-12 bg-purple-500 rounded-lg flex items-center justify-center">
+              <div className="h-12 w-12 bg-muted-foreground rounded-lg flex items-center justify-center">
                 <BarChartIcon className="h-6 w-6 text-white" />
               </div>
             </div>
@@ -131,7 +131,7 @@ function DashboardContent() {
 
       {/* Gráficos principales con cards mejorados */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-        <Card className="rounded-xl shadow-sm hover:shadow-md transition-shadow duration-200 relative overflow-hidden">
+        <Card data-testid="dashboard-top5" className="rounded-xl shadow-sm hover:shadow-md transition-shadow duration-200 relative overflow-hidden">
           <CardHeader className="pb-4 border-b border-border/50">
             <CardTitle className="flex items-center gap-2 text-base">
               <Target className="h-5 w-5 text-primary" />
@@ -151,7 +151,7 @@ function DashboardContent() {
           </CardContent>
         </Card>
 
-        <Card className="rounded-xl shadow-sm hover:shadow-md transition-shadow duration-200 relative overflow-hidden">
+        <Card data-testid="dashboard-distribucion" className="rounded-xl shadow-sm hover:shadow-md transition-shadow duration-200 relative">
           <CardHeader className="pb-4 border-b border-border/50">
             <CardTitle className="flex items-center gap-2 text-base">
               <Activity className="h-5 w-5 text-primary" />
@@ -161,9 +161,9 @@ function DashboardContent() {
               Análisis de especialización del equipo
             </CardDescription>
           </CardHeader>
-          <CardContent className="p-6">
-            <div className="h-[380px] w-full overflow-hidden flex items-center justify-center">
-              <PieChart className="h-full w-full max-h-[380px]" />
+          <CardContent className="p-4">
+            <div className="w-full">
+              <PieChart height={320} className="w-full" />
             </div>
           </CardContent>
         </Card>
@@ -171,17 +171,17 @@ function DashboardContent() {
 
       {/* Listas informativas */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-        <div className="relative z-10">
+        <div className="relative z-10" data-testid="dashboard-proximas">
           <ProximasCompetenciasList className="rounded-xl shadow-sm" />
         </div>
-        <div className="relative z-10">
+        <div className="relative z-10" data-testid="dashboard-destacados">
           <AtletasDestacadosList className="rounded-xl shadow-sm" />
         </div>
       </div>
 
       {/* Actividad reciente */}
       <div className="relative z-10">
-        <Card className="rounded-xl shadow-sm border border-border/50">
+        <Card data-testid="dashboard-actividad" className="rounded-xl shadow-sm border border-border/50">
           <CardHeader className="border-b border-border/50">
             <CardTitle className="text-base">Actividad Reciente</CardTitle>
             <CardDescription className="text-sm">

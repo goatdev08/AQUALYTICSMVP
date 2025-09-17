@@ -8,7 +8,7 @@
  * Diseño responsivo con cards y paginación
  */
 
-import React, { useState, useMemo } from 'react';
+import React, { useState } from 'react';
 import Link from 'next/link';
 import { format } from 'date-fns';
 import { es } from 'date-fns/locale';
@@ -17,16 +17,15 @@ import {
   CalendarIcon, 
   MapPinIcon, 
   FilterIcon,
-  SearchIcon,
   LoaderIcon,
   EditIcon,
   EyeIcon,
 } from 'lucide-react';
 import { ProtectedRoute, EntrenadorOnly } from '@/components/auth';
-import { useCompetencias, type CompetenciaFilters } from '@/hooks/useCompetencias';
+import { AppLayout } from '@/components/layout';
+import { useCompetencias, type CompetenciaFilters, type CursoEnum } from '@/hooks/useCompetencias';
+import { CompetenciaSelector } from '@/components/competencias';
 import { Button, Alert, AlertDescription } from '@/components/ui';
-import { InputWrapper } from '@/components/ui/input-wrapper';
-import { useDebounce } from '@/hooks/useDebounce';
 import { mapFigmaVariant } from '@/lib/figma-utils';
 
 // ============================================================================
@@ -51,13 +50,13 @@ function formatFecha(fechaISO: string): string {
 function getEstadoColor(estado: string): { bg: string; text: string } {
   switch (estado) {
     case 'Próxima':
-      return { bg: 'bg-blue-100', text: 'text-blue-800' };
+      return { bg: 'bg-accent/20', text: 'text-accent-foreground' };
     case 'Activa':
-      return { bg: 'bg-green-100', text: 'text-green-800' };
+      return { bg: 'bg-primary/20', text: 'text-primary' };
     case 'Finalizada':
-      return { bg: 'bg-gray-100', text: 'text-gray-800' };
+      return { bg: 'bg-muted/50', text: 'text-muted-foreground' };
     default:
-      return { bg: 'bg-gray-100', text: 'text-gray-800' };
+      return { bg: 'bg-muted/50', text: 'text-muted-foreground' };
   }
 }
 
@@ -67,11 +66,11 @@ function getEstadoColor(estado: string): { bg: string; text: string } {
 function getCursoColor(curso: string): { bg: string; text: string } {
   switch (curso) {
     case 'SC':
-      return { bg: 'bg-purple-100', text: 'text-purple-800' };
+      return { bg: 'bg-secondary/20', text: 'text-secondary-foreground' };
     case 'LC':
-      return { bg: 'bg-indigo-100', text: 'text-indigo-800' };
+      return { bg: 'bg-accent/30', text: 'text-accent-foreground' };
     default:
-      return { bg: 'bg-gray-100', text: 'text-gray-800' };
+      return { bg: 'bg-muted/50', text: 'text-muted-foreground' };
   }
 }
 
@@ -84,12 +83,12 @@ function CompetenciaCard({ competencia }: { competencia: any }) {
   const cursoColors = getCursoColor(competencia.curso);
 
   return (
-    <div className="bg-white rounded-lg border border-gray-200 hover:border-green-300 hover:shadow-md transition-all duration-200">
+    <div className="bg-card rounded-lg border border-border hover:border-primary/50 hover:shadow-md transition-all duration-200">
       <div className="p-6">
         {/* Header con nombre y badges */}
         <div className="flex items-start justify-between mb-4">
           <div className="flex-1 min-w-0 mr-4">
-            <h3 className="text-lg font-semibold text-gray-900 truncate">
+            <h3 className="text-lg font-semibold text-foreground truncate">
               {competencia.nombre}
             </h3>
           </div>
@@ -104,8 +103,8 @@ function CompetenciaCard({ competencia }: { competencia: any }) {
         </div>
 
         {/* Fechas */}
-        <div className="flex items-center text-sm text-gray-600 mb-3">
-          <CalendarIcon className="h-4 w-4 mr-2 text-gray-400" />
+        <div className="flex items-center text-sm text-muted-foreground mb-3">
+          <CalendarIcon className="h-4 w-4 mr-2 text-muted-foreground" />
           <span>
             {formatFecha(competencia.rango_fechas.lower)} - {formatFecha(competencia.rango_fechas.upper)}
           </span>
@@ -118,14 +117,14 @@ function CompetenciaCard({ competencia }: { competencia: any }) {
 
         {/* Sede */}
         {competencia.sede && (
-          <div className="flex items-center text-sm text-gray-600 mb-4">
-            <MapPinIcon className="h-4 w-4 mr-2 text-gray-400" />
+          <div className="flex items-center text-sm text-muted-foreground mb-4">
+            <MapPinIcon className="h-4 w-4 mr-2 text-muted-foreground" />
             <span className="truncate">{competencia.sede}</span>
           </div>
         )}
 
         {/* Acciones */}
-        <div className="flex items-center justify-end gap-2 pt-4 border-t border-gray-100">
+        <div className="flex items-center justify-end gap-2 pt-4 border-t border-border">
           <Link href={`/competencias/${competencia.id}`}>
             <Button variant="outline" size="sm" className="flex items-center">
               <EyeIcon className="h-3 w-3 mr-1" />
@@ -151,20 +150,20 @@ function CompetenciasLoading() {
   return (
     <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
       {[1, 2, 3, 4, 5, 6].map((i) => (
-        <div key={i} className="bg-white rounded-lg border border-gray-200 animate-pulse">
+        <div key={i} className="bg-card rounded-lg border border-border animate-pulse">
           <div className="p-6 space-y-4">
             <div className="flex justify-between">
-              <div className="h-6 bg-gray-200 rounded w-2/3"></div>
+              <div className="h-6 bg-muted rounded w-2/3"></div>
               <div className="space-y-2">
-                <div className="h-5 bg-gray-100 rounded w-16"></div>
-                <div className="h-5 bg-gray-100 rounded w-20"></div>
+                <div className="h-5 bg-muted/50 rounded w-16"></div>
+                <div className="h-5 bg-muted/50 rounded w-20"></div>
               </div>
             </div>
-            <div className="h-4 bg-gray-100 rounded w-1/2"></div>
-            <div className="h-4 bg-gray-100 rounded w-3/4"></div>
-            <div className="flex gap-2 pt-4 border-t border-gray-100">
-              <div className="h-8 bg-gray-200 rounded w-16"></div>
-              <div className="h-8 bg-gray-200 rounded w-16"></div>
+            <div className="h-4 bg-muted/50 rounded w-1/2"></div>
+            <div className="h-4 bg-muted/50 rounded w-3/4"></div>
+            <div className="flex gap-2 pt-4 border-t border-border">
+              <div className="h-8 bg-muted rounded w-16"></div>
+              <div className="h-8 bg-muted rounded w-16"></div>
             </div>
           </div>
         </div>
@@ -192,24 +191,15 @@ export default function CompetenciasPage() {
     size: 12,
   });
 
-  const [searchInput, setSearchInput] = useState('');
-  const debouncedSearch = useDebounce(searchInput, 300);
-
   // ========================================
   // QUERY DATA
   // ========================================
-  
-  const finalFilters = useMemo(() => ({
-    ...filters,
-    search: debouncedSearch || undefined,
-  }), [filters, debouncedSearch]);
 
   const { 
     data: competenciasData, 
     isLoading, 
-    error,
-    refetch 
-  } = useCompetenciasList(finalFilters);
+    error
+  } = useCompetenciasList(filters);
 
   // ========================================
   // HANDLERS
@@ -237,7 +227,6 @@ export default function CompetenciasPage() {
   // ========================================
   
   const primaryButtonProps = mapFigmaVariant('Button', 'buttonsolid', {});
-  const inputProps = mapFigmaVariant('Input', 'Droplistborder', {});
 
   // ========================================
   // RENDER
@@ -245,20 +234,15 @@ export default function CompetenciasPage() {
   
   return (
     <ProtectedRoute>
-      <div className="min-h-screen bg-gray-50">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-          
-          {/* Header */}
-          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between mb-8">
-            <div>
-              <h1 className="text-3xl font-bold text-gray-900">Competencias</h1>
-              <p className="text-gray-600 mt-1">
-                Gestiona las competencias de tu equipo
-              </p>
-            </div>
-            
+      <AppLayout 
+        title="Competencias" 
+        description="Gestiona las competencias de tu equipo"
+      >
+        <div className="p-6 space-y-6 max-w-7xl mx-auto">
+          {/* Action buttons */}
+          <div className="flex justify-end mb-6">
             <EntrenadorOnly fallback={null}>
-              <div className="mt-4 sm:mt-0">
+              <div>
                 <Link href="/competencias/nueva">
                   <Button className="flex items-center" {...primaryButtonProps}>
                     <PlusIcon className="h-4 w-4 mr-2" />
@@ -272,22 +256,25 @@ export default function CompetenciasPage() {
           {/* Filtros */}
           <div className="bg-white rounded-lg border border-gray-200 p-6 mb-6">
             <div className="flex items-center mb-4">
-              <FilterIcon className="h-5 w-5 text-gray-400 mr-2" />
+              <FilterIcon className="h-5 w-5 text-muted-foreground mr-2" />
               <h2 className="text-lg font-medium text-gray-900">Filtros</h2>
             </div>
             
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
               {/* Búsqueda */}
-              <div className="relative">
-                <input
-                  type="text"
-                  placeholder="Buscar competencias..."
-                  value={searchInput}
-                  onChange={(e) => setSearchInput(e.target.value)}
-                  className={`w-full pl-10 pr-4 py-2 border border-gray-300 rounded-full text-sm focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent ${inputProps.className}`}
-                />
-                <SearchIcon className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
-              </div>
+              <CompetenciaSelector
+                value={null}
+                onValueChange={(competencia) => {
+                  if (competencia) {
+                    // Navegar a la competencia seleccionada
+                    window.location.href = `/competencias/${competencia.id}`;
+                  }
+                }}
+                placeholder="Buscar competencias instantáneo..."
+                className="w-full"
+                showFilters={false}
+                initialFilters={{ curso: filters.curso as CursoEnum | undefined }}
+              />
 
               {/* Filtro por Curso */}
               <select
@@ -342,7 +329,7 @@ export default function CompetenciasPage() {
             <>
               {/* Estadísticas */}
               <div className="mb-6">
-                <p className="text-sm text-gray-600">
+                <p className="text-sm text-muted-foreground">
                   Mostrando {competenciasData.competencias.length} de {competenciasData.total} competencias
                 </p>
               </div>
@@ -360,8 +347,8 @@ export default function CompetenciasPage() {
                   <h3 className="text-lg font-medium text-gray-900 mb-2">
                     No hay competencias
                   </h3>
-                  <p className="text-gray-600 mb-6">
-                    {debouncedSearch || filters.curso || filters.estado
+                  <p className="text-muted-foreground mb-6">
+                    {filters.search || filters.curso || filters.estado
                       ? 'No se encontraron competencias con los filtros actuales.'
                       : 'Aún no has creado ninguna competencia.'
                     }
@@ -398,7 +385,7 @@ export default function CompetenciasPage() {
           )}
 
         </div>
-      </div>
+      </AppLayout>
     </ProtectedRoute>
   );
 }

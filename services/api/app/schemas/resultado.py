@@ -212,6 +212,16 @@ class ResultadoResponse(ResultadoBase):
     created_at: datetime = Field(description="Timestamp de creación")
     updated_at: datetime = Field(description="Timestamp de última modificación")
     
+    # ✅ Campos contextuales opcionales para listados (optimización frontend)
+    nadador_nombre: Optional[str] = Field(default=None, description="Nombre completo del nadador")
+    nadador_rama: Optional[str] = Field(default=None, description="Rama del nadador (F/M)")
+    competencia_nombre: Optional[str] = Field(default=None, description="Nombre de la competencia")
+    competencia_curso: Optional[str] = Field(default=None, description="Curso de la competencia")
+    prueba_estilo: Optional[str] = Field(default=None, description="Estilo de la prueba")
+    prueba_distancia: Optional[int] = Field(default=None, description="Distancia de la prueba")
+    prueba_curso: Optional[str] = Field(default=None, description="Curso de la prueba")
+    capturado_por_email: Optional[str] = Field(default=None, description="Email del usuario que capturó")
+    
     model_config = {"from_attributes": True}
 
 

@@ -174,7 +174,7 @@ export default function DistribucionEstilos({ distribucion, isLoading }: Distrib
       <div className="text-center py-12">
         <BarChart3 className="h-12 w-12 text-gray-400 mx-auto mb-4" />
         <h3 className="text-lg font-medium text-gray-900">No hay datos de distribución</h3>
-        <p className="text-gray-600">La distribución por estilos aparecerá aquí con más datos.</p>
+        <p className="text-muted-foreground">La distribución por estilos aparecerá aquí con más datos.</p>
       </div>
     );
   }
@@ -184,7 +184,7 @@ export default function DistribucionEstilos({ distribucion, isLoading }: Distrib
       {/* Header */}
       <div>
         <h3 className="text-lg font-semibold text-gray-900">🎯 Distribución de Estilos</h3>
-        <p className="text-sm text-gray-600">
+        <p className="text-sm text-muted-foreground">
           Análisis de especialidades y preferencias por estilo
         </p>
       </div>
@@ -194,7 +194,7 @@ export default function DistribucionEstilos({ distribucion, isLoading }: Distrib
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
           <div className="bg-green-50 border border-green-200 rounded-lg p-4">
             <div className="flex items-center">
-              <Award className="h-5 w-5 text-green-600 mr-2" />
+              <Award className="h-5 w-5 text-primary mr-2" />
               <span className="text-sm font-medium text-green-900">Estilo Favorito</span>
             </div>
             <p className="text-2xl font-bold text-green-900 mt-1">
@@ -292,7 +292,7 @@ export default function DistribucionEstilos({ distribucion, isLoading }: Distrib
                   <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
                     <div>
                       <span className="font-mono font-semibold">{formatTiempo(estilo.mejor_tiempo)}</span>
-                      <div className="text-xs text-gray-600 mt-1">
+                      <div className="text-xs text-muted-foreground mt-1">
                         📝 {estilo.prueba_mejor_tiempo}
                       </div>
                     </div>
@@ -310,7 +310,7 @@ export default function DistribucionEstilos({ distribucion, isLoading }: Distrib
                       index === 0 ? 'bg-yellow-100 text-yellow-800' :
                       index === 1 ? 'bg-gray-100 text-gray-800' :
                       index === 2 ? 'bg-orange-100 text-orange-800' :
-                      'bg-gray-50 text-gray-600'
+                      'bg-gray-50 text-muted-foreground'
                     }`}>
                       {index === 0 ? '🥇 Principal' :
                        index === 1 ? '🥈 Secundario' :

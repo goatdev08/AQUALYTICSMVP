@@ -30,7 +30,7 @@ import {
   Trophy
 } from 'lucide-react';
 import { ResultadoDetailModal } from '@/components/resultados';
-import { useDashboardTop5 } from '@/hooks/useDashboard';
+import { useDashboardActividadReciente } from '@/hooks/useDashboard';
 import { format, parseISO } from 'date-fns';
 import { es } from 'date-fns/locale';
 
@@ -53,12 +53,13 @@ export function ActividadRecienteTable({
 }: ActividadRecienteTableProps) {
   const [selectedResultadoId, setSelectedResultadoId] = useState<number | null>(null);
   
-  // Usamos el hook de top5 sin filtros para obtener actividad reciente
-  // En una implementación completa, esto sería un endpoint específico
-  const { data: actividadData, isLoading, error, refetch } = useDashboardTop5();
+  // Usar el hook dedicado para actividad reciente según PRDv2
+  const { data: actividadResponse, isLoading, error, refetch } = useDashboardActividadReciente(maxItems);
 
-  // Procesar datos para mostrar como actividad reciente
-  const actividadLimitada = actividadData?.slice(0, maxItems) || [];
+  // Extraer datos y metadatos de la respuesta
+  const actividadLimitada = actividadResponse?.data || [];
+  const totalActividad = actividadResponse?.total || 0;
+  const hayMas = actividadResponse?.hay_mas || false;
 
   // Función para formatear fecha
   const formatFecha = (fechaStr: string) => {
@@ -70,18 +71,22 @@ export function ActividadRecienteTable({
     }
   };
 
-  // Función para obtener el tipo de actividad
-  const getTipoActividad = () => 'Resultado registrado';
+  // Función para obtener el tipo de actividad (ahora viene del endpoint)
+  const getTipoActividad = (actividad: any) => actividad.tipo_actividad || 'Resultado registrado';
 
-  // Función para obtener el badge de estado
-  const getEstadoBadge = (tiempo_cs: number) => {
-    // Lógica simple para determinar si es un buen tiempo (esto sería más sofisticado en producción)
-    if (tiempo_cs < 3000) { // < 30 segundos
-      return <Badge className="bg-green-100 text-green-800">Excelente</Badge>;
-    } else if (tiempo_cs < 6000) { // < 1 minuto
-      return <Badge className="bg-blue-100 text-blue-800">Bueno</Badge>;
+  // Función para obtener el badge de estado basado en validación
+  const getEstadoBadge = (actividad: any) => {
+    if (actividad.estado_validacion === 'valido') {
+      // Lógica adicional para determinar si es un buen tiempo
+      if (actividad.tiempo_cs < 3000) { // < 30 segundos
+        return <Badge className="bg-primary/20 text-primary border border-primary/30">Excelente</Badge>;
+      } else if (actividad.tiempo_cs < 6000) { // < 1 minuto
+        return <Badge className="bg-accent/20 text-accent-foreground border border-accent/30">Válido</Badge>;
+      } else {
+        return <Badge className="bg-primary/10 text-primary border border-primary/20">Válido</Badge>;
+      }
     } else {
-      return <Badge variant="outline">Registro</Badge>;
+      return <Badge variant="outline">Pendiente</Badge>;
     }
   };
 
@@ -90,7 +95,7 @@ export function ActividadRecienteTable({
       <Card className={className}>
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
-            <Activity className="h-5 w-5 text-green-600" />
+            <Activity className="h-5 w-5 text-primary" />
             Actividad Reciente
           </CardTitle>
         </CardHeader>
@@ -118,7 +123,7 @@ export function ActividadRecienteTable({
       <CardHeader>
         <div className="flex items-center justify-between">
           <CardTitle className="flex items-center gap-2">
-            <Activity className="h-5 w-5 text-green-600" />
+            <Activity className="h-5 w-5 text-primary" />
             Actividad Reciente
           </CardTitle>
           <Button
@@ -131,7 +136,7 @@ export function ActividadRecienteTable({
             Actualizar
           </Button>
         </div>
-        <p className="text-sm text-gray-600">
+        <p className="text-sm text-muted-foreground">
           Últimos registros y actividad del equipo
         </p>
       </CardHeader>
@@ -170,7 +175,7 @@ export function ActividadRecienteTable({
                     <TableRow key={actividad.id}>
                       <TableCell>
                         <div className="flex items-center gap-2">
-                          <Trophy className="h-4 w-4 text-green-600" />
+                          <Trophy className="h-4 w-4 text-primary" />
                           <span className="text-sm font-medium">
                             Resultado
                           </span>
@@ -178,12 +183,12 @@ export function ActividadRecienteTable({
                       </TableCell>
                       <TableCell>
                         <div className="flex items-center gap-2">
-                          <User className="h-4 w-4 text-gray-400" />
+                          <User className="h-4 w-4 text-muted-foreground" />
                           <div>
                             <div className="font-medium">
                               {actividad.nadador}
                             </div>
-                            <div className="text-sm text-gray-500">
+                            <div className="text-sm text-muted-foreground">
                               {actividad.rama === 'F' ? 'Femenil' : 'Masculino'}
                             </div>
                           </div>
@@ -193,7 +198,7 @@ export function ActividadRecienteTable({
                         <div className="text-sm">
                           {actividad.prueba}
                         </div>
-                        <div className="text-xs text-gray-500">
+                        <div className="text-xs text-muted-foreground">
                           {actividad.competencia}
                         </div>
                       </TableCell>
@@ -204,14 +209,14 @@ export function ActividadRecienteTable({
                       </TableCell>
                       <TableCell>
                         <div className="flex items-center gap-1">
-                          <Calendar className="h-4 w-4 text-gray-400" />
+                          <Calendar className="h-4 w-4 text-muted-foreground" />
                           <span className="text-sm">
                             {formatFecha(actividad.fecha)}
                           </span>
                         </div>
                       </TableCell>
                       <TableCell>
-                        {getEstadoBadge(actividad.tiempo_cs)}
+                        {getEstadoBadge(actividad)}
                       </TableCell>
                       <TableCell>
                         <ResultadoDetailModal
@@ -228,28 +233,28 @@ export function ActividadRecienteTable({
               </Table>
             </div>
 
-            {/* Botón "Ver todos" */}
-            {showViewAll && actividadData && actividadData.length > maxItems && (
+            {/* Botón "Ver todos (N)" con conteo real según PRDv2 */}
+            {showViewAll && hayMas && (
               <div className="mt-4 text-center">
                 <Button
                   variant="outline"
                   onClick={onViewAllClick}
                   className="w-full"
                 >
-                  Ver toda la actividad ({actividadData.length} registros)
+                  Ver toda la actividad ({totalActividad} registros)
                 </Button>
               </div>
             )}
 
             {/* Información adicional */}
-            {actividadData && actividadData.length > 0 && (
-              <div className="mt-4 text-xs text-gray-500 text-center">
-                Mostrando {actividadLimitada.length} de {actividadData.length} registros recientes
+            {actividadLimitada.length > 0 && (
+              <div className="mt-4 text-xs text-muted-foreground text-center">
+                Mostrando {actividadLimitada.length} de {totalActividad} registros recientes
               </div>
             )}
           </>
         ) : (
-          <div className="text-center py-8 text-gray-500">
+          <div className="text-center py-8 text-muted-foreground">
             <Activity className="h-12 w-12 mx-auto mb-4 text-gray-300" />
             <p>No hay actividad reciente</p>
             <p className="text-sm mt-1">

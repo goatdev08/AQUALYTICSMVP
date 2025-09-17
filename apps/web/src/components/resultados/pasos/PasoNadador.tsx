@@ -78,34 +78,13 @@ export function PasoNadador() {
     <div className="space-y-6">
       {/* Encabezado del paso */}
       <div className="text-center space-y-2">
-        <div className="flex items-center justify-center gap-3 mb-2">
-          <div className="w-12 h-12 rounded-full bg-green-100 flex items-center justify-center">
-            <UserIcon className="w-6 h-6 text-green-600" />
-          </div>
-        </div>
-        <h2 className="text-xl font-semibold text-gray-900">
+        {/* Header simplificado - FormSection ya maneja los indicadores visuales */}
+        <h2 className="text-xl font-semibold text-gray-900 text-center">
           Seleccionar Nadador
         </h2>
-        <p className="text-gray-600 max-w-md mx-auto">
-          Busca y selecciona el nadador que participó en esta competencia
-        </p>
       </div>
       
-      {/* Información contextual de la competencia */}
-      {competencia && (
-        <Alert className="border-blue-200 bg-blue-50">
-          <InfoIcon className="h-4 w-4 text-blue-600" />
-          <AlertDescription className="text-blue-800">
-            <strong>Competencia seleccionada:</strong> {competencia.nombre}
-            <br />
-            <span className="text-sm">
-              {competencia.curso} • {competencia.rango_fechas ? 
-                `${competencia.rango_fechas}` : 'Sin fechas definidas'
-              }
-            </span>
-          </AlertDescription>
-        </Alert>
-      )}
+      {/* Información contextual ahora solo en sticky panel */}
       
       {/* Selector de nadador */}
       <div className="max-w-2xl mx-auto">
@@ -127,56 +106,11 @@ export function PasoNadador() {
       </div>
       
       {/* Estado de selección */}
-      {tieneNadadorSeleccionado && nadadorActual && (
-        <div className="max-w-2xl mx-auto">
-          <Alert className="border-green-200 bg-green-50">
-            <CheckCircleIcon className="h-4 w-4 text-green-600" />
-            <AlertDescription className="text-green-800">
-              <strong>Nadador seleccionado:</strong> {nadadorActual.nombre_completo}
-              <br />
-              <div className="text-sm mt-1 space-x-3">
-                <span>
-                  <strong>Rama:</strong> {nadadorActual.rama === 'F' ? 'Femenino' : 'Masculino'}
-                </span>
-                <span>
-                  <strong>Edad:</strong> {nadadorActual.edad_actual} años
-                </span>
-                <span>
-                  <strong>Categoría:</strong> {nadadorActual.categoria_actual}
-                </span>
-              </div>
-            </AlertDescription>
-          </Alert>
-        </div>
-      )}
+      {/* Información del nadador ahora solo en sticky panel */}
       
-      {/* Instrucciones de ayuda */}
-      {!tieneNadadorSeleccionado && (
-        <div className="max-w-2xl mx-auto">
-          <div className="bg-gray-50 border border-gray-200 rounded-lg p-4">
-            <h3 className="text-sm font-medium text-gray-900 mb-2">
-              💡 Consejos de búsqueda:
-            </h3>
-            <ul className="text-sm text-gray-600 space-y-1">
-              <li>• Escribe cualquier carácter del nombre para buscar</li>
-              <li>• Usa los filtros para refinar por rama o categoría</li>
-              <li>• Navega con las flechas ↑/↓ y selecciona con Enter</li>
-              <li>• La búsqueda incluye nombres y apellidos</li>
-            </ul>
-          </div>
-        </div>
-      )}
+      {/* Instrucciones innecesarias - sticky panel guía el proceso */}
       
-      {/* Advertencia si no hay competencia */}
-      {!competencia && (
-        <Alert className="border-yellow-200 bg-yellow-50">
-          <AlertTriangleIcon className="h-4 w-4 text-yellow-600" />
-          <AlertDescription className="text-yellow-800">
-            <strong>Atención:</strong> No se ha seleccionado una competencia en el paso anterior.
-            Para continuar, regresa al Paso 1 y selecciona una competencia.
-          </AlertDescription>
-        </Alert>
-      )}
+      {/* Advertencias innecesarias - sticky panel muestra estado */}
     </div>
   );
 }

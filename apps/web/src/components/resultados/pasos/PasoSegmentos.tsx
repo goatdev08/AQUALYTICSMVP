@@ -23,6 +23,7 @@ import {
   CardTitle,
   Badge,
 } from '@/components/ui';
+import { TimeInput } from '@/components/ui/time-input';
 import {
   TableIcon,
   ClockIcon,
@@ -411,17 +412,10 @@ export function PasoSegmentos() {
   }, [construirPayloadResultado, createResultado, dispatch, limpiarAutoguardado, resetearStepper]);
 
   // Verificaciones de datos completos
+  // Si falta información, FormSection maneja el estado deshabilitado visualmente
+  // y el sticky panel muestra los próximos pasos - no necesitamos alerta redundante
   if (!prueba || !competencia || !configuracionPrueba) {
-    return (
-      <div className="text-center py-8">
-        <Alert className="border-yellow-200 bg-yellow-50 max-w-md mx-auto">
-          <AlertTriangleIcon className="h-4 w-4 text-yellow-600" />
-          <AlertDescription className="text-yellow-800">
-            <strong>Información incompleta:</strong> Completa los pasos anteriores para continuar.
-          </AlertDescription>
-        </Alert>
-      </div>
-    );
+    return null; // FormSection se encarga del estado visual
   }
   
   return (
@@ -429,33 +423,13 @@ export function PasoSegmentos() {
       
       {/* Header */}
       <div className="text-center space-y-2">
-        <div className="flex items-center justify-center gap-3 mb-2">
-          <div className="w-12 h-12 rounded-full bg-green-100 flex items-center justify-center">
-            <TableIcon className="w-6 h-6 text-green-600" />
-          </div>
-        </div>
-        <h2 className="text-xl font-semibold text-gray-900">
+        {/* Header simplificado - FormSection ya maneja los indicadores visuales */}
+        <h2 className="text-xl font-semibold text-gray-900 text-center">
           Captura de Segmentos
         </h2>
-        <p className="text-gray-600 max-w-md mx-auto">
-          Registra los tiempos parciales y datos de cada segmento de la prueba
-        </p>
       </div>
       
-      {/* Información contextual */}
-      <div className="space-y-3 max-w-4xl mx-auto">
-        <Alert className="border-purple-200 bg-purple-50">
-          <ActivityIcon className="h-4 w-4 text-purple-600" />
-          <AlertDescription className="text-purple-800">
-            <strong>Prueba:</strong> {prueba.nombre} • Fase: {fase}
-            <br />
-            <span className="text-sm">
-              {configuracionPrueba.numSegmentos} segmentos de {configuracionPrueba.distanciaSegmento}m cada uno
-              {configuracionPrueba.esCombinadoIM && ' (Combinado Individual)'}
-            </span>
-          </AlertDescription>
-        </Alert>
-      </div>
+      {/* Información contextual ahora solo en sticky panel */}
       
       {/* Tabla de segmentos simplificada */}
       <div className="max-w-6xl mx-auto">
@@ -484,12 +458,12 @@ export function PasoSegmentos() {
                     <div className="flex-1 grid grid-cols-3 gap-3">
                       <div>
                         <label className="text-xs text-gray-600">Tiempo</label>
-                        <Input
-                          type="text"
-                          placeholder="mm:ss.cc"
+                        <TimeInput
                           value={segmento.tiempo}
-                          onChange={(e) => handleSegmentoChange(segmento.indice, 'tiempo', e.target.value)}
+                          onChange={(value, isValid) => handleSegmentoChange(segmento.indice, 'tiempo', value)}
+                          placeholder="mm:ss.cc"
                           className="text-sm"
+                          allowEmpty={true}
                         />
                       </div>
                       
@@ -548,24 +522,24 @@ export function PasoSegmentos() {
             </div>
             <div className="flex items-center gap-4">
               <label className="font-medium text-sm w-32">Tiempo Global:</label>
-              <Input
-                type="text"
-                placeholder="mm:ss.cc"
+              <TimeInput
                 value={segmentosData.datos_globales.tiempo_global}
-                onChange={(e) => handleGlobalChange('tiempo_global', e.target.value)}
+                onChange={(value, isValid) => handleGlobalChange('tiempo_global', value)}
+                placeholder="mm:ss.cc"
                 className="flex-1"
+                allowEmpty={false}
               />
             </div>
             
             {configuracionPrueba.permite15m && (
               <div className="flex items-center gap-4">
                 <label className="font-medium text-sm w-32">Tiempo 15m:</label>
-                <Input
-                  type="text"
-                  placeholder="mm:ss.cc (opcional)"
+                <TimeInput
                   value={segmentosData.datos_globales.tiempo_15m || ''}
-                  onChange={(e) => handleGlobalChange('tiempo_15m', e.target.value)}
+                  onChange={(value, isValid) => handleGlobalChange('tiempo_15m', value)}
+                  placeholder="mm:ss.cc (opcional)"
                   className="flex-1"
+                  allowEmpty={true}
                 />
               </div>
             )}
@@ -576,7 +550,7 @@ export function PasoSegmentos() {
       {/* Previsualización */}
       {resumen && (
         <div className="max-w-4xl mx-auto">
-          <Card className={`border-2 ${resumen.requiere_revision ? 'border-yellow-300 bg-yellow-50' : 'border-green-300 bg-green-50'}`}>
+          <Card className={`border-2 ${resumen.requiere_revision ? 'border-yellow-300 bg-yellow-50' : 'border-green-300 bg-primary/10'}`}>
             <CardHeader>
               <CardTitle className="flex items-center gap-2">
                 <Calculator className="w-5 h-5" />
@@ -651,72 +625,8 @@ export function PasoSegmentos() {
         </div>
       )}
 
-      {/* Botón de guardado */}
-      <div className="max-w-4xl mx-auto">
-        <Card className="border-green-200 bg-green-50">
-          <CardContent className="p-6">
-            <div className="flex items-center justify-between">
-              <div className="space-y-1">
-                <h3 className="font-semibold text-green-800">
-                  {resultadoGuardado ? '¡Resultado guardado exitosamente!' : 'Listo para guardar'}
-                </h3>
-                <p className="text-sm text-green-700">
-                  {resultadoGuardado 
-                    ? `Resultado ID: ${resultadoGuardado} guardado exitosamente. Reiniciando stepper para nuevo registro...`
-                    : validacionesSegmentos.errores.length === 0 
-                      ? 'Todos los datos han sido validados. Haz clic en "Guardar Resultado" para finalizar.'
-                      : 'Corrige los errores antes de continuar.'
-                  }
-                </p>
-              </div>
-              
-              <div className="flex gap-2">
-                {resultadoGuardado ? (
-                  <div className="flex items-center gap-2 text-green-600">
-                    <CheckCircle className="w-5 h-5" />
-                    <span className="font-medium">Guardado</span>
-                  </div>
-                ) : (
-                  <Button
-                    onClick={handleGuardarResultado}
-                    disabled={
-                      validacionesSegmentos.errores.length > 0 ||
-                      createResultado.isPending ||
-                      !construirPayloadResultado()
-                    }
-                    className="bg-green-600 hover:bg-green-700"
-                  >
-                    {createResultado.isPending ? (
-                      <>
-                        <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-                        Guardando...
-                      </>
-                    ) : (
-                      <>
-                        <Save className="w-4 h-4 mr-2" />
-                        Guardar Resultado
-                      </>
-                    )}
-                  </Button>
-                )}
-              </div>
-            </div>
-
-            {/* Mostrar errores de guardado */}
-            {(errorGuardado || createResultado.isError) && (
-              <Alert className="mt-4 border-red-200 bg-red-50">
-                <AlertTriangleIcon className="h-4 w-4 text-red-600" />
-                <AlertDescription className="text-red-800">
-                  <strong>Error al guardar:</strong> 
-                  <div className="mt-2 whitespace-pre-line">
-                    {errorGuardado || createResultado.error?.message || 'Error desconocido'}
-                  </div>
-                </AlertDescription>
-              </Alert>
-            )}
-          </CardContent>
-        </Card>
-      </div>
+      {/* Botón de guardado y estados ahora manejados completamente por el sticky panel */}
+      {/* Errores de guardado también se mostrarán de manera integrada en el sticky */}
       
     </div>
   );

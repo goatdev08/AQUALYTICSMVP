@@ -1,0 +1,145 @@
+# Technical Architecture  
+
+- Frontend:
+  - Next.js apps/web, TypeScript, TanStack Query, Supabase Auth, shadcn/ui, Chart.js
+  - Componentes clave: `apps/web/src/components/dashboard/*`, `apps/web/src/components/resultados/*`, `apps/web/src/components/nadadores/*`, `apps/web/src/components/analitica/*`
+  - Hooks: `apps/web/src/hooks/*` (dashboard, resultados, nadadores, competencias, pruebas, debounce)
+  - Layout: `apps/web/src/components/layout/app-layout.tsx` (sidebar, header, theme toggle)
+- Backend:
+  - FastAPI `services/api/app/api/v1/endpoints/*` (dashboard, competencias, nadadores, resultados, analitica)
+  - Modelos/Esquemas/Utils: `services/api/app/models/*`, `services/api/app/schemas/*`, `services/api/app/utils/*`
+  - QA: pytest + pytest-asyncio + httpx (instaladas vía `pip install -U '.[dev]'` en `services/api`)
+- Base de Datos (Supabase PostgreSQL):
+  - Tablas: `equipo`, `usuario`, `nadador`, `competencia` (daterange), `prueba`, `resultado`, `segmento`
+  - Vista: `resultado_agregado` (métricas derivadas por resultado)
+  - Extensiones útiles: `pg_trgm` (búsquedas), `btree_gist/gist` (rangos), `uuid-ossp`, `unaccent` (opcional)
+
+# Development Roadmap  
+
+- Fase 1 — Dashboard
+  1) Pie Chart: `apps/web/src/components/dashboard/PieChart.tsx`
+     - Paleta verde más amplia (5–7 tonos diferenciables) y `layout.padding` para evitar recortes.
+     - Evitar clipping: remover/ajustar `overflow-hidden` en el Card contenedor en `apps/web/src/app/dashboard/page.tsx` (solo para el chart).
+  2) Próximas competencias:
+     - Estandarizar fuente de datos usando `GET /api/v1/competencias/proximas` (hook `useCompetencias().useProximasCompetencias`) o mantener `GET /dashboard/proximas-competencias` pero mostrando conteo total destacado.
+     - Mostrar botón "Ver todas (N)" con N real cuando existan más elementos que el límite mostrado.
+  3) Atletas destacados:
+     - Asegurar filtrado por `estado_validacion='valido'` y periodo por `fecha_registro` (no `created_at`). Endpoint: `GET /api/v1/dashboard/atletas-destacados`.
+     - Añadir botón "Ver todos (N)" con N real para navegar a la vista completa si aplica.
+  4) Actividad reciente:
+     - Crear endpoint `GET /api/v1/dashboard/actividad-reciente` (últimos N resultados válidos del equipo). Índices: `idx_resultado_fecha_registro`, `idx_resultado_estado_validacion`.
+     - Nuevo hook `useDashboardActividadReciente()` consumido por `ActividadRecienteTable`.
+     - Reutilizar `ResultadoDetailModal` para “ver detalles”.
+     - Mostrar botón "Ver toda la actividad (N)" con N real cuando haya más registros que el límite local.
+
+- Fase 2 — Perfil del Nadador
+  1) Tab Información: `apps/web/src/components/nadadores/CategoriaInfo.tsx`
+     - Ocultar aviso redundante para 17+; mostrar solo categoría actual.
+  2) Unificar “Resultados” y “Marcas” → “Marcas”
+     - Sub-secciones: “Mejores Marcas (PRs)” y “Resultados Recientes”.
+     - Filtros: estilo/fecha/prueba sobre `useResultados` con `nadador_id` fijo.
+     - Etiquetas: cambiar “Pruebas Totales” → “Total de Registros”.
+  3) Estilos: asegurar despliegue de “Total de registros por estilo” (usar datos de distribución o conteo simple agrupado).
+  4) Reutilización de “ver detalles”: usar `ResultadoDetailModal` en ranking y listas.
+
+- Fase 3 — Registro de Resultados (UX)
+  1) Vista única (sin stepper visible): Componente contenedor que orquesta los pasos actuales (`PasoCompetencia`, `PasoNadador`, `PasoPrueba`, `PasoSegmentos`) en una sola pantalla activando subsecciones según selección.
+  2) Autogeneración de segmentos al seleccionar prueba (longitud según curso SC/LC).
+  3) Input de tiempos con máscara (solo dígitos) que inserta `:` y `.` automáticamente; usar utilidades existentes `formatearTiempo/parsearTiempo`.
+
+- Fase 4 — Búsqueda Unificada y Rápida
+  1) Typeahead desde primer carácter en todos los módulos:
+     - Nadadores: ya soportado (>=1). Mantener `useNadadorTypeahead` con debounce 150–200ms.
+     - Competencias: bajar `min_length` a 1 en `GET /competencias/search/typeahead` y agregar índice trigram en `competencia.nombre`.
+     - Donde aplique, replicar patrón de dropdown accesible del `NadadorSelector`.
+  2) Unificar patrón de dropdown (accesible) para competencias y pruebas:
+     - Extraer utilidades comunes de `NadadorSelector` (debounce, navegación por teclado, vacíos/errores, ARIA roles).
+     - Aplicarlas en selectores de competencias y pruebas con umbral de 1 carácter y debounce 150–200ms.
+     - Usar el mismo patrón visual/comportamental en móvil y escritorio para consistencia.
+
+- Fase 5 — Consistencia de Navegación y Temas
+  1) Envolver páginas clave con `AppLayout` para sidebar en toda la app (p. ej. `/nadadores/[id]`).
+  2) Ajustar tokens/variables de tema para paleta de verdes y negro profundo homogéneos; revisar componentes con variantes gradiente para consistencia en dark mode.
+
+# Logical Dependency Chain  
+
+1) Endpoint de actividad reciente (Dashboard) y ajustes en destacados/competencias.  
+2) Normalizar métricas de actividad a `fecha_registro` en endpoints (no `created_at`).  
+3) Unificación de tabs y filtros en Perfil del Nadador (apoya reutilización de UI y “ver detalles”).  
+4) Registro de resultados en una sola vista con máscara de tiempos.  
+5) Búsqueda unificada con dropdown accesible para nadadores/competencias/pruebas y mejoras de índices.  
+6) Consistencia de navegación y tema.
+
+# Risks and Mitigations  
+
+- Dataset pequeño: algunas vistas pueden mostrar pocos datos.
+  - Mitigación: estados vacíos claros y CTA a “Registrar resultados”.
+- Consultas de actividad reciente: riesgo de latencia si se amplía demasiado el rango temporal.
+  - Mitigación: limitar N por defecto (p. ej., 20) y usar índices existentes por fecha/estado.
+- Cambios de UI en Perfil: aprendizaje mínimo para usuarios.
+  - Mitigación: mantener etiquetas y jerarquías familiares; tooltips.
+
+# Base de Datos e Índices (estado y acciones)  
+
+- Índices actuales relevantes (verificados con Supabase):
+  - `resultado`: `idx_resultado_fecha_registro`, `idx_resultado_estado_validacion`, `idx_resultado_nadador_prueba_tiempo`, `idx_resultado_competencia_fecha`, unique por (nadador_id, competencia_id, prueba_id, fase, fecha_registro). Suficientes para actividades y listados.
+  - `competencia`: `idx_competencia_equipo_id`, `idx_competencia_rango_fechas_gist`, `idx_competencia_curso`. Adecuados para próximas (daterange).
+  - `nadador`: `idx_nadador_equipo_id`, `idx_nadador_nombre_completo_gin (gin_trgm_ops)`, `idx_nadador_rama`. Adecuados para typeahead.
+  - `segmento`: `idx_segmento_resultado_indice`, `idx_segmento_resultado_estilo`. Adecuados para detalles/segmentos.
+- Recomendaciones puntuales:
+  - Competencias typeahead (min 1 char): crear índice trigram por nombre si no existe:
+
+    ```sql
+    CREATE INDEX IF NOT EXISTS idx_competencia_nombre_trgm
+    ON public.competencia USING gin (nombre gin_trgm_ops);
+    ```
+
+  - Atletas destacados: filtrar por `estado_validacion='valido'` y usar `fecha_registro` (aprovecha `idx_resultado_fecha_registro`).
+  - Actividad reciente: usar `ORDER BY r.fecha_registro DESC LIMIT N` con los índices actuales.
+  - Alinear cualquier endpoint que dependa de `created_at` para métricas a `fecha_registro` (p. ej., `/dashboard/atletas-destacados`).
+
+# Especificaciones por Módulo (Implementación)
+
+- Dashboard
+  - PieChart: ajustar colores, padding y contenedor para evitar clipping; mantener leyendas legibles.
+  - Próximas: mostrar total visible (badge) y botón “Ver todas (N)” con N correcto.
+  - Atletas Destacados: usar período basado en `fecha_registro` y estado válido; exponer `metrica` y totales; botón “Ver todos (N)”.
+  - Actividad Reciente: endpoint dedicado + hook; tabla usa `ResultadoDetailModal`; botón “Ver toda la actividad (N)”.
+- Perfil del Nadador
+  - Información: simplificar `CategoriaInfo` para 17+ (sin alerta extra).
+  - Marcas: PRs + recientes, búsqueda con filtros; “Total de Registros”.
+  - Estilos: totales por estilo visibles (badge/listado bajo el gráfico).
+  - Reutilización del modal de detalles en todas las listas.
+- Registro de Resultados
+  - Vista única: subsecciones habilitadas secuencialmente según selección.
+  - Tiempo con máscara (solo dígitos; formato mm:ss.cc automático).
+- Búsqueda Unificada
+  - Debounce 150–200ms; primer carácter.
+  - Competencias typeahead a 1 char + índice trigram.
+  - Unificar dropdown accesible entre nadadores/competencias/pruebas (patrón de `NadadorSelector`).
+- Navegación/Temas
+  - Asegurar `AppLayout` en páginas clave.
+  - Paleta de verdes consistente; negro profundo en dark.
+
+# Criterios de Aceptación (QA)
+
+- Pie chart no se recorta; colores distinguibles.
+- Próximas competencias muestran total y se sincronizan con BD.
+- Atletas destacados reflejan actividad real en los últimos X días (válidos).
+- Botones “Ver todas/Ver todos/Ver toda la actividad (N)” aparecen cuando N > límite y muestran N correcto.
+- Actividad reciente usa endpoint dedicado y “ver detalles” muestra segmentos y métricas globales.
+- En Perfil, “Marcas” contiene PRs y recientes; filtros funcionales; labels consistentes.
+- Registro en una vista: campos de segmentos aparecen al seleccionar prueba; input de tiempos autoformatea.
+- Búsquedas reactivas desde primer carácter con latencia percibida menor.
+- Listados y métricas de actividad ordenan/filtran por `fecha_registro` (no `created_at`).
+- Sidebar presente en todas las vistas principales; tema consistente en claro/oscuro.
+
+# Notas de Implementación
+
+- Reutilizar `ResultadoDetailModal` y `SegmentosTable` (posible toggle de columnas por métrica).
+- Evitar dependencias nuevas para máscara; implementar con handler onChange e inserción de separadores.
+- Mantener stores y hooks existentes; minimizar refactors amplios.
+- No introducir cambios de schema a menos que métricas de rendimiento lo exijan.
+- “Ver todas (N)”: obtener N del total devuelto por el endpoint (si lo hay) o de la longitud de la colección completa; ocultar botón si N ≤ elementos mostrados.
+- Normalización temporal: actualizar consultas/endpoints que usen `created_at` para métricas a `fecha_registro`.
+- Dropdown unificado: factorizar utilidades (debounce/teclado/ARIA) del `NadadorSelector` y aplicarlas a selectores de competencias y pruebas.

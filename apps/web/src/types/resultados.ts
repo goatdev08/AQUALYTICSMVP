@@ -260,9 +260,20 @@ export interface ResultadoResponse {
   desviacion_parciales_cs: number;
   capturado_por: number;
   created_at: string;
+  updated_at?: string;
   
-  // Segmentos incluidos
-  segmentos: {
+  // Campos adicionales del endpoint de listado (optimización)
+  nadador_nombre?: string;
+  nadador_rama?: 'F' | 'M';
+  competencia_nombre?: string;
+  competencia_curso?: string;
+  prueba_estilo?: string;
+  prueba_distancia?: number;
+  prueba_curso?: string;
+  capturado_por_email?: string;
+  
+  // Segmentos incluidos (opcional para listados)
+  segmentos?: {
     id: number;
     resultado_id: number;
     indice: number;
@@ -276,8 +287,27 @@ export interface ResultadoResponse {
     dist_por_brazada_m?: number;
   }[];
   
-  // Resumen calculado por el backend
-  resumen: ResumenPrevisualizacion;
+  // Resumen calculado por el backend (opcional para listados)
+  resumen?: ResumenPrevisualizacion;
+  
+  // Objetos anidados (para compatibilidad/casos específicos)
+  nadador?: {
+    id: number;
+    nombre_completo: string;
+    rama: 'F' | 'M';
+  };
+  competencia?: {
+    id: number;
+    nombre: string;
+    curso: string;
+  };
+  prueba?: {
+    id: number;
+    nombre: string;
+    estilo: string;
+    distancia: number;
+    curso: string;
+  };
 }
 
 // =====================

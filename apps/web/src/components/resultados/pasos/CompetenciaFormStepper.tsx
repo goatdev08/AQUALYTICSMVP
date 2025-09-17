@@ -187,24 +187,10 @@ export function CompetenciaFormStepper({
   // Render
   // =====================
   
+  // El éxito de creación se refleja inmediatamente en el sticky panel
+  // No necesitamos alertas redundantes - FormSection y sticky manejan el feedback visual
   if (successMessage) {
-    return (
-      <div className={`space-y-4 ${className}`}>
-        <Alert className="border-green-200 bg-green-50">
-          <CheckCircleIcon className="h-4 w-4 text-green-600" />
-          <AlertDescription className="text-green-800">
-            {successMessage}
-          </AlertDescription>
-        </Alert>
-        
-        <div className="flex justify-center">
-          <div className="flex items-center gap-2 text-sm text-green-600">
-            <LoaderIcon className="h-4 w-4 animate-spin" />
-            Seleccionando automáticamente...
-          </div>
-        </div>
-      </div>
-    );
+    return null; // El callback onSuccess ya actualizó el estado global
   }
   
   return (
@@ -253,7 +239,7 @@ export function CompetenciaFormStepper({
               {...register('curso')}
               value="SC"
               disabled={isLoading}
-              className="w-4 h-4 text-green-600 border-gray-300 focus:ring-green-500"
+              className="w-4 h-4 text-primary border-gray-300 focus:ring-green-500"
             />
             <span className="text-sm">
               <span className="font-medium">Piscina Corta</span>
@@ -266,7 +252,7 @@ export function CompetenciaFormStepper({
               {...register('curso')}
               value="LC"
               disabled={isLoading}
-              className="w-4 h-4 text-green-600 border-gray-300 focus:ring-green-500"
+              className="w-4 h-4 text-primary border-gray-300 focus:ring-green-500"
             />
             <span className="text-sm">
               <span className="font-medium">Piscina Larga</span>

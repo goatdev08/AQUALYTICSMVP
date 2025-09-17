@@ -98,7 +98,7 @@ export function ResumenGlobal({ resumen }: ResumenGlobalProps) {
             <div>
               <p className="text-xs text-gray-500">Desviación</p>
               <p className={`text-sm font-mono font-bold ${
-                Math.abs(resumen.desviacion_cs) > 40 ? 'text-red-600' : 'text-green-600'
+                Math.abs(resumen.desviacion_cs) > 40 ? 'text-red-600' : 'text-primary'
               }`}>
                 {resumen.desviacion_cs > 0 ? '+' : ''}{resumen.desviacion_cs}cs
               </p>
@@ -123,7 +123,7 @@ export function ResumenGlobal({ resumen }: ResumenGlobalProps) {
             </div>
             <div>
               <p className="text-xs text-gray-500">Dist. por Brazada</p>
-              <p className="text-sm font-mono font-semibold text-green-600">
+              <p className="text-sm font-mono font-semibold text-primary">
                 {resumen.distancia_por_brazada_global_m 
                   ? formatMeters(resumen.distancia_por_brazada_global_m)
                   : 'N/A'
@@ -183,9 +183,9 @@ export function ResumenGlobal({ resumen }: ResumenGlobalProps) {
       </div>
 
       {/* Análisis de Eficiencia */}
-      <Card className="bg-gradient-to-r from-green-50 to-blue-50">
+      <Card className="bg-gradient-to-r from-primary/10 to-accent/10 border border-primary/20">
         <CardHeader>
-          <CardTitle className="flex items-center gap-2 text-green-800">
+          <CardTitle className="flex items-center gap-2 text-primary">
             <TrendingUp className="w-5 h-5" />
             Análisis de Eficiencia
           </CardTitle>

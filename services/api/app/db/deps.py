@@ -11,19 +11,21 @@ from fastapi import Depends, HTTPException, status # type: ignore
 from sqlalchemy import create_engine, text
 from sqlalchemy.exc import SQLAlchemyError
 from sqlalchemy.orm import Session, sessionmaker
+from sqlalchemy.pool import NullPool
 from loguru import logger # type: ignore
 
 from app.core.config import settings
 
 
-# Crear engine de SQLAlchemy
+# Crear engine de SQLAlchemy (Transaction Pooler recomendado: delegar pool a PgBouncer)
 engine = create_engine(
     settings.DATABASE_URL,
-    # Configuración para PostgreSQL/Supabase
-    pool_size=10,
-    max_overflow=20,
-    pool_pre_ping=True,  # Verificar conexiones antes de usar
-    pool_recycle=300,    # Reciclar conexiones cada 5 minutos
+    poolclass=NullPool,   # Delegar el pooling al Transaction Pooler (PgBouncer)
+    pool_pre_ping=True,   # Verificar conexión antes de usar
+    connect_args={
+        # Limitar duración de sentencias para evitar bloqueos largos en free tier
+        "options": "-c statement_timeout=10000"
+    },
     echo=settings.DEBUG,  # Log SQL queries en debug
 )
 

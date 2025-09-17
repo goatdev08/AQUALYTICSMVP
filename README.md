@@ -9,6 +9,18 @@ Plataforma para registrar, analizar y comparar resultados de natación.
 - **Base de datos**: Supabase (Postgres)
 - **Despliegue**: Vercel (web) + Render (API)
 
+## Testing (QA)
+
+- **Frontend E2E**: Playwright (`@playwright/test`)
+  - Instalar dependencias de navegador manualmente si el instalador automático falla (ubuntu libs como libicu):
+    - Intento automático: `pnpm exec playwright install chromium firefox webkit`
+    - Si falla `--with-deps`, instalar libs del sistema y reintentar
+  - Scripts:
+    - `pnpm --filter web test:e2e`
+    - `pnpm --filter web test:e2e:ui`
+- **Backend**: pytest + httpx + pytest-asyncio (ya incluidos en `[project.optional-dependencies].dev`)
+  - Ejecutar en `services/api`: `source venv/bin/activate && pytest`
+
 ## Estructura del Proyecto
 
 ```

@@ -83,10 +83,10 @@ export default function AnaliticaPage() {
       {/* Header */}
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-3xl font-bold text-gray-900">
+          <h1 className="text-3xl font-bold text-foreground">
             Análisis de Resultados
           </h1>
-          <p className="text-gray-600 mt-2">
+          <p className="text-muted-foreground mt-2">
             Selecciona un resultado específico para analizar sus segmentos y rendimiento
           </p>
         </div>
@@ -123,7 +123,7 @@ export default function AnaliticaPage() {
           {/* Búsqueda de nadador */}
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div className="space-y-2">
-              <label htmlFor="busqueda-nadador" className="block text-sm font-medium text-gray-700">
+              <label htmlFor="busqueda-nadador" className="block text-sm font-medium text-foreground">
                 Buscar Nadador
               </label>
               <Input
@@ -136,7 +136,7 @@ export default function AnaliticaPage() {
             </div>
             
             <div className="space-y-2">
-              <label htmlFor="nadador-select" className="block text-sm font-medium text-gray-700">
+              <label htmlFor="nadador-select" className="block text-sm font-medium text-foreground">
                 Seleccionar Nadador
             </label>
               <Select value={nadadorSeleccionado} onValueChange={setNadadorSeleccionado}>
@@ -169,7 +169,7 @@ export default function AnaliticaPage() {
           {/* Filtros de prueba */}
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
             <div className="space-y-2">
-              <label htmlFor="estilo-filter" className="block text-sm font-medium text-gray-700">
+              <label htmlFor="estilo-filter" className="block text-sm font-medium text-foreground">
                 Filtrar por Estilo
               </label>
               <Select value={filtrosPrueba.estilo} onValueChange={(value) => 
@@ -190,7 +190,7 @@ export default function AnaliticaPage() {
             </div>
 
             <div className="space-y-2">
-              <label htmlFor="distancia-filter" className="block text-sm font-medium text-gray-700">
+              <label htmlFor="distancia-filter" className="block text-sm font-medium text-foreground">
                 Filtrar por Distancia
             </label>
               <Select value={filtrosPrueba.distancia} onValueChange={(value) => 
@@ -210,7 +210,7 @@ export default function AnaliticaPage() {
           </div>
           
             <div className="space-y-2">
-              <label htmlFor="curso-filter" className="block text-sm font-medium text-gray-700">
+              <label htmlFor="curso-filter" className="block text-sm font-medium text-foreground">
                 Filtrar por Curso
             </label>
               <Select value={filtrosPrueba.curso} onValueChange={(value) => 
@@ -284,8 +284,8 @@ export default function AnaliticaPage() {
                     key={resultado.id} 
                     className={`cursor-pointer transition-all hover:shadow-md ${
                       resultadoSeleccionado === resultado.id.toString() 
-                        ? 'ring-2 ring-green-500 bg-green-50' 
-                        : 'hover:bg-gray-50'
+                        ? 'ring-2 ring-primary bg-primary/10' 
+                        : 'hover:bg-muted/50'
                     }`}
                     onClick={() => setResultadoSeleccionado(resultado.id.toString())}
                   >
@@ -306,7 +306,7 @@ export default function AnaliticaPage() {
                           {(resultado.tiempo_global_cs % 100).toString().padStart(2, '0')}
                         </div>
                         
-                        <div className="text-sm text-gray-600">
+                        <div className="text-sm text-muted-foreground">
                           <p>Competencia ID: {resultado.competencia_id}</p>
                           <p>{new Date(resultado.fecha_registro).toLocaleDateString('es-ES')}</p>
                         </div>
@@ -434,7 +434,7 @@ export default function AnaliticaPage() {
                     {resultado.segmentos && resultado.segmentos.length > 0 && (
                       <div className="bg-gray-50 p-4 rounded-lg">
                         <h4 className="font-medium mb-4">Visualización de Segmentos</h4>
-                        <p className="text-sm text-gray-600">
+                        <p className="text-sm text-muted-foreground">
                           Aquí se puede integrar un gráfico específico para mostrar la progresión de tiempos, 
                           velocidades y otras métricas por segmento del resultado seleccionado.
                         </p>

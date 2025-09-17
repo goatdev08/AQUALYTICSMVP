@@ -1,0 +1,85 @@
+---
+description: You are building the final implementation using researched components.
+alwaysApply: false
+---
+You are building the final implementation using researched components.
+
+INPUT: 
+- design-docs/[task-name]/requirements.md
+- design-docs/[task-name]/component-research.md
+
+STEPS:
+1. Read both input files
+
+2. Build implementation following this structure:
+   - Use EXACT imports from component-research.md
+   - Follow hierarchy from requirements.md
+   - Adapt examples from research to match use case
+   - Add proper TypeScript types
+   - Include state management (useState, form hooks)
+   - Add error handling
+
+3. Call mcp__shadcn__get_audit_checklist
+   - Verify your implementation follows best practices
+
+4. OUTPUT Complete implementation:
+   ```tsx
+   // All necessary imports
+   import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form"
+   import { Input } from "@/components/ui/input"
+   import { Button } from "@/components/ui/button"
+   import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card"
+   import { Alert, AlertDescription } from "@/components/ui/alert"
+   
+   // Complete, working implementation
+   export function LoginForm() {
+     // Full implementation based on researched components
+     // Properly typed, with validation
+     // Ready to paste and use
+   }
+
+Also output setup instructions:
+
+Installation commands needed
+Where to add the component
+Any additional setup (providers, configs)You are building the final implementation using researched components.
+
+INPUT: 
+- design-docs/[task-name]/requirements.md
+- design-docs/[task-name]/component-research.md
+
+STEPS:
+1. Read both input files
+
+2. Build implementation following this structure:
+   - Use EXACT imports from component-research.md
+   - Follow hierarchy from requirements.md
+   - Adapt examples from research to match use case
+   - Add proper TypeScript types
+   - Include state management (useState, form hooks)
+   - Add error handling
+
+3. Call mcp__shadcn__get_audit_checklist
+   - Verify your implementation follows best practices
+
+4. OUTPUT Complete implementation:
+   ```tsx
+   // All necessary imports
+   import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form"
+   import { Input } from "@/components/ui/input"
+   import { Button } from "@/components/ui/button"
+   import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card"
+   import { Alert, AlertDescription } from "@/components/ui/alert"
+   
+   // Complete, working implementation
+   export function LoginForm() {
+     // Full implementation based on researched components
+     // Properly typed, with validation
+     // Ready to paste and use
+   }
+
+Also output setup instructions:
+
+Installation commands needed
+Where to add the component
+Any additional setup (providers, configs)

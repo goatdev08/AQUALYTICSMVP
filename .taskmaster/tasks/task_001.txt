@@ -1,0 +1,49 @@
+# Task ID: 1
+# Title: Initialize Monorepo and Core Project Structure
+# Status: done
+# Dependencies: None
+# Priority: high
+# Description: Set up the monorepo with Next.js (TypeScript), FastAPI, and Supabase integration, ensuring clean separation of frontend and backend codebases.
+# Details:
+Use the Next.js FastAPI Template for a scalable, type-safe foundation. Initialize frontend in 'apps/web' with Next.js 14+, TypeScript, TanStack Query, shadcn/ui, Chart.js. Backend in 'services/api' with FastAPI (Python 3.11+), async support, Pydantic v2, and Supabase PostgreSQL. Configure pre-commit hooks with Ruff for Python linting and ESLint/Prettier for JS/TS. Set up environment variables for Supabase and authentication. Ensure Vercel compatibility for deployment.
+
+# Test Strategy:
+Verify project builds and runs locally. Run linting and formatting checks. Confirm basic API connectivity between frontend and backend.
+
+# Subtasks:
+## 1. Initialize Monorepo Structure and Base Configuration [done]
+### Dependencies: None
+### Description: Set up the monorepo directory structure with proper workspace configuration and base tooling setup
+### Details:
+Create root directory with package.json workspace configuration. Initialize 'apps/web' directory for Next.js frontend and 'services/api' directory for FastAPI backend. Set up root-level configuration files including .gitignore, README.md, and workspace package.json with proper scripts for both frontend and backend. Configure package manager (npm/yarn/pnpm) workspaces to handle monorepo dependencies efficiently.
+
+## 2. Configure Next.js Frontend with TypeScript and Core Dependencies [done]
+### Dependencies: None
+### Description: Initialize Next.js 14+ application in apps/web with TypeScript, TanStack Query, shadcn/ui, and Chart.js
+### Details:
+Run 'npx create-next-app@latest apps/web --typescript --tailwind --eslint --app' to create Next.js 14+ app with App Router. Install and configure TanStack Query for data fetching, shadcn/ui for UI components, and Chart.js for data visualization. Set up TypeScript configuration with strict mode. Configure Next.js for Vercel deployment compatibility including proper build scripts and environment variable handling. Initialize basic layout structure and routing.
+
+## 3. Set up FastAPI Backend with Python Dependencies [done]
+### Dependencies: None
+### Description: Initialize FastAPI application in services/api with Python 3.11+, async support, and Pydantic v2
+### Details:
+Create Python virtual environment and initialize FastAPI project structure in services/api. Install FastAPI, Uvicorn, Pydantic v2, and async database dependencies. Set up main.py with FastAPI app instance, CORS middleware for frontend communication, and basic health check endpoint. Configure Python project structure with proper __init__.py files, routers directory, and models directory. Set up requirements.txt and pyproject.toml for dependency management.
+
+## 4. Integrate Supabase Configuration and Environment Setup [done]
+### Dependencies: None
+### Description: Configure Supabase integration for both frontend and backend with proper environment variable management
+### Details:
+Install Supabase client libraries for both Next.js (@supabase/supabase-js) and Python (supabase-py). Create Supabase project and obtain API keys and database URL. Set up environment variables in .env.local for frontend and .env for backend with Supabase credentials. Configure Supabase client initialization in both applications with proper TypeScript types for frontend. Set up basic database connection testing and ensure PostgreSQL connectivity from FastAPI.
+
+## 5. Configure Development Tooling and Pre-commit Hooks [done]
+### Dependencies: None
+### Description: Set up linting, formatting, and pre-commit hooks with Ruff for Python and ESLint/Prettier for JavaScript/TypeScript
+### Details:
+Install and configure Ruff for Python linting and formatting in services/api with pyproject.toml configuration. Set up ESLint and Prettier for apps/web with proper TypeScript rules and Next.js compatibility. Install pre-commit framework and create .pre-commit-config.yaml with hooks for Ruff (Python), ESLint/Prettier (JS/TS), and basic file checks. Configure VS Code settings for consistent development experience across the team. Set up GitHub Actions workflow files for CI/CD pipeline preparation.
+
+## 6. Establish Inter-Service Communication and Deployment Readiness [done]
+### Dependencies: None
+### Description: Configure API communication between frontend and backend, and ensure Vercel deployment compatibility
+### Details:
+Set up API client configuration in Next.js to communicate with FastAPI backend using proper base URLs for development and production. Configure FastAPI to handle requests from Next.js frontend with appropriate CORS settings. Create basic API endpoints in FastAPI and corresponding frontend hooks using TanStack Query for testing connectivity. Ensure Vercel deployment configuration is properly set up with build scripts, environment variables, and API routes. Test the complete development workflow from frontend to backend to database.
+

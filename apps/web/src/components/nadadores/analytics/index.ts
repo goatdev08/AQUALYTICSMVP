@@ -8,3 +8,4 @@ export { default as DistribucionEstilos } from './DistribucionEstilos';
 export { default as RegistrosRecientes } from './RegistrosRecientes';
 export { default as RankingIntraEquipo } from './RankingIntraEquipo';
 export { default as ResultadosResumen } from './ResultadosResumen';
+export { default as MarcasUnificadas } from './MarcasUnificadas';

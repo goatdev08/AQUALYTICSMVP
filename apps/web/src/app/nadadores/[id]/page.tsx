@@ -13,23 +13,22 @@ import { ProtectedRoute, RoleGuard } from '@/components/auth';
 import { useNadador } from '@/hooks/useNadadores';
 import { useNadadorAnalytics } from '@/hooks/useNadadorAnalytics';
 
-import { LoaderIcon, ArrowLeftIcon, EditIcon, TrendingUp, Award, BarChart3, Trophy, Activity } from 'lucide-react';
+import { LoaderIcon, ArrowLeftIcon, EditIcon, TrendingUp, Award, BarChart3, Trophy } from 'lucide-react';
 import { Button, Alert, AlertDescription, Tabs, TabsList, TabsTrigger, TabsContent } from '@/components/ui';
 import { CategoriaInfo } from '@/components/nadadores';
 
 // Lazy loading de componentes pesados para mejor performance
-const MejoresMarcas = lazy(() => import('@/components/nadadores/analytics/MejoresMarcas'));
+const MarcasUnificadas = lazy(() => import('@/components/nadadores/analytics/MarcasUnificadas'));
 const EvolucionTemporal = lazy(() => import('@/components/nadadores/analytics/EvolucionTemporal'));
 const DistribucionEstilos = lazy(() => import('@/components/nadadores/analytics/DistribucionEstilos'));
 const RankingIntraEquipo = lazy(() => import('@/components/nadadores/analytics/RankingIntraEquipo'));
-const ResultadosResumen = lazy(() => import('@/components/nadadores/analytics/ResultadosResumen'));
 
 // Loader component para lazy loading
 const TabLoader = ({ title }: { title: string }) => (
   <div className="flex items-center justify-center py-12">
     <div className="text-center">
-      <LoaderIcon className="h-8 w-8 animate-spin mx-auto mb-4 text-green-600" />
-      <p className="text-gray-600">Cargando {title.toLowerCase()}...</p>
+      <LoaderIcon className="h-8 w-8 animate-spin mx-auto mb-4 text-primary" />
+      <p className="text-muted-foreground">Cargando {title.toLowerCase()}...</p>
     </div>
   </div>
 );
@@ -62,10 +61,10 @@ export default function PerfilNadadorPage() {
   if (isLoading) {
     return (
       <ProtectedRoute>
-        <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+        <div className="min-h-screen bg-background flex items-center justify-center">
           <div className="text-center">
-            <LoaderIcon className="h-8 w-8 animate-spin mx-auto mb-4 text-green-600" />
-            <p className="text-gray-600">Cargando perfil del nadador...</p>
+            <LoaderIcon className="h-8 w-8 animate-spin mx-auto mb-4 text-primary" />
+            <p className="text-muted-foreground">Cargando perfil del nadador...</p>
           </div>
         </div>
       </ProtectedRoute>
@@ -81,7 +80,7 @@ export default function PerfilNadadorPage() {
   if (isError && !(String((error as any)?.message || '').includes('404'))) {
     return (
       <ProtectedRoute>
-        <div className="min-h-screen bg-gray-50 py-8">
+        <div className="min-h-screen bg-background py-8">
           <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
             <Alert>
               <AlertDescription>
@@ -103,10 +102,10 @@ export default function PerfilNadadorPage() {
   if (!nadador) {
     return (
       <ProtectedRoute>
-        <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+        <div className="min-h-screen bg-background flex items-center justify-center">
           <div className="text-center">
-            <LoaderIcon className="h-8 w-8 animate-spin mx-auto mb-4 text-green-600" />
-            <p className="text-gray-600">Cargando perfil del nadador...</p>
+            <LoaderIcon className="h-8 w-8 animate-spin mx-auto mb-4 text-primary" />
+            <p className="text-muted-foreground">Cargando perfil del nadador...</p>
           </div>
         </div>
       </ProtectedRoute>
@@ -115,15 +114,15 @@ export default function PerfilNadadorPage() {
 
   return (
     <ProtectedRoute>
-      <div className="min-h-screen bg-gray-50 py-8">
+      <div className="min-h-screen bg-background py-8">
         <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
           
           {/* Header */}
           <div className="mb-8">
             <div className="flex items-center justify-between">
               <div>
-                <h1 className="text-3xl font-bold text-gray-900">{nadador.nombre_completo}</h1>
-                <p className="mt-2 text-gray-600">
+                <h1 className="text-3xl font-bold text-foreground">{nadador.nombre_completo}</h1>
+                <p className="mt-2 text-muted-foreground">
                   Perfil detallado con análisis de rendimiento
                 </p>
               </div>
@@ -149,9 +148,9 @@ export default function PerfilNadadorPage() {
             </div>
           </div>
 
-          {/* Tabs Navigation */}
+                      {/* Tabs Navigation */}
           <Tabs value={activeTab} onValueChange={setActiveTab}>
-            <TabsList className="grid w-full grid-cols-6">
+            <TabsList className="grid w-full grid-cols-5">
               <TabsTrigger 
                 value="informacion"
                 isActive={activeTab === 'informacion'}
@@ -160,15 +159,6 @@ export default function PerfilNadadorPage() {
               >
                 <span>📋</span>
                 <span>Información</span>
-              </TabsTrigger>
-              <TabsTrigger 
-                value="resultados"
-                isActive={activeTab === 'resultados'}
-                onClick={() => setActiveTab('resultados')}
-                className="flex items-center space-x-2"
-              >
-                <Activity className="h-4 w-4" />
-                <span>Resultados</span>
               </TabsTrigger>
               <TabsTrigger 
                 value="marcas"
@@ -212,14 +202,14 @@ export default function PerfilNadadorPage() {
             
             {/* Información Personal */}
             <TabsContent value="informacion" isActive={activeTab === 'informacion'}>
-              <div className="bg-white shadow rounded-lg">
+              <div className="bg-card shadow rounded-lg">
                 <div className="px-6 py-6">
-                  <h2 className="text-xl font-semibold text-gray-900 mb-6">Información Personal</h2>
+                  <h2 className="text-xl font-semibold text-foreground mb-6">Información Personal</h2>
                   
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                     <div>
                       <dt className="text-sm font-medium text-gray-500">Nombre completo</dt>
-                      <dd className="mt-1 text-lg text-gray-900">{nadador.nombre_completo}</dd>
+                      <dd className="mt-1 text-lg text-foreground">{nadador.nombre_completo}</dd>
                     </div>
                     
                     <div>
@@ -237,7 +227,7 @@ export default function PerfilNadadorPage() {
                     
                     <div>
                       <dt className="text-sm font-medium text-gray-500">Fecha de nacimiento</dt>
-                      <dd className="mt-1 text-lg text-gray-900">
+                      <dd className="mt-1 text-lg text-foreground">
                         {new Date(nadador.fecha_nacimiento).toLocaleDateString('es-ES', {
                           year: 'numeric',
                           month: 'long',
@@ -248,7 +238,7 @@ export default function PerfilNadadorPage() {
                     
                     <div>
                       <dt className="text-sm font-medium text-gray-500">Peso</dt>
-                      <dd className="mt-1 text-lg text-gray-900">
+                      <dd className="mt-1 text-lg text-foreground">
                         {nadador.peso ? `${nadador.peso} kg` : 'No registrado'}
                       </dd>
                     </div>
@@ -266,7 +256,7 @@ export default function PerfilNadadorPage() {
                   {/* Estadísticas generales */}
                   {analyticsData?.estadisticas_generales && (
                     <div className="mt-8 pt-6 border-t">
-                      <h3 className="text-lg font-semibold text-gray-900 mb-4">Estadísticas Generales</h3>
+                      <h3 className="text-lg font-semibold text-foreground mb-4">Estadísticas Generales</h3>
                       <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
                         <div className="bg-blue-50 rounded-lg p-4">
                           <p className="text-2xl font-bold text-blue-900">
@@ -300,37 +290,21 @@ export default function PerfilNadadorPage() {
               </div>
             </TabsContent>
 
-            {/* Resultados Resumen */}
-            <TabsContent value="resultados" isActive={activeTab === 'resultados'}>
-              {analyticsError ? (
-                <Alert>
-                  <AlertDescription>
-                    Error al cargar los resultados. Por favor, intenta de nuevo más tarde.
-                  </AlertDescription>
-                </Alert>
-              ) : (
-                <Suspense fallback={<TabLoader title="Resultados" />}>
-                  <ResultadosResumen 
-                    nadador={nadador}
-                    analyticsData={analyticsData}
-                    isLoading={analyticsLoading}
-                  />
-                </Suspense>
-              )}
-            </TabsContent>
 
-            {/* Mejores Marcas */}
+
+            {/* Marcas Unificadas (PRs + Resultados Recientes) */}
             <TabsContent value="marcas" isActive={activeTab === 'marcas'}>
               {analyticsError ? (
                 <Alert>
                   <AlertDescription>
-                    Error al cargar las mejores marcas. Por favor, intenta de nuevo más tarde.
+                    Error al cargar las marcas y resultados. Por favor, intenta de nuevo más tarde.
                   </AlertDescription>
                 </Alert>
               ) : (
-                <Suspense fallback={<TabLoader title="Mejores Marcas" />}>
-                  <MejoresMarcas 
-                    marcas={analyticsData?.mejores_marcas || []} 
+                <Suspense fallback={<TabLoader title="Marcas y Resultados" />}>
+                  <MarcasUnificadas 
+                    nadador={nadador}
+                    analyticsData={analyticsData}
                     isLoading={analyticsLoading}
                   />
                 </Suspense>

@@ -95,13 +95,13 @@ function CompetenciaItem({ competencia }: { competencia: any }) {
               {competencia.nombre}
             </h4>
             
-            <div className="flex items-center mt-1 text-xs text-gray-500">
+            <div className="flex items-center mt-1 text-xs text-muted-foreground">
               <CalendarIcon className="h-3 w-3 mr-1" />
               <span>{formatFecha(competencia.rango_fechas.lower)}</span>
             </div>
             
             {competencia.sede && (
-              <div className="flex items-center mt-1 text-xs text-gray-500">
+              <div className="flex items-center mt-1 text-xs text-muted-foreground">
                 <MapPinIcon className="h-3 w-3 mr-1" />
                 <span className="truncate">{competencia.sede}</span>
               </div>
@@ -172,7 +172,7 @@ export function ProximasCompetencias({
       {showHeader && (
         <div className="flex items-center justify-between mb-4">
           <div className="flex items-center">
-            <TrophyIcon className="h-5 w-5 text-green-600 mr-2" />
+            <TrophyIcon className="h-5 w-5 text-primary mr-2" />
             <h3 className="text-lg font-medium text-gray-900">Próximas Competencias</h3>
           </div>
           

@@ -154,65 +154,65 @@ export default function ResultadosResumen({ nadador, analyticsData, isLoading }:
     <div className="space-y-6">
       {/* Estadísticas Generales */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-        <Card className="border-0 bg-gradient-to-br from-blue-50 to-blue-100 dark:from-blue-950 dark:to-blue-900">
+        <Card className="border-0 bg-gradient-to-br from-accent/20 to-accent/30">
           <CardContent className="p-6">
             <div className="flex items-center justify-between">
               <div className="space-y-1">
-                <p className="text-sm font-medium text-blue-700 dark:text-blue-300">Competencias</p>
-                <p className="text-2xl font-bold text-blue-900 dark:text-blue-100">
+                <p className="text-sm font-medium text-accent-foreground">Competencias</p>
+                <p className="text-2xl font-bold text-foreground">
                   {estadisticas_generales?.total_competencias || 0}
                 </p>
               </div>
-              <div className="h-12 w-12 bg-blue-500 rounded-lg flex items-center justify-center">
+              <div className="h-12 w-12 bg-accent rounded-lg flex items-center justify-center">
                 <Trophy className="h-6 w-6 text-white" />
               </div>
             </div>
           </CardContent>
         </Card>
 
-        <Card className="border-0 bg-gradient-to-br from-green-50 to-green-100 dark:from-green-950 dark:to-green-900">
+        <Card className="border-0 bg-gradient-to-br from-primary/20 to-primary/30">
           <CardContent className="p-6">
             <div className="flex items-center justify-between">
               <div className="space-y-1">
-                <p className="text-sm font-medium text-green-700 dark:text-green-300">Pruebas Totales</p>
-                <p className="text-2xl font-bold text-green-900 dark:text-green-100">
+                <p className="text-sm font-medium text-primary">Pruebas Totales</p>
+                <p className="text-2xl font-bold text-foreground">
                   {estadisticas_generales?.total_pruebas || 0}
                 </p>
               </div>
-              <div className="h-12 w-12 bg-green-500 rounded-lg flex items-center justify-center">
+              <div className="h-12 w-12 bg-primary/100 rounded-lg flex items-center justify-center">
                 <Waves className="h-6 w-6 text-white" />
               </div>
             </div>
           </CardContent>
         </Card>
 
-        <Card className="border-0 bg-gradient-to-br from-yellow-50 to-yellow-100 dark:from-yellow-950 dark:to-yellow-900">
+        <Card className="border-0 bg-gradient-to-br from-secondary/20 to-secondary/30">
           <CardContent className="p-6">
             <div className="flex items-center justify-between">
               <div className="space-y-1">
-                <p className="text-sm font-medium text-yellow-700 dark:text-yellow-300">Lugar Promedio</p>
-                <p className="text-2xl font-bold text-yellow-900 dark:text-yellow-100">
+                <p className="text-sm font-medium text-secondary-foreground">Lugar Promedio</p>
+                <p className="text-2xl font-bold text-foreground">
                   {estadisticas_generales?.mejor_lugar_promedio || 0}°
                 </p>
               </div>
-              <div className="h-12 w-12 bg-yellow-500 rounded-lg flex items-center justify-center">
+              <div className="h-12 w-12 bg-secondary rounded-lg flex items-center justify-center">
                 <Target className="h-6 w-6 text-white" />
               </div>
             </div>
           </CardContent>
         </Card>
 
-        <Card className="border-0 bg-gradient-to-br from-purple-50 to-purple-100 dark:from-purple-950 dark:to-purple-900">
+        <Card className="border-0 bg-gradient-to-br from-muted/20 to-muted/30">
           <CardContent className="p-6">
             <div className="flex items-center justify-between">
               <div className="space-y-1">
-                <p className="text-sm font-medium text-purple-700 dark:text-purple-300">Eventos Recientes</p>
-                <p className="text-2xl font-bold text-purple-900 dark:text-purple-100">
+                <p className="text-sm font-medium text-muted-foreground">Eventos Recientes</p>
+                <p className="text-2xl font-bold text-foreground">
                   {estadisticas_generales?.eventos_ultimo_mes || 0}
                 </p>
                 <p className="text-xs text-purple-600 dark:text-purple-400">Últimos 30 días</p>
               </div>
-              <div className="h-12 w-12 bg-purple-500 rounded-lg flex items-center justify-center">
+              <div className="h-12 w-12 bg-muted-foreground rounded-lg flex items-center justify-center">
                 <Calendar className="h-6 w-6 text-white" />
               </div>
             </div>
@@ -225,7 +225,7 @@ export default function ResultadosResumen({ nadador, analyticsData, isLoading }:
         <Card>
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
-              <Trophy className="h-5 w-5 text-green-600" />
+              <Trophy className="h-5 w-5 text-primary" />
               Mejores Marcas Personales
             </CardTitle>
             <CardDescription>
@@ -237,7 +237,7 @@ export default function ResultadosResumen({ nadador, analyticsData, isLoading }:
               {mejores_marcas.slice(0, 5).map((marca, index) => (
                 <div
                   key={`${nadador.id}-mm-${(marca.estilo ?? 'est')}-${String(marca.distancia ?? 'dist')}-${marca.curso ?? 'curso'}-${index}`}
-                  className="p-4 border rounded-lg bg-gradient-to-r from-green-50 to-emerald-50"
+                  className="p-4 border border-primary/20 rounded-lg bg-gradient-to-r from-primary/10 to-primary/15"
                 >
                   <div className="flex items-center justify-between mb-2">
                     <Badge variant="secondary" className="text-xs">
@@ -251,7 +251,7 @@ export default function ResultadosResumen({ nadador, analyticsData, isLoading }:
                     </Badge>
                   </div>
                   <p className="text-2xl font-bold text-green-800">{marca.tiempo_formateado ?? '—'}</p>
-                  <p className="text-sm text-gray-600">{marca.competencia ?? '—'}</p>
+                  <p className="text-sm text-muted-foreground">{marca.competencia ?? '—'}</p>
                   <p className="text-xs text-gray-500">
                     {marca.fecha ? new Date(marca.fecha).toLocaleDateString('es-ES') : '—'}
                   </p>
@@ -297,10 +297,10 @@ export default function ResultadosResumen({ nadador, analyticsData, isLoading }:
                       </div>
                     </div>
                     <div>
-                      <p className="font-medium text-gray-900">
+                      <p className="font-medium text-foreground">
                         {registro.estilo} {registro.distancia}m - {registro.tiempo_formateado}
                       </p>
-                      <p className="text-sm text-gray-600">
+                      <p className="text-sm text-muted-foreground">
                         {registro.competencia} • {new Date(registro.fecha).toLocaleDateString('es-ES')}
                       </p>
                     </div>
@@ -340,8 +340,8 @@ export default function ResultadosResumen({ nadador, analyticsData, isLoading }:
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               {/* Métricas Automáticas */}
               <div>
-                <h4 className="font-semibold text-gray-900 mb-3 flex items-center gap-2">
-                  <Activity className="h-4 w-4 text-green-600" />
+                <h4 className="font-semibold text-foreground mb-3 flex items-center gap-2">
+                  <Activity className="h-4 w-4 text-primary" />
                   Métricas Automáticas
                 </h4>
                 <div className="space-y-3">
@@ -368,7 +368,7 @@ export default function ResultadosResumen({ nadador, analyticsData, isLoading }:
 
               {/* Métricas Manuales */}
               <div>
-                <h4 className="font-semibold text-gray-900 mb-3 flex items-center gap-2">
+                <h4 className="font-semibold text-foreground mb-3 flex items-center gap-2">
                   <TrendingUp className="h-4 w-4 text-blue-600" />
                   Métricas Manuales
                 </h4>

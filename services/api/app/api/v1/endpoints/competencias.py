@@ -488,26 +488,45 @@ async def actualizar_competencia(
 async def typeahead_competencias(
     db: DatabaseDep,
     current_user: CurrentUser,
-    q: str = Query(..., min_length=2, description="Término de búsqueda"),
+    q: str = Query(..., min_length=1, description="Término de búsqueda"),
     limit: int = Query(10, ge=1, le=50, description="Máximo resultados")
 ):
     """
     Búsqueda typeahead de competencias para selectors.
     
-    Optimizada para componentes de búsqueda rápida.
+    Optimizada para componentes de búsqueda rápida:
+    - Soporta búsqueda desde 1 carácter
+    - Usa índice trigram en competencia.nombre para alta performance
+    - Ordena por competencias más recientes primero
     """
     try:
         audit_access(current_user, "competencia", "typeahead_attempt")
         
-        search_term = f"%{q.strip()}%"
+        search_query = q.strip()
         
-        # Query optimizada para typeahead
-        competencias = db.query(Competencia).filter(
-            and_(
-                Competencia.equipo_id == current_user.equipo_id,
-                Competencia.nombre.ilike(search_term)
-            )
-        ).order_by(text("lower(rango_fechas) DESC")).limit(limit).all()  # Más recientes primero
+        # Query optimizada para typeahead con índice trigram
+        # Para búsquedas de 1-2 caracteres, usar ILIKE con prefijo para mejor rendimiento
+        # Para búsquedas más largas, aprovechar el índice trigram con similarity
+        if len(search_query) >= 3:
+            # Usar índice trigram para búsquedas >= 3 caracteres
+            competencias = db.query(Competencia).filter(
+                and_(
+                    Competencia.equipo_id == current_user.equipo_id,
+                    func.similarity(Competencia.nombre, search_query) > 0.1
+                )
+            ).order_by(
+                func.similarity(Competencia.nombre, search_query).desc(),
+                text("lower(rango_fechas) DESC")
+            ).limit(limit).all()
+        else:
+            # Para 1-2 caracteres, usar ILIKE con prefijo (más eficiente)
+            search_term = f"{search_query}%"
+            competencias = db.query(Competencia).filter(
+                and_(
+                    Competencia.equipo_id == current_user.equipo_id,
+                    Competencia.nombre.ilike(search_term)
+                )
+            ).order_by(text("lower(rango_fechas) DESC")).limit(limit).all()
         
         # Convertir a selector format
         return [

@@ -47,23 +47,22 @@ export function AtletasDestacadosList({
   onViewAllClick,
   className = ''
 }: AtletasDestacadosListProps) {
-  // Obtener datos del hook
-  const { data: atletasData, isLoading, error, refetch } = useDashboardAtletasDestacados(dias);
+  // Obtener datos del hook con metadatos según PRDv2
+  const { data: atletasResponse, isLoading, error, refetch } = useDashboardAtletasDestacados(dias, maxItems);
 
-  // Procesar y limitar datos
-  const atletasLimitados = useMemo(() => {
-    if (!atletasData) return [];
-    return atletasData.slice(0, maxItems);
-  }, [atletasData, maxItems]);
+  // Extraer datos y metadatos de la respuesta
+  const atletasLimitados = atletasResponse?.data || [];
+  const totalAtletas = atletasResponse?.total || 0;
+  const hayMas = atletasResponse?.hay_mas || false;
 
   // Función para obtener el badge según el número de registros
   const getRendimientoBadge = (registros: number) => {
     if (registros >= 10) {
-      return <Badge className="bg-green-100 text-green-800">Muy activo</Badge>;
+      return <Badge className="bg-primary/20 text-primary border border-primary/30">Muy activo</Badge>;
     } else if (registros >= 5) {
-      return <Badge className="bg-blue-100 text-blue-800">Activo</Badge>;
+      return <Badge className="bg-accent/20 text-accent-foreground border border-accent/30">Activo</Badge>;
     } else if (registros >= 3) {
-      return <Badge className="bg-yellow-100 text-yellow-800">Moderado</Badge>;
+      return <Badge className="bg-secondary/20 text-secondary-foreground border border-secondary/30">Moderado</Badge>;
     } else {
       return <Badge variant="outline">Nuevo</Badge>;
     }
@@ -75,11 +74,11 @@ export function AtletasDestacadosList({
       case 0:
         return <Award className="h-5 w-5 text-yellow-500" />;
       case 1:
-        return <Award className="h-5 w-5 text-gray-400" />;
+        return <Award className="h-5 w-5 text-muted-foreground" />;
       case 2:
         return <Award className="h-5 w-5 text-amber-600" />;
       default:
-        return <Star className="h-5 w-5 text-green-600" />;
+        return <Star className="h-5 w-5 text-primary" />;
     }
   };
 
@@ -88,7 +87,7 @@ export function AtletasDestacadosList({
       <Card className={className}>
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
-            <Users className="h-5 w-5 text-green-600" />
+            <Users className="h-5 w-5 text-primary" />
             Atletas Destacados
           </CardTitle>
         </CardHeader>
@@ -116,7 +115,7 @@ export function AtletasDestacadosList({
       <CardHeader>
         <div className="flex items-center justify-between">
           <CardTitle className="flex items-center gap-2">
-            <Users className="h-5 w-5 text-green-600" />
+            <Users className="h-5 w-5 text-primary" />
             Atletas Destacados
           </CardTitle>
           <Button
@@ -129,7 +128,7 @@ export function AtletasDestacadosList({
             Actualizar
           </Button>
         </div>
-        <p className="text-sm text-gray-600">
+        <p className="text-sm text-muted-foreground">
           Atletas con mayor actividad en los últimos {dias} días
         </p>
       </CardHeader>
@@ -208,27 +207,27 @@ export function AtletasDestacadosList({
 
                     {/* Estadística destacada */}
                     <div className="text-right flex-shrink-0 ml-4">
-                      <div className="text-lg font-bold text-green-700">
+                      <div className="text-lg font-bold text-primary">
                         {atleta.registros_recientes}
                       </div>
-                      <div className="text-xs text-gray-500">
+                      <div className="text-xs text-muted-foreground">
                         registros
                       </div>
                     </div>
 
                     {/* Flecha si es clickeable */}
                     {onAtletaClick && (
-                      <ChevronRight className="h-5 w-5 text-gray-400 flex-shrink-0 ml-2" />
+                      <ChevronRight className="h-5 w-5 text-muted-foreground flex-shrink-0 ml-2" />
                     )}
                   </div>
 
                   {/* Información adicional para el primer lugar */}
                   {index === 0 && (
-                    <div className="mt-3 pt-3 border-t border-green-200">
-                      <div className="text-xs text-green-700 font-medium">
+                    <div className="mt-3 pt-3 border-t border-primary/20">
+                      <div className="text-xs text-primary font-medium">
                         🏆 Atleta más activo del período
                       </div>
-                      <div className="text-xs text-gray-600 mt-1">
+                      <div className="text-xs text-muted-foreground mt-1">
                         {atleta.metrica}
                       </div>
                     </div>
@@ -238,46 +237,46 @@ export function AtletasDestacadosList({
             </div>
 
             {/* Estadísticas generales */}
-            {atletasData && atletasData.length > 0 && (
-              <div className="mt-6 p-4 bg-green-50 rounded-lg">
+            {atletasLimitados.length > 0 && (
+              <div className="mt-6 p-4 bg-primary/10 rounded-lg border border-primary/20">
                 <div className="grid grid-cols-2 gap-4 text-center">
                   <div>
-                    <div className="text-2xl font-bold text-green-700">
-                      {atletasData.length}
+                    <div className="text-2xl font-bold text-primary">
+                      {totalAtletas}
                     </div>
-                    <div className="text-sm text-green-600">
+                    <div className="text-sm text-primary">
                       Atletas activos
                     </div>
                   </div>
                   <div>
                     <div className="text-2xl font-bold text-green-700">
-                      {atletasData.reduce((sum, atleta) => sum + atleta.registros_recientes, 0)}
+                      {atletasLimitados.reduce((sum, atleta) => sum + atleta.registros_recientes, 0)}
                     </div>
-                    <div className="text-sm text-green-600">
-                      Total registros
+                    <div className="text-sm text-primary">
+                      Total registros (mostrados)
                     </div>
                   </div>
                 </div>
               </div>
             )}
 
-            {/* Botón "Ver todos" */}
-            {showViewAll && atletasData && atletasData.length > maxItems && (
+            {/* Botón "Ver todos (N)" con conteo real según PRDv2 */}
+            {showViewAll && hayMas && (
               <div className="mt-4 text-center">
                 <Button
                   variant="outline"
                   onClick={onViewAllClick}
                   className="w-full"
                 >
-                  Ver todos los atletas ({atletasData.length})
+                  Ver todos los atletas ({totalAtletas})
                 </Button>
               </div>
             )}
 
             {/* Información adicional */}
-            {atletasData && atletasData.length > 0 && (
+            {atletasLimitados.length > 0 && (
               <div className="mt-4 text-xs text-gray-500 text-center">
-                Mostrando {atletasLimitados.length} de {atletasData.length} atletas destacados 
+                Mostrando {atletasLimitados.length} de {totalAtletas} atletas destacados 
                 en los últimos {dias} días
               </div>
             )}

@@ -182,7 +182,7 @@ export function RegistrarResultadosPage({
         <nav className="mb-6">
           <ol className="flex items-center space-x-2 text-sm text-gray-600">
             <li>
-              <a href="/dashboard" className="hover:text-green-600">
+              <a href="/dashboard" className="hover:text-primary">
                 Dashboard
               </a>
             </li>

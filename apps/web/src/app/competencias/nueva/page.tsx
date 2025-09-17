@@ -24,22 +24,22 @@ function CompetenciaFormLoading() {
       <div className="animate-pulse space-y-6">
         {/* Header skeleton */}
         <div className="border-b pb-4">
-          <div className="h-8 bg-gray-200 rounded w-1/3 mb-2"></div>
-          <div className="h-4 bg-gray-100 rounded w-2/3"></div>
+          <div className="h-8 bg-muted rounded w-1/3 mb-2"></div>
+          <div className="h-4 bg-muted/50 rounded w-2/3"></div>
         </div>
         
         {/* Form fields skeleton */}
         <div className="space-y-4">
-          <div className="h-20 bg-gray-100 rounded"></div>
-          <div className="h-20 bg-gray-100 rounded"></div>
-          <div className="h-32 bg-gray-100 rounded"></div>
-          <div className="h-20 bg-gray-100 rounded"></div>
+          <div className="h-20 bg-muted/50 rounded"></div>
+          <div className="h-20 bg-muted/50 rounded"></div>
+          <div className="h-32 bg-muted/50 rounded"></div>
+          <div className="h-20 bg-muted/50 rounded"></div>
         </div>
         
         {/* Buttons skeleton */}
         <div className="flex gap-4 pt-6 border-t">
-          <div className="flex-1 h-12 bg-gray-200 rounded"></div>
-          <div className="flex-1 h-12 bg-gray-100 rounded"></div>
+          <div className="flex-1 h-12 bg-muted rounded"></div>
+          <div className="flex-1 h-12 bg-muted/50 rounded"></div>
         </div>
       </div>
     </div>
@@ -53,7 +53,7 @@ function CompetenciaFormLoading() {
 export default function NuevaCompetenciaPage() {
   return (
     <EntrenadorOnly>
-      <div className="min-h-screen bg-gray-50">
+      <div className="min-h-screen bg-background">
         <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
           
           {/* Breadcrumb Navigation */}

@@ -1,0 +1,81 @@
+# Task ID: 8
+# Title: Database Index Optimization and Metrics Normalization
+# Status: in-progress
+# Dependencies: 7
+# Priority: medium
+# Description: Review and optimize database indices, ensure all metrics and queries use 'fecha_registro' instead of 'created_at'.
+# Details:
+Audit Supabase PostgreSQL indices for resultado, competencia, nadador, segmento tables. Create trigram index for competencia.nombre if absent. Update backend queries and endpoints to use 'fecha_registro' for metrics and ordering. Avoid schema changes unless performance requires. Document index changes and query updates.
+
+# Test Strategy:
+Run query benchmarks before/after index changes. Validate endpoints return correct, timely data. Confirm all metrics use 'fecha_registro'.
+
+# Subtasks:
+## 1. Audit Current Database Indices [done]
+### Dependencies: None
+### Description: Perform comprehensive audit of existing indices on resultado, competencia, nadador, and segmento tables in Supabase PostgreSQL to identify optimization opportunities.
+### Details:
+Connect to Supabase PostgreSQL and run queries to examine current indices using pg_indexes view. Document existing indices for each table including index names, columns, types, and sizes. Identify missing indices for commonly queried columns like 'fecha_registro', foreign keys, and search fields. Generate baseline performance metrics for current query patterns.
+<info added on 2025-09-01T19:26:01.683Z>
+Audit completed for Supabase PostgreSQL indices. Current state analysis shows competencia table has proper trigram and GIST indices already in place. Resultado table has comprehensive coverage for basic queries but lacks optimized composite indices for chronological metrics and dashboard analytics.
+
+Key findings:
+- Existing indices cover primary use cases adequately
+- Missing critical composite indices for dashboard performance: nadador chronological queries, global date-based filtering, and prueba rankings
+- Current query patterns for "últimos resultados válidos" and swimmer time series require full table scans
+
+Recommended minimal high-impact additions identified:
+1. idx_resultado_nadador_fecha_estado (nadador_id, fecha_registro DESC, estado_validacion) - optimizes per-swimmer recent results
+2. idx_resultado_fecha_estado_desc (fecha_registro DESC, estado_validacion) - accelerates global recent activity queries
+3. idx_resultado_prueba_estado_tiempo (prueba_id, estado_validacion, tiempo_global_cs ASC) - optional for ranking queries
+
+Implementation approach: Use CONCURRENTLY to avoid table locks during index creation. Current table size allows rapid construction. Priority on indices 1 and 2 for immediate dashboard performance gains, with index 3 deferred until ranking feature expansion.
+</info added on 2025-09-01T19:26:01.683Z>
+<info added on 2025-09-01T19:49:08.298Z>
+Confirmación de auditoría completada: competencia table ya cuenta con índice trigram en campo nombre. Tabla resultado carecía de índices compuestos para consultas de actividad reciente - se han creado 3 nuevos índices optimizados para métricas por nadador y actividad reciente según recomendaciones previas. Sugerencia adicional identificada: revisar existencia de índice en nadador(equipo_id) para optimizar filtros por equipo en consultas de dashboard y perfiles.
+</info added on 2025-09-01T19:49:08.298Z>
+
+## 2. Create Trigram Index for Competition Names [done]
+### Dependencies: 8.1
+### Description: Implement trigram index on competencia.nombre field to optimize text search performance if not already present.
+### Details:
+Check if pg_trgm extension is enabled in Supabase. Create trigram index using 'CREATE INDEX CONCURRENTLY idx_competencia_nombre_trgm ON competencia USING gin (nombre gin_trgm_ops)' if absent. Verify index creation and test search performance improvements for competition name queries.
+
+## 3. Optimize Indices for fecha_registro Queries [done]
+### Dependencies: 8.1
+### Description: Create or optimize indices specifically for fecha_registro column across all relevant tables to support metrics and ordering operations.
+### Details:
+Create composite indices combining fecha_registro with frequently joined columns. For resultado table, create index on (nadador_id, fecha_registro DESC) for swimmer metrics. For competencia table, create index on (fecha_registro DESC) for chronological ordering. Use CONCURRENTLY option to avoid blocking operations.
+<info added on 2025-09-01T19:49:04.003Z>
+Índices aplicados en Supabase (CONCURRENTLY):
+1) idx_resultado_estado_fecha_desc ON public.resultado (estado_validacion, fecha_registro DESC)
+2) idx_resultado_nadador_estado_fecha_desc ON public.resultado (nadador_id, estado_validacion, fecha_registro DESC)
+3) idx_resultado_fecha_valido_desc ON public.resultado (fecha_registro DESC) WHERE estado_validacion = 'valido' (parcial)
+
+Impacto esperado: acelerar ORDER BY fecha_registro DESC filtrando por estado_validacion y por nadador, usados por /dashboard/actividad-reciente y series por nadador. Validar con EXPLAIN ANALYZE en endpoints críticos.
+</info added on 2025-09-01T19:49:04.003Z>
+
+## 4. Update Backend Queries to Use fecha_registro [pending]
+### Dependencies: 8.3
+### Description: Systematically replace all instances of 'created_at' with 'fecha_registro' in backend queries and database operations.
+### Details:
+Search codebase for all occurrences of 'created_at' in SQL queries, ORM operations, and API endpoints. Replace with 'fecha_registro' ensuring consistent date handling. Update query builders, filters, and sorting operations. Focus on dashboard endpoints, metrics calculations, and chronological data retrieval.
+
+## 5. Update API Endpoints for Metrics Normalization [pending]
+### Dependencies: 8.4
+### Description: Modify all dashboard and metrics API endpoints to consistently use fecha_registro for temporal operations and data ordering.
+### Details:
+Update FastAPI endpoints including /dashboard/piechart, /dashboard/proximas-competencias, /dashboard/atletas-destacados, and /dashboard/actividad-reciente to use fecha_registro. Modify response serializers and data transformation logic. Ensure all temporal filters and sorting operations reference the correct field.
+
+## 6. Document Changes and Validate Performance [pending]
+### Dependencies: 8.2, 8.3, 8.4, 8.5
+### Description: Create comprehensive documentation of all index changes and query updates, then validate overall performance improvements.
+### Details:
+Document all new indices created, queries modified, and performance improvements achieved. Create before/after performance comparison reports. Update database schema documentation and API documentation to reflect fecha_registro usage. Run comprehensive performance tests on all affected endpoints and queries.
+
+## 7. Mapear estructura backend y detectar obsolescencia/duplicados [pending]
+### Dependencies: None
+### Description: Listar y mapear database (tablas, índices, vistas), hooks/capa de datos, endpoints FastAPI y funciones utilitarias; documentar interacciones y localizar código obsoleto o duplicado.
+### Details:
+Entregable: documento con diagrama/resumen de relaciones y puntos de acceso, inventario de índices y su cobertura, y lista de módulos/funciones candidatas a refactor o eliminación.
+

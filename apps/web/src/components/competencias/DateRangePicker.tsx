@@ -243,7 +243,7 @@ export function DateRangePicker({
                 border rounded-full
                 text-sm
                 focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent
-                disabled:bg-gray-50 disabled:text-gray-500 disabled:cursor-not-allowed
+                disabled:bg-muted/50 disabled:text-muted-foreground disabled:cursor-not-allowed
                 ${errorInicio ? 'border-red-300' : 'border-gray-300'}
                 ${inputProps.className || ''}
               `}
@@ -277,7 +277,7 @@ export function DateRangePicker({
                 border rounded-full
                 text-sm
                 focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent
-                disabled:bg-gray-50 disabled:text-gray-500 disabled:cursor-not-allowed
+                disabled:bg-muted/50 disabled:text-muted-foreground disabled:cursor-not-allowed
                 ${errorFin ? 'border-red-300' : 'border-gray-300'}
                 ${inputProps.className || ''}
               `}
@@ -302,7 +302,7 @@ export function DateRangePicker({
               {formatDisplayDate(value.lower)} - {formatDisplayDate(value.upper)}
             </span>
             {value.lower === value.upper && (
-              <span className="ml-2 text-xs text-green-600">(1 día)</span>
+              <span className="ml-2 text-xs text-primary">(1 día)</span>
             )}
           </div>
         </div>

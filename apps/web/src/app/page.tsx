@@ -169,15 +169,15 @@ export default function LandingPage() {
 
             <div className="flex items-center justify-center gap-6 text-sm text-muted-foreground pt-8">
               <div className="flex items-center gap-2">
-                <CheckCircle className="h-4 w-4 text-green-500" />
+                <CheckCircle className="h-4 w-4 text-primary" />
                 Registro en vivo
               </div>
               <div className="flex items-center gap-2">
-                <CheckCircle className="h-4 w-4 text-green-500" />
+                <CheckCircle className="h-4 w-4 text-primary" />
                 Análisis instantáneo
               </div>
               <div className="flex items-center gap-2">
-                <CheckCircle className="h-4 w-4 text-green-500" />
+                <CheckCircle className="h-4 w-4 text-primary" />
                 100% en español
               </div>
             </div>
@@ -285,8 +285,8 @@ export default function LandingPage() {
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
             <div className="space-y-8">
               <div className="flex items-start gap-4">
-                <div className="h-8 w-8 bg-green-100 dark:bg-green-900 rounded-full flex items-center justify-center flex-shrink-0">
-                  <Clock className="h-4 w-4 text-green-600 dark:text-green-400" />
+                <div className="h-8 w-8 bg-primary/20 rounded-full flex items-center justify-center flex-shrink-0">
+                  <Clock className="h-4 w-4 text-primary" />
                 </div>
                 <div>
                   <h3 className="font-semibold text-foreground mb-2">Ahorra Tiempo</h3>
@@ -345,7 +345,7 @@ export default function LandingPage() {
               <h2 className="text-3xl lg:text-4xl font-bold text-white">
                 ¿Listo para optimizar tu equipo?
               </h2>
-              <p className="text-xl text-green-100 max-w-2xl mx-auto">
+              <p className="text-xl text-primary-foreground/80 max-w-2xl mx-auto">
                 Únete a los entrenadores que ya están mejorando el rendimiento de sus nadadores con AquaLytics.
               </p>
             </div>
@@ -358,13 +358,13 @@ export default function LandingPage() {
                 </Button>
               </Link>
               <Link href="/login">
-                <Button size="lg" variant="outline" className="rounded-full text-base px-8 py-3 border-white text-white hover:bg-white hover:text-primary">
+                <Button size="lg" variant="outline" className="rounded-full text-base px-8 py-3 border-primary-foreground text-primary-foreground hover:bg-primary-foreground hover:text-primary">
                   Ya tengo cuenta
                 </Button>
               </Link>
             </div>
             
-            <p className="text-sm text-green-100">
+            <p className="text-sm text-primary-foreground/70">
               Sin tarjeta de crédito requerida • Configuración en menos de 5 minutos
             </p>
           </div>

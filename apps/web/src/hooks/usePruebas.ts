@@ -11,6 +11,7 @@
  * - Utilidades para búsqueda y filtrado local
  */
 
+import { useMemo } from 'react';
 import { useQuery, UseQueryResult } from '@tanstack/react-query';
 import { useAuth } from '@/hooks/useAuth';
 
@@ -200,6 +201,48 @@ export function usePruebas(filters?: PruebaFilters): UsePruebasReturn {
     filterByCurso,
     getDistancias,
   };
+}
+
+// ============================================================================
+// HOOK PARA TYPEAHEAD DE PRUEBAS
+// ============================================================================
+
+/**
+ * Hook para búsqueda typeahead de pruebas
+ * 
+ * Optimizado para componentes de autocompletado:
+ * - Soporta búsqueda desde 1 carácter
+ * - Filtro local (catálogo es estático)  
+ * - Cache de 15 minutos del catálogo completo
+ * - Retorna PruebaSelector[] para dropdowns
+ */
+export function usePruebasTypeahead(query: string, limit = 10): UseQueryResult<PruebaResponse[], Error> {
+  // Obtener el catálogo completo
+  const { pruebas, isLoading, error, isError } = usePruebas();
+  
+  return {
+    data: useMemo(() => {
+      if (!query || query.length < 1) return [];
+      
+      const searchTerm = query.toLowerCase().trim();
+      const filtered = pruebas
+        .filter(prueba => 
+          prueba.nombre.toLowerCase().includes(searchTerm) ||
+          prueba.estilo.toLowerCase().includes(searchTerm) ||
+          prueba.distancia.toString().includes(searchTerm)
+        )
+        .slice(0, limit);
+        
+      return filtered;
+    }, [pruebas, query, limit]),
+    
+    isLoading,
+    isError,
+    error,
+    isSuccess: !isLoading && !isError,
+    isStale: false,
+    refetch: () => Promise.resolve(),
+  } as UseQueryResult<PruebaResponse[], Error>;
 }
 
 /**

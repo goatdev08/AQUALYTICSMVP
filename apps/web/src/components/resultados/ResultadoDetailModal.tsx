@@ -131,7 +131,7 @@ export function ResultadoDetailModal({
       <DialogContent className="max-w-6xl w-[95vw] h-[90vh] p-0 gap-0">
         <div className="flex flex-col h-full">
           {/* Header del Modal */}
-          <DialogHeader className="p-6 pb-4 border-b bg-green-50">
+          <DialogHeader className="p-6 pb-4 border-b bg-primary/10">
             <div className="flex items-center justify-between">
               <DialogTitle className="text-2xl font-bold text-green-900">
                 Detalle de Resultado
@@ -168,7 +168,7 @@ export function ResultadoDetailModal({
               <div className="flex items-center justify-center h-40">
                 <div className="text-center">
                   <Progress className="w-48 mb-2" />
-                  <p className="text-sm text-gray-600">Cargando detalles...</p>
+                  <p className="text-sm text-muted-foreground">Cargando detalles...</p>
                 </div>
               </div>
             )}
@@ -191,7 +191,7 @@ export function ResultadoDetailModal({
                 <Card>
                   <CardHeader>
                     <CardTitle className="flex items-center gap-2">
-                      <Trophy className="w-5 h-5 text-green-600" />
+                      <Trophy className="w-5 h-5 text-primary" />
                       Información del Resultado
                     </CardTitle>
                   </CardHeader>
@@ -207,7 +207,7 @@ export function ResultadoDetailModal({
                       </div>
                       <div>
                         <p className="text-sm font-medium text-gray-500">Tiempo Global</p>
-                        <p className="text-xl font-bold text-green-600">
+                        <p className="text-xl font-bold text-primary">
                           {formatTime(resultado.resultado.tiempo_global_cs)}
                         </p>
                       </div>
@@ -222,7 +222,7 @@ export function ResultadoDetailModal({
                     <div className="flex flex-wrap gap-2 mt-4">
                       {getEstadoBadge(resultado.resultado.estado_validacion)}
                       {getFaseBadge(resultado.resultado.fase)}
-                      <Badge variant="outline" className="bg-green-50">
+                      <Badge variant="outline" className="bg-primary/10">
                         {resultado.resultado.categoria_label}
                       </Badge>
                     </div>
@@ -236,7 +236,7 @@ export function ResultadoDetailModal({
                 <Card>
                   <CardHeader>
                     <CardTitle className="flex items-center gap-2">
-                      <Clock className="w-5 h-5 text-green-600" />
+                      <Clock className="w-5 h-5 text-primary" />
                       Segmentos por Índice
                       <Badge variant="secondary">
                         {resultado.segmentos.length} segmentos
@@ -288,7 +288,7 @@ export function ResultadoDetailModal({
                         <span className={`ml-2 font-mono ${
                           Math.abs(resultado.resultado.desviacion_parciales_cs) > 40 
                             ? 'text-red-600 font-bold' 
-                            : 'text-green-600'
+                            : 'text-primary'
                         }`}>
                           {resultado.resultado.desviacion_parciales_cs > 0 ? '+' : ''}
                           {resultado.resultado.desviacion_parciales_cs}cs

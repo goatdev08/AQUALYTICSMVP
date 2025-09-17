@@ -9,6 +9,9 @@
 export { StepperContainer, RegistrarResultadosPage, StepperErrorBoundary } from './StepperContainer';
 export { StepperNavigation, StepperHeader } from './StepperNavigation';
 
+// Nueva vista unificada (PRDv2 Fase 3)
+export { ResultRegistrationContainer } from './ResultRegistrationContainer';
+
 // Componentes de pasos
 export { CompetenciaFormStepper } from './pasos/CompetenciaFormStepper';
 

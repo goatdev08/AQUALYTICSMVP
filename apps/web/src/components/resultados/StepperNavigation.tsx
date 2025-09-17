@@ -105,7 +105,7 @@ function PasoIndicador({
           
           // Estado actual
           esActual && !tieneError && [
-            "border-green-500 bg-green-50 text-green-600",
+            "border-green-500 bg-green-50 text-primary",
             "focus:ring-green-500",
           ],
           
@@ -123,7 +123,7 @@ function PasoIndicador({
           
           // Interactividad
           puedeNavegar && [
-            "hover:border-green-400 hover:bg-green-50 hover:text-green-600",
+            "hover:border-green-400 hover:bg-green-50 hover:text-primary",
             "cursor-pointer",
           ],
           
@@ -143,7 +143,7 @@ function PasoIndicador({
       <div className="text-center max-w-[100px]">
         <div className={cn(
           "text-sm font-medium",
-          esActual && "text-green-600",
+          esActual && "text-primary",
           estaCompletado && !esActual && "text-gray-900",
           tieneError && "text-red-600",
           !esActual && !estaCompletado && !tieneError && "text-gray-500"

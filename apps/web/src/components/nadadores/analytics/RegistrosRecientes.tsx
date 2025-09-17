@@ -144,7 +144,7 @@ export default function RegistrosRecientes({ registros, isLoading }: RegistrosRe
           
           <div className="bg-green-50 border border-green-200 rounded-lg p-4">
             <div className="flex items-center">
-              <Clock className="h-5 w-5 text-green-600 mr-2" />
+              <Clock className="h-5 w-5 text-primary mr-2" />
               <span className="text-sm font-medium text-green-900">Promedio</span>
             </div>
             <p className="text-2xl font-bold text-green-900 mt-1">{estadisticas.promedioLugar}°</p>
@@ -219,7 +219,7 @@ export default function RegistrosRecientes({ registros, isLoading }: RegistrosRe
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
                     {registro.puntaje ? (
-                      <span className="font-semibold text-green-600">{registro.puntaje} pts</span>
+                      <span className="font-semibold text-primary">{registro.puntaje} pts</span>
                     ) : (
                       <span className="text-gray-400">—</span>
                     )}

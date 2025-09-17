@@ -43,11 +43,11 @@ export default function CompetenciaDetailPage() {
   
   if (isLoading) {
     return (
-      <div className="min-h-screen bg-gray-50 py-8">
+      <div className="min-h-screen bg-background py-8">
         <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex items-center justify-center py-12">
-            <LoaderIcon className="h-8 w-8 animate-spin text-green-600 mr-3" />
-            <span className="text-lg text-gray-600">Cargando competencia...</span>
+            <LoaderIcon className="h-8 w-8 animate-spin text-primary mr-3" />
+            <span className="text-lg text-muted-foreground">Cargando competencia...</span>
           </div>
         </div>
       </div>
@@ -60,7 +60,7 @@ export default function CompetenciaDetailPage() {
   
   if (error || !competencia) {
     return (
-      <div className="min-h-screen bg-gray-50 py-8">
+      <div className="min-h-screen bg-background py-8">
         <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center py-12">
             <Alert className="max-w-md mx-auto">
@@ -89,7 +89,7 @@ export default function CompetenciaDetailPage() {
 
 
   return (
-    <div className="min-h-screen bg-gray-50 py-8">
+    <div className="min-h-screen bg-background py-8">
       <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
         
         {/* Header con navegación */}
@@ -104,10 +104,10 @@ export default function CompetenciaDetailPage() {
               </Link>
               
               <div>
-                <h1 className="text-3xl font-bold text-gray-900">
+                <h1 className="text-3xl font-bold text-foreground">
                   {competencia.nombre}
                 </h1>
-                <p className="text-gray-600 mt-1">
+                <p className="text-muted-foreground mt-1">
                   Detalle de competencia
                 </p>
               </div>
@@ -125,7 +125,7 @@ export default function CompetenciaDetailPage() {
         </div>
 
         {/* Información principal usando el componente CompetenciaDetail */}
-        <div className="rounded-lg shadow-sm border border-gray-200 overflow-hidden">
+        <div className="rounded-lg shadow-sm border border-border overflow-hidden">
           <CompetenciaDetail
             competencia={competencia}
             showEditButton={true}

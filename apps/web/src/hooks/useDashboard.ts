@@ -56,6 +56,31 @@ export interface AtletaDestacado {
   metrica: string;
 }
 
+export interface ActividadReciente {
+  id: number;
+  nadador: string;
+  rama: string;
+  prueba: string;
+  tiempo: string;
+  tiempo_cs: number;
+  competencia: string;
+  fecha: string;
+  estado_validacion: string;
+  tipo_actividad: string;
+}
+
+// Types para respuestas con metadatos según PRDv2
+export interface DashboardDataResponse<T> {
+  data: T[];
+  total: number;
+  mostradas: number;
+  hay_mas: boolean;
+}
+
+export type ProximasCompetenciasResponse = DashboardDataResponse<ProximaCompetencia>;
+export type AtletasDestacadosResponse = DashboardDataResponse<AtletaDestacado>;
+export type ActividadRecienteResponse = DashboardDataResponse<ActividadReciente>;
+
 // Función auxiliar para fetch autenticado
 async function fetchWithAuth(url: string, token: string) {
   const response = await fetch(url, {
@@ -132,14 +157,14 @@ export function useDashboardDistribucionEstilos() {
 }
 
 /**
- * Hook para obtener próximas competencias
+ * Hook para obtener próximas competencias con metadatos
  */
-export function useDashboardProximasCompetencias(dias: number = 30) {
+export function useDashboardProximasCompetencias(dias: number = 30, limite: number = 5) {
   const { token } = useAuth();
 
-  return useQuery({
-    queryKey: ['dashboard', 'proximas-competencias', dias],
-    queryFn: () => fetchWithAuth(`${API_BASE}/api/v1/dashboard/proximas-competencias?dias=${dias}`, token!),
+  return useQuery<ProximasCompetenciasResponse>({
+    queryKey: ['dashboard', 'proximas-competencias', dias, limite],
+    queryFn: () => fetchWithAuth(`${API_BASE}/api/v1/dashboard/proximas-competencias?dias=${dias}&limite=${limite}`, token!),
     enabled: !!token,
     staleTime: 15 * 60 * 1000, // 15 minutos
     retry: 2,
@@ -147,16 +172,31 @@ export function useDashboardProximasCompetencias(dias: number = 30) {
 }
 
 /**
- * Hook para obtener atletas destacados
+ * Hook para obtener atletas destacados con metadatos
  */
-export function useDashboardAtletasDestacados(dias: number = 30) {
+export function useDashboardAtletasDestacados(dias: number = 30, limite: number = 5) {
   const { token } = useAuth();
 
-  return useQuery({
-    queryKey: ['dashboard', 'atletas-destacados', dias],
-    queryFn: () => fetchWithAuth(`${API_BASE}/api/v1/dashboard/atletas-destacados?dias=${dias}`, token!),
+  return useQuery<AtletasDestacadosResponse>({
+    queryKey: ['dashboard', 'atletas-destacados', dias, limite],
+    queryFn: () => fetchWithAuth(`${API_BASE}/api/v1/dashboard/atletas-destacados?dias=${dias}&limite=${limite}`, token!),
     enabled: !!token,
     staleTime: 5 * 60 * 1000, // 5 minutos
+    retry: 2,
+  });
+}
+
+/**
+ * Hook para obtener actividad reciente del equipo con metadatos
+ */
+export function useDashboardActividadReciente(limite: number = 20) {
+  const { token } = useAuth();
+
+  return useQuery<ActividadRecienteResponse>({
+    queryKey: ['dashboard', 'actividad-reciente', limite],
+    queryFn: () => fetchWithAuth(`${API_BASE}/api/v1/dashboard/actividad-reciente?limite=${limite}`, token!),
+    enabled: !!token,
+    staleTime: 2 * 60 * 1000, // 2 minutos (datos más dinámicos)
     retry: 2,
   });
 }

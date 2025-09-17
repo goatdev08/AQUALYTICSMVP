@@ -48,27 +48,26 @@ export function ProximasCompetenciasList({
   onViewAllClick,
   className = ''
 }: ProximasCompetenciasListProps) {
-  // Obtener datos del hook
-  const { data: competenciasData, isLoading, error, refetch } = useDashboardProximasCompetencias(dias);
+  // Obtener datos del hook con metadatos según PRDv2
+  const { data: competenciasResponse, isLoading, error, refetch } = useDashboardProximasCompetencias(dias, maxItems);
 
-  // Procesar y limitar datos
-  const competenciasLimitadas = useMemo(() => {
-    if (!competenciasData) return [];
-    return competenciasData.slice(0, maxItems);
-  }, [competenciasData, maxItems]);
+  // Extraer datos y metadatos de la respuesta
+  const competenciasLimitadas = competenciasResponse?.data || [];
+  const totalCompetencias = competenciasResponse?.total || 0;
+  const hayMas = competenciasResponse?.hay_mas || false;
 
   // Función para obtener el badge de estado según días restantes
   const getEstadoBadge = (diasRestantes: number) => {
     if (diasRestantes < 0) {
       return <Badge variant="secondary">En curso</Badge>;
     } else if (diasRestantes === 0) {
-      return <Badge className="bg-red-100 text-red-800">Hoy</Badge>;
+      return <Badge className="bg-destructive/20 text-destructive border border-destructive/30">Hoy</Badge>;
     } else if (diasRestantes === 1) {
-      return <Badge className="bg-orange-100 text-orange-800">Mañana</Badge>;
+      return <Badge className="bg-orange-100 text-orange-800 dark:bg-orange-950 dark:text-orange-200 border border-orange-200 dark:border-orange-800">Mañana</Badge>;
     } else if (diasRestantes <= 7) {
-      return <Badge className="bg-yellow-100 text-yellow-800">Esta semana</Badge>;
+      return <Badge className="bg-yellow-100 text-yellow-800 dark:bg-yellow-950 dark:text-yellow-200 border border-yellow-200 dark:border-yellow-800">Esta semana</Badge>;
     } else if (diasRestantes <= 30) {
-      return <Badge className="bg-green-100 text-green-800">Este mes</Badge>;
+      return <Badge className="bg-primary/20 text-primary border border-primary/30">Este mes</Badge>;
     } else {
       return <Badge variant="outline">Próximamente</Badge>;
     }
@@ -106,7 +105,7 @@ export function ProximasCompetenciasList({
       <Card className={className}>
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
-            <Calendar className="h-5 w-5 text-green-600" />
+            <Calendar className="h-5 w-5 text-primary" />
             Próximas Competencias
           </CardTitle>
         </CardHeader>
@@ -134,7 +133,7 @@ export function ProximasCompetenciasList({
       <CardHeader>
         <div className="flex items-center justify-between">
           <CardTitle className="flex items-center gap-2">
-            <Calendar className="h-5 w-5 text-green-600" />
+            <Calendar className="h-5 w-5 text-primary" />
             Próximas Competencias
           </CardTitle>
           <Button
@@ -171,7 +170,7 @@ export function ProximasCompetenciasList({
                   key={competencia.id}
                   className={`p-4 border rounded-lg transition-colors ${
                     onCompetenciaClick 
-                      ? 'hover:bg-green-50 cursor-pointer' 
+                      ? 'hover:bg-primary/10 cursor-pointer' 
                       : ''
                   }`}
                   onClick={() => onCompetenciaClick?.(competencia.id)}
@@ -223,23 +222,23 @@ export function ProximasCompetenciasList({
               ))}
             </div>
 
-            {/* Botón "Ver todas" */}
-            {showViewAll && competenciasData && competenciasData.length > maxItems && (
+            {/* Botón "Ver todas (N)" con conteo real según PRDv2 */}
+            {showViewAll && hayMas && (
               <div className="mt-4 text-center">
                 <Button
                   variant="outline"
                   onClick={onViewAllClick}
                   className="w-full"
                 >
-                  Ver todas las competencias ({competenciasData.length})
+                  Ver todas las competencias ({totalCompetencias})
                 </Button>
               </div>
             )}
 
             {/* Información adicional */}
-            {competenciasData && competenciasData.length > 0 && (
+            {competenciasLimitadas.length > 0 && (
               <div className="mt-4 text-xs text-gray-500 text-center">
-                Mostrando {competenciasLimitadas.length} de {competenciasData.length} competencias 
+                Mostrando {competenciasLimitadas.length} de {totalCompetencias} competencias 
                 en los próximos {dias} días
               </div>
             )}

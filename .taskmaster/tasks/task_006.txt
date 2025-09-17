@@ -1,0 +1,77 @@
+# Task ID: 6
+# Title: Unified Typeahead Search and Accessible Dropdowns
+# Status: done
+# Dependencies: 5
+# Priority: medium
+# Description: Implement reactive typeahead search (from first character) and unify accessible dropdown patterns for nadadores, competencias, and pruebas.
+# Details:
+Frontend: Lower min_length to 1 for typeahead hooks (useNadadorTypeahead, useCompetenciasTypeahead). Apply debounce (150–200ms) and extract common utilities (debounce, keyboard nav, ARIA roles) from NadadorSelector. Replicate dropdown pattern for competencias and pruebas, ensuring mobile/desktop consistency. Backend: Add trigram index to competencia.nombre if missing. Optimize endpoints for fast search.
+
+# Test Strategy:
+Test typeahead responsiveness and accessibility (keyboard, ARIA). Confirm dropdown consistency and search accuracy across modules. Benchmark search latency.
+
+# Subtasks:
+## 1. Extract Common Dropdown Utilities and Debounce Logic [done]
+### Dependencies: None
+### Description: Create reusable utilities for dropdown functionality including debounce, keyboard navigation, and ARIA roles by extracting common patterns from NadadorSelector.
+### Details:
+Create a new utilities file containing: debounce function with configurable delay (150-200ms), keyboard navigation handlers for arrow keys/enter/escape, ARIA role utilities for accessibility (aria-expanded, aria-selected, role attributes), and common dropdown state management patterns. Extract these from the existing NadadorSelector component to ensure consistency across all dropdown implementations.
+
+## 2. Update Typeahead Hooks to Support Single Character Search [done]
+### Dependencies: 6.1
+### Description: Modify useNadadorTypeahead and useCompetenciasTypeahead hooks to trigger search from the first character with proper debouncing.
+### Details:
+Update both hooks to: change min_length from current value to 1, integrate the debounce utility from subtask 6.1 with 150-200ms delay, ensure search triggers immediately after debounce period, maintain existing search functionality while improving responsiveness. Update hook parameters and internal logic to handle single-character queries efficiently.
+
+## 3. Add Database Optimization for Competencia Search [done]
+### Dependencies: None
+### Description: Implement trigram indexing on competencia.nombre field and optimize search endpoints for fast typeahead performance.
+### Details:
+Add trigram index to competencia.nombre field if not already present using PostgreSQL's pg_trgm extension. Create or optimize the competencias search endpoint to leverage the trigram index for fast partial matching. Ensure the endpoint supports single-character searches efficiently and returns results in optimal time for typeahead functionality.
+
+## 4. Refactor NadadorSelector with Common Utilities [done]
+### Dependencies: 6.1, 6.2
+### Description: Update the existing NadadorSelector component to use the extracted common utilities while maintaining current functionality.
+### Details:
+Refactor NadadorSelector to: replace internal debounce logic with the common utility, integrate keyboard navigation handlers from utilities, apply consistent ARIA roles and attributes, use the updated typeahead hook with single-character search, ensure mobile and desktop consistency in styling and behavior. Maintain all existing functionality while improving code reusability.
+
+## 5. Implement Competencias Dropdown with Unified Pattern [done]
+### Dependencies: 6.1, 6.2, 6.3, 6.4
+### Description: Create a CompetenciaSelector component following the unified dropdown pattern established by the refactored NadadorSelector.
+### Details:
+Build CompetenciaSelector component using: common utilities for debounce and keyboard navigation, updated useCompetenciasTypeahead hook, consistent ARIA roles and accessibility features, unified styling and behavior patterns from NadadorSelector, mobile-responsive design matching the established pattern. Ensure seamless integration with existing forms and components.
+<info added on 2025-08-29T22:58:21.230Z>
+IMPLEMENTACIÓN COMPLETADA EXITOSAMENTE
+
+CompetenciaSelector creado siguiendo el patrón unificado:
+
+Utilidades Comunes Integradas:
+- useDropdownState para gestión de estado
+- useDropdownNavigation para navegación por teclado  
+- dropdown-aria para accesibilidad completa
+- dropdown-utils para filtros, formateo y clases CSS
+
+Funcionalidades Implementadas:
+- Búsqueda typeahead desde 1 carácter
+- Filtros por curso (SC/LC - Piscina Corta/Larga)
+- Navegación por teclado (ArrowUp/Down, Enter, Escape)
+- Propiedades ARIA para accesibilidad
+- Estados de loading, error y empty state
+- UI consistente con tema green
+
+Componente ubicado en: /components/competencias/CompetenciaSelector.tsx
+Exportado correctamente en index.ts de competencias
+Sin errores de TypeScript/linting
+
+El patrón unificado está consolidado - CompetenciaSelector sigue exactamente la misma estructura que el NadadorSelector refactorizado.
+</info added on 2025-08-29T22:58:21.230Z>
+
+## 6. Implement Pruebas Dropdown with Unified Pattern [done]
+### Dependencies: 6.1, 6.2, 6.4, 6.5
+### Description: Create a PruebaSelector component following the same unified dropdown pattern, completing the consistent typeahead experience across all entity types.
+### Details:
+Build PruebaSelector component using: common utilities and patterns established in previous subtasks, create or update usePruebasTypeahead hook with single-character search, implement consistent styling and behavior matching NadadorSelector and CompetenciaSelector, ensure proper ARIA roles and keyboard navigation, maintain mobile/desktop consistency across all dropdown components.
+<info added on 2025-08-29T23:01:23.693Z>
+IMPLEMENTACIÓN FINAL COMPLETADA - PruebaSelector creado siguiendo el patrón unificado establecido con utilidades comunes integradas (useDropdownState, useDropdownNavigation, dropdown-aria, dropdown-utils). Funcionalidades implementadas incluyen búsqueda typeahead desde 1 carácter con filtro local, hook usePruebasTypeahead creado con filtro inteligente del catálogo, filtros por estilo (Libre, Espalda, Pecho, Mariposa, Combinado) y curso (SC/LC), navegación por teclado accesible, estados de loading/error/empty, y UI consistente con tema green. Componente ubicado en /components/pruebas/PruebaSelector.tsx, hook en /hooks/usePruebas.ts, exportados correctamente. PATRÓN UNIFICADO CONSOLIDADO - Los tres selectores (Nadadores, Competencias, Pruebas) siguen exactamente la misma estructura utilizando las mismas utilidades comunes, completando el sistema de typeahead unificado y accesible.
+</info added on 2025-08-29T23:01:23.693Z>
+

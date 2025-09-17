@@ -66,14 +66,15 @@ async def get_dashboard_resumen(
             .filter(Nadador.equipo_id == equipo_id)\
             .scalar()
         
-        # KPI 4: PBs recientes (últimos 30 días)
-        # Para simplificar MVP, contamos resultados recientes
+        # KPI 4: PBs recientes (últimos 30 días) usando fecha_registro según PRDv2
+        # Para simplificar MVP, contamos resultados recientes válidos
         pbs_recientes = db.query(func.count(Resultado.id))\
             .join(Nadador, Resultado.nadador_id == Nadador.id)\
             .filter(
                 and_(
                     Nadador.equipo_id == equipo_id,
-                    Resultado.created_at >= fecha_limite
+                    Resultado.fecha_registro >= fecha_limite,
+                    Resultado.estado_validacion == 'valido'
                 )
             )\
             .scalar()
@@ -236,7 +237,8 @@ async def get_distribucion_estilos(
 async def get_proximas_competencias(
     current_user: CurrentUser,
     db: Session = Depends(get_db),
-    dias: int = Query(30, description="Días hacia adelante para buscar")
+    dias: int = Query(30, description="Días hacia adelante para buscar"),
+    limite: int = Query(5, description="Número máximo de competencias a retornar", ge=1, le=20)
 ):
     """
     GET /dashboard/proximas-competencias - Próximas competencias.
@@ -256,7 +258,23 @@ async def get_proximas_competencias(
         fecha_inicio = date.today()
         fecha_fin = fecha_inicio + timedelta(days=dias)
         
-        # Query usando daterange - buscamos competencias que se solapen con nuestro rango
+        # Primero obtener el total para metadatos
+        count_query = """
+        SELECT COUNT(*) as total
+        FROM competencia 
+        WHERE equipo_id = :equipo_id 
+        AND rango_fechas && daterange(:fecha_inicio, :fecha_fin, '[]')
+        """
+        
+        count_result = db.execute(text(count_query), {
+            "equipo_id": equipo_id,
+            "fecha_inicio": fecha_inicio,
+            "fecha_fin": fecha_fin
+        })
+        
+        total_competencias = count_result.fetchone().total
+        
+        # Query usando daterange con límite según PRDv2
         query_text = """
         SELECT 
             id,
@@ -270,13 +288,14 @@ async def get_proximas_competencias(
         WHERE equipo_id = :equipo_id 
         AND rango_fechas && daterange(:fecha_inicio, :fecha_fin, '[]')
         ORDER BY lower(rango_fechas) ASC
-        LIMIT 10
+        LIMIT :limite
         """
         
         result = db.execute(text(query_text), {
             "equipo_id": equipo_id,
             "fecha_inicio": fecha_inicio,
-            "fecha_fin": fecha_fin
+            "fecha_fin": fecha_fin,
+            "limite": limite
         })
         
         competencias = []
@@ -291,7 +310,13 @@ async def get_proximas_competencias(
                 "dias_restantes": (row.fecha_inicio - fecha_inicio).days if row.fecha_inicio else 0
             })
         
-        return competencias
+        # Retornar con metadatos según PRDv2
+        return {
+            "data": competencias,
+            "total": total_competencias,
+            "mostradas": len(competencias),
+            "hay_mas": total_competencias > limite
+        }
         
     except Exception as e:
         raise HTTPException(
@@ -304,7 +329,8 @@ async def get_proximas_competencias(
 async def get_atletas_destacados(
     current_user: CurrentUser,
     db: Session = Depends(get_db),
-    dias: int = Query(30, description="Días hacia atrás para buscar mejoras")
+    dias: int = Query(30, description="Días hacia atrás para buscar mejoras"),
+    limite: int = Query(5, description="Número máximo de atletas a retornar", ge=1, le=20)
 ):
     """
     GET /dashboard/atletas-destacados - Atletas con mejores mejoras recientes.
@@ -324,51 +350,184 @@ async def get_atletas_destacados(
         equipo_id = current_user.equipo_id
         fecha_limite = datetime.now() - timedelta(days=dias)
         
-        # Para MVP: atletas con más registros recientes
-        atletas = db.query(
-            Nadador.id,
-            Nadador.nombre_completo,
-            Nadador.rama,
-            func.count(Resultado.id).label("registros_recientes"),
-            func.min(Resultado.tiempo_global_cs).label("mejor_tiempo"),
-            func.avg(Resultado.tiempo_global_cs).label("tiempo_promedio")
-        )\
-        .join(Resultado, Nadador.id == Resultado.nadador_id)\
-        .filter(
-            and_(
-                Nadador.equipo_id == equipo_id,
-                Resultado.created_at >= fecha_limite
-            )
-        )\
-        .group_by(Nadador.id, Nadador.nombre_completo, Nadador.rama)\
-        .having(func.count(Resultado.id) >= 2)\
-        .order_by(desc("registros_recientes"))\
-        .limit(5)\
-        .all()
+        # Obtener total de atletas con al menos 1 registro (más flexible para MVP)
+        count_total = db.query(func.count(func.distinct(Nadador.id)))\
+            .join(Resultado, Nadador.id == Resultado.nadador_id)\
+            .filter(
+                and_(
+                    Nadador.equipo_id == equipo_id,
+                    Resultado.fecha_registro >= fecha_limite,
+                    Resultado.estado_validacion == 'valido'
+                )
+            )\
+            .scalar() or 0
+        
+        # Para MVP: atletas con más registros recientes válidos usando fecha_registro según PRDv2
+        try:
+            atletas = db.query(
+                Nadador.id,
+                Nadador.nombre_completo,
+                Nadador.rama,
+                func.count(Resultado.id).label("registros_recientes"),
+                func.min(Resultado.tiempo_global_cs).label("mejor_tiempo"),
+                func.avg(Resultado.tiempo_global_cs).label("tiempo_promedio")
+            )\
+            .join(Resultado, Nadador.id == Resultado.nadador_id)\
+            .filter(
+                and_(
+                    Nadador.equipo_id == equipo_id,
+                    Resultado.fecha_registro >= fecha_limite,
+                    Resultado.estado_validacion == 'valido'
+                )
+            )\
+            .group_by(Nadador.id, Nadador.nombre_completo, Nadador.rama)\
+            .having(func.count(Resultado.id) >= 1)\
+            .order_by(desc("registros_recientes"))\
+            .limit(limite)\
+            .all()
+        except Exception as db_error:
+            print(f"Error en consulta de atletas destacados: {str(db_error)}")
+            atletas = []
         
         destacados = []
         for atleta in atletas:
-            # Formatear mejor tiempo
-            tiempo_cs = int(atleta.mejor_tiempo)
-            minutos = tiempo_cs // 6000
-            segundos = (tiempo_cs % 6000) // 100
-            centesimas = tiempo_cs % 100
-            mejor_tiempo_formateado = f"{minutos:02d}:{segundos:02d}.{centesimas:02d}"
-            
-            destacados.append({
-                "id": atleta.id,
-                "nombre": atleta.nombre_completo,
-                "rama": atleta.rama,
-                "registros_recientes": atleta.registros_recientes,
-                "mejor_tiempo": mejor_tiempo_formateado,
-                "tiempo_promedio": round(float(atleta.tiempo_promedio), 2),
-                "metrica": f"{atleta.registros_recientes} registros recientes"
-            })
+            try:
+                # Formatear mejor tiempo con validación
+                if atleta.mejor_tiempo is not None:
+                    tiempo_cs = int(atleta.mejor_tiempo)
+                    minutos = tiempo_cs // 6000
+                    segundos = (tiempo_cs % 6000) // 100
+                    centesimas = tiempo_cs % 100
+                    mejor_tiempo_formateado = f"{minutos:02d}:{segundos:02d}.{centesimas:02d}"
+                else:
+                    mejor_tiempo_formateado = "Sin tiempo"
+                
+                # Validar tiempo promedio
+                tiempo_promedio = round(float(atleta.tiempo_promedio), 2) if atleta.tiempo_promedio is not None else 0.0
+                
+                destacados.append({
+                    "id": atleta.id,
+                    "nombre": atleta.nombre_completo or "Nombre no disponible",
+                    "rama": atleta.rama or "N/A",
+                    "registros_recientes": atleta.registros_recientes or 0,
+                    "mejor_tiempo": mejor_tiempo_formateado,
+                    "tiempo_promedio": tiempo_promedio,
+                    "metrica": f"{atleta.registros_recientes or 0} registros recientes"
+                })
+            except Exception as e:
+                # Log el error pero continúa con otros atletas
+                print(f"Error procesando atleta {atleta.id}: {str(e)}")
+                continue
         
-        return destacados
+        # Retornar con metadatos según PRDv2
+        return {
+            "data": destacados,
+            "total": count_total,
+            "mostradas": len(destacados),
+            "hay_mas": count_total > limite
+        }
         
     except Exception as e:
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
             detail=f"Error obteniendo atletas destacados: {str(e)}"
+        )
+
+
+@router.get("/actividad-reciente")
+async def get_actividad_reciente(
+    current_user: CurrentUser,
+    db: Session = Depends(get_db),
+    limite: int = Query(20, description="Número máximo de registros a retornar", ge=1, le=100)
+):
+    """
+    GET /dashboard/actividad-reciente - Últimos registros válidos del equipo.
+    
+    Retorna la actividad reciente del equipo basada en resultados válidos
+    ordenados por fecha_registro descendente según PRDv2.
+    
+    Args:
+        current_user: Usuario autenticado
+        db: Sesión de base de datos
+        limite: Número máximo de registros (1-100)
+        
+    Returns:
+        list: Actividad reciente con información completa
+    """
+    try:
+        equipo_id = current_user.equipo_id
+        
+        # Primero obtener total para metadatos
+        total_actividad = db.query(func.count(Resultado.id))\
+            .join(Nadador, Resultado.nadador_id == Nadador.id)\
+            .filter(
+                and_(
+                    Nadador.equipo_id == equipo_id,
+                    Resultado.estado_validacion == 'valido'
+                )
+            )\
+            .scalar()
+        
+        # Query para actividad reciente usando fecha_registro según PRDv2
+        # Filtrando por estado_validacion='valido' y usando índices apropiados
+        actividad = db.query(
+            Resultado.id,
+            Resultado.tiempo_global_cs,
+            Resultado.fecha_registro,
+            Resultado.estado_validacion,
+            Nadador.nombre_completo,
+            Nadador.rama,
+            Prueba.estilo,
+            Prueba.distancia,
+            Prueba.curso,
+            Competencia.nombre.label("competencia_nombre")
+        )\
+        .join(Nadador, Resultado.nadador_id == Nadador.id)\
+        .join(Prueba, Resultado.prueba_id == Prueba.id)\
+        .join(Competencia, Resultado.competencia_id == Competencia.id)\
+        .filter(
+            and_(
+                Nadador.equipo_id == equipo_id,
+                Resultado.estado_validacion == 'valido'
+            )
+        )\
+        .order_by(Resultado.fecha_registro.desc())\
+        .limit(limite)\
+        .all()
+        
+        # Formatear respuesta similar al formato top5 pero para actividad
+        actividad_reciente = []
+        for registro in actividad:
+            # Convertir centésimas a formato mm:ss.cc
+            tiempo_cs = registro.tiempo_global_cs
+            minutos = tiempo_cs // 6000
+            segundos = (tiempo_cs % 6000) // 100
+            centesimas = tiempo_cs % 100
+            tiempo_formateado = f"{minutos:02d}:{segundos:02d}.{centesimas:02d}"
+            
+            actividad_reciente.append({
+                "id": registro.id,
+                "nadador": registro.nombre_completo,
+                "rama": registro.rama,
+                "prueba": f"{registro.estilo} {registro.distancia}m {registro.curso}",
+                "tiempo": tiempo_formateado,
+                "tiempo_cs": registro.tiempo_global_cs,
+                "competencia": registro.competencia_nombre,
+                "fecha": registro.fecha_registro.isoformat(),
+                "estado_validacion": registro.estado_validacion,
+                "tipo_actividad": "Resultado registrado"
+            })
+        
+        # Retornar con metadatos según PRDv2
+        return {
+            "data": actividad_reciente,
+            "total": total_actividad or 0,
+            "mostradas": len(actividad_reciente),
+            "hay_mas": (total_actividad or 0) > limite
+        }
+        
+    except Exception as e:
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail=f"Error obteniendo actividad reciente: {str(e)}"
         )

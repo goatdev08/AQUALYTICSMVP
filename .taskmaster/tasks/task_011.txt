@@ -1,0 +1,54 @@
+# Task ID: 11
+# Title: Fix Dropdown Selection Event Handling in Competencias Selector
+# Status: done
+# Dependencies: 6
+# Priority: high
+# Description: Resolve dropdown selection issues where onClick events are prevented by onBlur closing the dropdown prematurely by switching to onMouseDown events and adjusting blur delay timing.
+# Details:
+1. **Event Handler Replacement**: Replace onClick handlers with onMouseDown in dropdown option elements within the competencias selector component. This ensures selection events fire before the input's onBlur event that closes the dropdown.
+
+2. **Blur Delay Adjustment**: Increase the blur delay timeout from 150ms to 200ms in the dropdown component to provide additional safety margin for user interactions. This prevents premature dropdown closure during selection attempts.
+
+3. **Event Sequence Optimization**: Implement proper event handling sequence:
+   - onMouseDown fires immediately on mouse press
+   - Selection logic executes and updates state
+   - onBlur fires after the delay, safely closing dropdown
+   - Prevent default behavior on onMouseDown to avoid focus issues
+
+4. **Cross-browser Compatibility**: Test event handling across different browsers to ensure consistent behavior. Consider touch device compatibility for mobile users.
+
+5. **State Management**: Ensure selection state updates properly with the new event handling approach. Maintain existing keyboard navigation functionality while fixing mouse interaction issues.
+
+Code example:
+```jsx
+// Replace onClick with onMouseDown
+<div 
+  onMouseDown={(e) => {
+    e.preventDefault(); // Prevent focus issues
+    handleSelection(option);
+  }}
+  className="dropdown-option"
+>
+  {option.name}
+</div>
+
+// Increase blur delay
+const handleBlur = useCallback(() => {
+  setTimeout(() => {
+    setIsOpen(false);
+  }, 200); // Increased from 150ms
+}, []);
+```
+
+# Test Strategy:
+1. **Manual Interaction Testing**: Test dropdown selection with mouse clicks, ensuring options are selectable without dropdown closing prematurely. Verify both single clicks and rapid successive clicks work correctly.
+
+2. **Event Timing Validation**: Use browser developer tools to monitor event firing sequence (onMouseDown → selection → onBlur). Confirm 200ms delay provides adequate time for selection completion.
+
+3. **Cross-browser Testing**: Test functionality in Chrome, Firefox, Safari, and Edge to ensure consistent behavior across browsers. Pay special attention to mobile browsers and touch interactions.
+
+4. **Keyboard Navigation Preservation**: Verify existing keyboard navigation (arrow keys, Enter, Escape) continues to work properly alongside the new mouse event handling.
+
+5. **Accessibility Testing**: Ensure screen readers and assistive technologies can still interact with the dropdown effectively. Test with keyboard-only navigation to confirm no regression in accessibility.
+
+6. **Performance Impact**: Monitor for any performance implications of the event handler changes, especially in dropdowns with many options. Verify no memory leaks from event listeners.

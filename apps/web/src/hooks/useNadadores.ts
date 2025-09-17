@@ -149,13 +149,14 @@ const nadadorApi = {
 
   // Búsqueda typeahead
   typeahead: async (query: string, limit = 10): Promise<Nadador[]> => {
-    if (query.length < 2) return [];
+    if (query.length < 1) return [];
     
     const params = new URLSearchParams({
       q: query,
       limit: limit.toString(),
     });
     
+    // Usar endpoint específico de typeahead (igual que competencias)
     return fetchWithAuth(`${API_BASE_URL}/api/v1/nadadores/search/typeahead?${params}`);
   },
 };

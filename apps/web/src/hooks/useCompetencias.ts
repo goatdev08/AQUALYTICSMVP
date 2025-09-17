@@ -193,6 +193,19 @@ async function fetchProximasCompetencias(limit: number = 5): Promise<Competencia
   return fetchWithAuth(url);
 }
 
+// Función para búsqueda typeahead de competencias
+async function fetchCompetenciaTypeahead(query: string, limit: number = 10): Promise<CompetenciaSelector[]> {
+  if (query.length < 1) return [];
+  
+  const params = new URLSearchParams({
+    q: query,
+    limit: limit.toString(),
+  });
+  
+  const url = `${API_BASE_URL}/api/v1/competencias/search/typeahead?${params.toString()}`;
+  return fetchWithAuth(url);
+}
+
 // Función para obtener competencia por ID
 async function fetchCompetenciaById(id: number): Promise<Competencia> {
   const url = `${API_BASE_URL}/api/v1/competencias/${id}`;
@@ -380,6 +393,30 @@ export function useCompetencias() {
     useDeleteCompetencia,
     invalidateAll,
   ]);
+}
+
+// ============================================================================
+// HOOK SIMPLIFICADO PARA TYPEAHEAD
+// ============================================================================
+
+/**
+ * Hook para búsqueda typeahead de competencias
+ * 
+ * Optimizado para componentes de autocompletado:
+ * - Soporta búsqueda desde 1 carácter
+ * - Cache inteligente con staleTime corto
+ * - Retorna CompetenciaSelector[] para dropdowns
+ */
+export function useCompetenciaTypeahead(query: string, limit = 10) {
+  const { user } = useAuthContext();
+  
+  return useQuery({
+    queryKey: competenciaKeys.typeahead(query),
+    queryFn: () => fetchCompetenciaTypeahead(query, limit),
+    enabled: !!user && query.length >= 1,
+    staleTime: 60 * 1000, // 1 minuto
+    gcTime: 10 * 60 * 1000, // 10 minutos
+  });
 }
 
 // ============================================================================

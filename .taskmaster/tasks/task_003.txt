@@ -1,0 +1,49 @@
+# Task ID: 3
+# Title: Dashboard Core Features and Endpoints
+# Status: done
+# Dependencies: 2
+# Priority: high
+# Description: Develop dashboard components and backend endpoints for PieChart, upcoming competitions, featured athletes, and recent activity.
+# Details:
+Frontend: Implement PieChart with Chart.js, ensuring 5–7 green tones and layout.padding. Remove overflow-hidden for chart container. Use TanStack Query hooks for data fetching (useCompetencias, useDashboardActividadReciente, etc.). Backend: Create async FastAPI endpoints for /dashboard/piechart, /dashboard/proximas-competencias, /dashboard/atletas-destacados, /dashboard/actividad-reciente. Use indices for efficient queries. Normalize metrics to 'fecha_registro'.
+
+# Test Strategy:
+Render dashboard with real data. Validate chart colors and padding. Confirm endpoints return correct, paginated data. Test 'Ver todas (N)' buttons for accurate counts.
+
+# Subtasks:
+## 1. Create Backend Dashboard API Endpoints [done]
+### Dependencies: None
+### Description: Implement FastAPI endpoints for dashboard data including PieChart metrics, upcoming competitions, featured athletes, and recent activity with proper database indexing and query optimization.
+### Details:
+Create async FastAPI endpoints: /dashboard/piechart (return competition type distribution), /dashboard/proximas-competencias (upcoming events with pagination), /dashboard/atletas-destacados (top performers by recent results), /dashboard/actividad-reciente (recent registrations/updates). Use database indices on fecha_registro, competencia_id, nadador_id for efficient queries. Normalize all date fields to 'fecha_registro' format. Implement proper error handling and response schemas using Pydantic models.
+
+## 2. Implement TanStack Query Data Fetching Hooks [done]
+### Dependencies: 3.1
+### Description: Create custom React hooks using TanStack Query for fetching dashboard data from the backend endpoints with proper caching and error handling.
+### Details:
+Implement hooks: useCompetencias, useDashboardActividadReciente, useDashboardPieChart, useDashboardAtletasDestacados. Configure proper query keys, stale time, and cache time. Add error boundaries and loading states. Use TypeScript interfaces for response data typing. Implement retry logic and background refetching for real-time data updates.
+
+## 3. Develop PieChart Component with Chart.js [done]
+### Dependencies: 3.2
+### Description: Create a responsive PieChart component using Chart.js with 5-7 green color tones, proper padding configuration, and integration with dashboard data.
+### Details:
+Install and configure Chart.js with React wrapper. Define 5-7 green color palette (#1f4e3d, #2d5a47, #3b6651, #49725b, #577e65, #658a6f, #739679). Configure chart options with layout.padding for proper spacing. Remove overflow-hidden from chart container CSS. Implement responsive design with maintainAspectRatio. Add hover effects and tooltips. Handle empty data states gracefully.
+
+## 4. Build Upcoming Competitions Dashboard Section [done]
+### Dependencies: 3.2
+### Description: Create a dashboard section displaying upcoming competitions with proper formatting, navigation links, and 'Ver todas' functionality.
+### Details:
+Create ProximasCompetencias component that displays competition cards with date, name, location, and participant count. Implement 'Ver todas (N)' button with accurate count from backend. Add navigation to competition details. Format dates using date-fns or similar library. Handle empty states with appropriate messaging. Implement skeleton loading states.
+
+## 5. Implement Featured Athletes Dashboard Section [done]
+### Dependencies: 3.2
+### Description: Develop a dashboard section showcasing featured athletes based on recent performance metrics with profile navigation and statistics display.
+### Details:
+Create AtletasDestacados component displaying athlete cards with photo, name, recent achievements, and performance metrics. Implement ranking logic based on recent results and personal records. Add navigation to athlete profiles. Display key statistics like recent PR count, competition participation. Handle cases where no featured athletes are available. Implement responsive grid layout.
+
+## 6. Create Recent Activity Dashboard Section [done]
+### Dependencies: 3.2
+### Description: Build a recent activity feed showing latest registrations, results, and system updates with proper formatting and real-time capabilities.
+### Details:
+Create ActividadReciente component displaying chronological activity feed with icons, timestamps, and descriptions. Show recent result registrations, new athlete additions, competition updates. Format timestamps using relative time (e.g., '2 hours ago'). Implement activity type icons and color coding. Add pagination or infinite scroll for large activity lists. Include links to related entities (athletes, competitions).
+

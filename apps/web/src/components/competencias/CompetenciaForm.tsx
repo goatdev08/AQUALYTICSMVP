@@ -419,9 +419,9 @@ export function CompetenciaForm({ competencia, mode }: CompetenciaFormProps) {
             {/* Opción SC (25m) */}
             <label className={`
               flex items-center justify-center p-4 border-2 rounded-lg cursor-pointer
-              transition-all duration-200 hover:bg-green-50
+              transition-all duration-200 hover:bg-primary/10
               ${watch('curso') === 'SC' 
-                ? 'border-green-500 bg-green-50 text-green-700' 
+                ? 'border-green-500 bg-primary/10 text-green-700' 
                 : 'border-gray-200 hover:border-green-300'
               }
             `}>
@@ -441,9 +441,9 @@ export function CompetenciaForm({ competencia, mode }: CompetenciaFormProps) {
             {/* Opción LC (50m) */}
             <label className={`
               flex items-center justify-center p-4 border-2 rounded-lg cursor-pointer
-              transition-all duration-200 hover:bg-green-50
+              transition-all duration-200 hover:bg-primary/10
               ${watch('curso') === 'LC' 
-                ? 'border-green-500 bg-green-50 text-green-700' 
+                ? 'border-green-500 bg-primary/10 text-green-700' 
                 : 'border-gray-200 hover:border-green-300'
               }
             `}>

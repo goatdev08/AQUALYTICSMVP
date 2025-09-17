@@ -19,7 +19,7 @@ export type {
 } from './DateRangePicker';
 
 export type {
-  CompetenciaOption,
+  CompetenciaSelectorFilters,
   CompetenciaSelectorProps
 } from './CompetenciaSelector';
 

@@ -2,17 +2,28 @@
  * NadadorSelector - Componente reutilizable para búsqueda y selección de nadadores
  * 
  * Funcionalidades:
- * - Búsqueda typeahead con debounce
+ * - Búsqueda typeahead con debounce usando utilidades comunes
  * - Filtros por rama (F/M) y categoría (11-12, 13-14, 15-16, 17+)
+ * - Navegación por teclado accesible
  * - Selección con callback de confirmación
  * - Estados de loading, error y empty state
  * - UI consistente con tema green y shadcn components
+ * - Propiedades ARIA para accesibilidad
+ * 
+ * Refactorizado para usar:
+ * - useDropdownState para gestión de estado
+ * - useDropdownNavigation para navegación por teclado
+ * - dropdown-aria para accesibilidad
+ * - dropdown-utils para utilidades comunes
  */
 
 "use client";
 
 import React, { useState, useCallback, useMemo } from 'react';
 import { useDebounce } from '@/hooks/useDebounce';
+import { useDropdownState, useDropdownNavigation } from '@/hooks';
+import { createDropdownAriaProps, generateDropdownIds, createOptionId } from '@/lib/dropdown-aria';
+import { applyFilters, cleanFilters, getOptionClasses, formatResultCount, countActiveFilters } from '@/lib/dropdown-utils';
 import { useNadadorTypeahead, type Nadador } from '@/hooks/useNadadores';
 import { 
   Button, 
@@ -91,12 +102,31 @@ export function NadadorSelector({
 }: NadadorSelectorProps) {
   
   // =====================
-  // Estado local
+  // Utilidades comunes
   // =====================
   
-  const [searchTerm, setSearchTerm] = useState('');
-  const [isOpen, setIsOpen] = useState(false);
-  const [selectedIndex, setSelectedIndex] = useState(-1);
+  // Generar IDs únicos para accesibilidad
+  const ariaIds = useMemo(() => generateDropdownIds('nadador-selector'), []);
+  
+  // Estado del dropdown usando hook común
+  const {
+    searchTerm,
+    isOpen,
+    selectedIndex,
+    setSearchTerm,
+    setIsOpen,
+    setSelectedIndex,
+    handleSearchInputChange,
+    handleInputFocus,
+    handleInputBlur,
+    clearAndClose,
+    shouldShowDropdown,
+  } = useDropdownState({
+    initialSearchTerm: value?.nombre_completo || '',
+    minSearchLength: 1,
+  });
+  
+  // Estados adicionales específicos del componente
   const [filters, setFilters] = useState<NadadorSelectorFilters>(initialFilters);
   const [showFilterPanel, setShowFilterPanel] = useState(false);
   
@@ -118,33 +148,22 @@ export function NadadorSelector({
   const error = externalError || queryError?.message;
   
   // =====================
-  // Filtros aplicados
+  // Filtros aplicados usando utilidades comunes
   // =====================
   
   const nadadoresFiltrados = useMemo(() => {
-    let filtered = nadadores;
-    
-    if (filters.rama) {
-      filtered = filtered.filter(n => n.rama === filters.rama);
-    }
-    
-    if (filters.categoria) {
-      filtered = filtered.filter(n => n.categoria_actual === filters.categoria);
-    }
-    
-    return filtered;
+    return applyFilters(nadadores, cleanFilters(filters), {
+      includeEmpty: true,
+      compare: (itemValue, filterValue) => {
+        // Comparación específica para categoría_actual
+        return itemValue === filterValue;
+      }
+    });
   }, [nadadores, filters]);
   
   // =====================
-  // Handlers
+  // Handlers usando utilidades comunes
   // =====================
-  
-  const handleSearchChange = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
-    const newValue = e.target.value;
-    setSearchTerm(newValue);
-    setSelectedIndex(-1);
-    setIsOpen(newValue.length >= 1);
-  }, []);
   
   const handleSelect = useCallback((nadador: Nadador) => {
     // Convertir Nadador a NadadorOption
@@ -160,37 +179,18 @@ export function NadadorSelector({
     setSearchTerm(nadador.nombre_completo);
     setIsOpen(false);
     setSelectedIndex(-1);
-  }, [onSelect]);
-  
-  const handleKeyDown = useCallback((e: React.KeyboardEvent) => {
-    if (!isOpen) return;
-    
-    switch (e.key) {
-      case 'ArrowDown':
-        e.preventDefault();
-        setSelectedIndex(prev => 
-          prev < nadadoresFiltrados.length - 1 ? prev + 1 : prev
-        );
-        break;
-        
-      case 'ArrowUp':
-        e.preventDefault();
-        setSelectedIndex(prev => prev > 0 ? prev - 1 : prev);
-        break;
-        
-      case 'Enter':
-        e.preventDefault();
-        if (selectedIndex >= 0 && nadadoresFiltrados[selectedIndex]) {
-          handleSelect(nadadoresFiltrados[selectedIndex]);
-        }
-        break;
-        
-      case 'Escape':
-        setIsOpen(false);
-        setSelectedIndex(-1);
-        break;
-    }
-  }, [isOpen, selectedIndex, nadadoresFiltrados, handleSelect]);
+  }, [onSelect, setSearchTerm, setIsOpen, setSelectedIndex]);
+
+  // Navegación por teclado usando hook común
+  const { handleKeyDown } = useDropdownNavigation({
+    items: nadadoresFiltrados,
+    selectedIndex,
+    setSelectedIndex,
+    onSelectItem: handleSelect,
+    onEscape: () => setIsOpen(false),
+    isOpen,
+    enabled: !disabled,
+  });
   
   const handleFilterChange = useCallback((key: keyof NadadorSelectorFilters, value: string | undefined) => {
     setFilters(prev => ({
@@ -204,10 +204,25 @@ export function NadadorSelector({
   }, []);
   
   const clearSelection = useCallback(() => {
-    setSearchTerm('');
     onSelect(null);
-    setIsOpen(false);
-  }, [onSelect]);
+    clearAndClose();
+  }, [onSelect, clearAndClose]);
+
+  // =====================
+  // Propiedades ARIA para accesibilidad
+  // =====================
+  
+  const ariaProps = useMemo(() => {
+    return createDropdownAriaProps({
+      inputId: ariaIds.inputId,
+      listboxId: ariaIds.listboxId,
+      groupId: ariaIds.groupId,
+      descriptionId: ariaIds.descriptionId,
+      label: "Seleccionar Nadador",
+      placeholder,
+      description: showFilters ? "Usa filtros para refinar tu búsqueda" : undefined,
+    });
+  }, [ariaIds, placeholder, showFilters]);
   
   // =====================
   // Props de componentes
@@ -230,13 +245,13 @@ export function NadadorSelector({
       {showFilters && (
         <div className="flex items-center justify-between mb-3">
           <div className="flex items-center gap-2">
-            <UsersIcon className="w-4 h-4 text-gray-500" />
-            <span className="text-sm font-medium text-gray-700">
+            <UsersIcon className="w-4 h-4 text-muted-foreground" />
+            <label {...ariaProps.label} className="text-sm font-medium text-foreground">
               Seleccionar Nadador
-            </span>
-            {Object.keys(filters).length > 0 && (
+            </label>
+            {countActiveFilters(filters) > 0 && (
               <Badge variant="secondary" className="text-xs">
-                {Object.keys(filters).length} filtro(s)
+                {countActiveFilters(filters)} filtro(s)
               </Badge>
             )}
           </div>
@@ -257,10 +272,10 @@ export function NadadorSelector({
       
       {/* Panel de filtros */}
       {showFilters && showFilterPanel && (
-        <div className="bg-gray-50 border border-gray-200 rounded-lg p-3 mb-3 space-y-3">
+        <div className="bg-muted/50 border border-border rounded-lg p-3 mb-3 space-y-3">
           {/* Filtro por rama */}
           <div>
-            <label className="block text-xs font-medium text-gray-700 mb-1">
+            <label className="block text-xs font-medium text-foreground mb-1">
               Rama
             </label>
             <div className="flex gap-2">
@@ -282,7 +297,7 @@ export function NadadorSelector({
           
           {/* Filtro por categoría */}
           <div>
-            <label className="block text-xs font-medium text-gray-700 mb-1">
+            <label className="block text-xs font-medium text-foreground mb-1">
               Categoría
             </label>
             <div className="flex flex-wrap gap-2">
@@ -325,21 +340,28 @@ export function NadadorSelector({
       <div className="relative">
         <div className="relative">
           <Input
+            {...ariaProps.input}
             type="text"
             value={searchTerm}
-            onChange={handleSearchChange}
+            onChange={handleSearchInputChange}
             onKeyDown={handleKeyDown}
-            onFocus={() => searchTerm.length >= 1 && setIsOpen(true)}
-            onBlur={() => setTimeout(() => setIsOpen(false), 150)}
+            onFocus={handleInputFocus}
+            onBlur={handleInputBlur}
             placeholder={placeholder}
             disabled={disabled}
             autoFocus={autoFocus}
+            aria-expanded={shouldShowDropdown}
+            aria-activedescendant={
+              selectedIndex >= 0 && nadadoresFiltrados[selectedIndex] 
+                ? createOptionId(ariaIds.listboxId, selectedIndex)
+                : undefined
+            }
             className={`
               pl-10 pr-10
               ${error ? 'border-red-300 focus:border-red-500 focus:ring-red-500' : ''}
               ${inputProps.className || ''}
             `}
-            {...(({ className, ...rest }) => rest)(inputProps)}
+            {...(({ className, 'aria-expanded': _, 'aria-activedescendant': __, ...rest }) => rest)(inputProps)}
           />
           
           {/* Icono de búsqueda */}
@@ -365,13 +387,16 @@ export function NadadorSelector({
         </div>
         
         {/* Dropdown de resultados */}
-        {isOpen && (
-          <div className="absolute z-50 w-full mt-1 bg-white border border-gray-200 rounded-md shadow-lg max-h-60 overflow-auto">
+        {shouldShowDropdown && (
+          <div 
+            {...ariaProps.listbox}
+            className="absolute z-50 w-full mt-1 bg-white border border-gray-200 rounded-md shadow-lg max-h-60 overflow-auto"
+          >
             {/* Loading state */}
             {isLoading && (
               <div className="flex items-center justify-center py-4">
                 <LoaderIcon className="w-4 h-4 animate-spin text-gray-400 mr-2" />
-                <span className="text-sm text-gray-500">Buscando...</span>
+                <span className="text-sm text-muted-foreground">Buscando...</span>
               </div>
             )}
             
@@ -389,38 +414,49 @@ export function NadadorSelector({
             {/* Resultados */}
             {!isLoading && !error && nadadoresFiltrados.length > 0 && (
               <>
-                <div className="px-3 py-2 text-xs text-gray-500 bg-gray-50 border-b border-gray-100">
-                  {nadadoresFiltrados.length} nadador{nadadoresFiltrados.length !== 1 ? 'es' : ''} encontrado{nadadoresFiltrados.length !== 1 ? 's' : ''}
+                <div className="px-3 py-2 text-xs text-muted-foreground bg-gray-50 border-b border-gray-100">
+                  {formatResultCount(nadadoresFiltrados.length, debouncedSearch)}
                 </div>
-                {nadadoresFiltrados.map((nadador, index) => (
-                  <div
-                    key={nadador.id}
-                    className={`
-                      px-3 py-2 cursor-pointer border-b border-gray-50 last:border-0
-                      ${selectedIndex === index ? 'bg-green-50' : 'hover:bg-gray-50'}
-                      transition-colors
-                    `}
-                    onClick={() => handleSelect(nadador)}
-                  >
-                    <div className="flex items-center justify-between">
-                      <div className="flex items-center">
-                        <UserIcon className="w-4 h-4 text-gray-400 mr-2 flex-shrink-0" />
-                        <div>
-                          <div className="text-sm font-medium text-gray-900">
-                            {nadador.nombre_completo}
-                          </div>
-                          <div className="text-xs text-gray-500">
-                            {nadador.rama === 'F' ? 'Femenino' : 'Masculino'} • {nadador.edad_actual} años • {nadador.categoria_actual}
+                {nadadoresFiltrados.map((nadador, index) => {
+                  const optionId = createOptionId(ariaIds.listboxId, index);
+                  const isSelected = selectedIndex === index;
+                  
+                  return (
+                    <div
+                      key={nadador.id}
+                      id={optionId}
+                      role="option"
+                      aria-selected={isSelected}
+                      aria-setsize={nadadoresFiltrados.length}
+                      aria-posinset={index + 1}
+                      className={getOptionClasses(
+                        false, // no permanently selected options in this context
+                        isSelected,
+                        'px-3 py-2 cursor-pointer border-b border-gray-50 last:border-0 transition-colors',
+                        'bg-green-50 text-green-900'
+                      )}
+                      onClick={() => handleSelect(nadador)}
+                    >
+                      <div className="flex items-center justify-between">
+                        <div className="flex items-center">
+                          <UserIcon className="w-4 h-4 text-gray-400 mr-2 flex-shrink-0" />
+                          <div>
+                            <div className="text-sm font-medium text-gray-900">
+                              {nadador.nombre_completo}
+                            </div>
+                            <div className="text-xs text-muted-foreground">
+                              {nadador.rama === 'F' ? 'Femenino' : 'Masculino'} • {nadador.edad_actual} años • {nadador.categoria_actual}
+                            </div>
                           </div>
                         </div>
+                        
+                        {isSelected && (
+                          <CheckIcon className="w-4 h-4 text-green-600" />
+                        )}
                       </div>
-                      
-                      {selectedIndex === index && (
-                        <CheckIcon className="w-4 h-4 text-green-600" />
-                      )}
                     </div>
-                  </div>
-                ))}
+                  );
+                })}
               </>
             )}
             
@@ -428,7 +464,7 @@ export function NadadorSelector({
             {!isLoading && !error && nadadoresFiltrados.length === 0 && debouncedSearch.length >= 2 && (
               <div className="px-3 py-8 text-center">
                 <UserIcon className="w-8 h-8 text-gray-300 mx-auto mb-2" />
-                <p className="text-sm text-gray-500 mb-1">
+                <p className="text-sm text-muted-foreground mb-1">
                   No se encontraron nadadores
                 </p>
                 <p className="text-xs text-gray-400">
@@ -441,7 +477,7 @@ export function NadadorSelector({
             {!isLoading && debouncedSearch.length < 1 && (
               <div className="px-3 py-4 text-center">
                 <SearchIcon className="w-8 h-8 text-gray-300 mx-auto mb-2" />
-                <p className="text-sm text-gray-500">
+                <p className="text-sm text-muted-foreground">
                   Escribe un carácter para comenzar a buscar
                 </p>
               </div>

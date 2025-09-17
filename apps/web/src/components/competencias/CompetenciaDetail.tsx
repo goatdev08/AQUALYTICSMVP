@@ -65,13 +65,13 @@ function getEstadoInfo(fechaInicio: string, fechaFin: string): {
   if (fin < hoy) {
     return { 
       estado: 'Finalizada', 
-      color: 'text-gray-600 bg-gray-100',
+      color: 'text-muted-foreground bg-gray-100',
       descripcion: 'Esta competencia ya terminó'
     };
   } else if (inicio <= hoy && hoy <= fin) {
     return { 
       estado: 'En Curso', 
-      color: 'text-green-600 bg-green-100',
+      color: 'text-primary bg-green-100',
       descripcion: 'La competencia está actualmente en curso'
     };
   } else {
@@ -112,7 +112,7 @@ export function CompetenciaDetail({
             <h2 className={compact ? "text-xl font-bold text-gray-900" : "text-2xl font-bold text-gray-900"}>
               {competencia.nombre}
             </h2>
-            <p className="text-gray-600 mt-1">
+            <p className="text-muted-foreground mt-1">
               Competencia de natación
             </p>
           </div>
@@ -145,7 +145,7 @@ export function CompetenciaDetail({
       {/* Descripción del estado */}
       {!compact && (
         <div className="mb-6">
-          <p className="text-gray-600">
+          <p className="text-muted-foreground">
             {estadoInfo.descripcion}
           </p>
         </div>
@@ -160,10 +160,10 @@ export function CompetenciaDetail({
             <CalendarIcon className="h-5 w-5 text-gray-400 mt-0.5" />
             <div className="flex-1">
               <h3 className="text-sm font-medium text-gray-900">Fechas</h3>
-              <p className="text-sm text-gray-600 mt-1">
+              <p className="text-sm text-muted-foreground mt-1">
                 <strong>Inicio:</strong> {formatFecha(competencia.fecha_inicio)}
               </p>
-              <p className="text-sm text-gray-600">
+              <p className="text-sm text-muted-foreground">
                 <strong>Fin:</strong> {formatFecha(competencia.fecha_fin)}
               </p>
               <p className="text-xs text-gray-500 mt-1">
@@ -178,7 +178,7 @@ export function CompetenciaDetail({
               <MapPinIcon className="h-5 w-5 text-gray-400 mt-0.5" />
               <div className="flex-1">
                 <h3 className="text-sm font-medium text-gray-900">Sede</h3>
-                <p className="text-sm text-gray-600 mt-1">
+                <p className="text-sm text-muted-foreground mt-1">
                   {competencia.sede}
                 </p>
               </div>
@@ -193,7 +193,7 @@ export function CompetenciaDetail({
               <UsersIcon className="h-5 w-5 text-gray-400 mt-0.5" />
               <div className="flex-1">
                 <h3 className="text-sm font-medium text-gray-900">Tipo de Curso</h3>
-                <p className="text-sm text-gray-600 mt-1">
+                <p className="text-sm text-muted-foreground mt-1">
                   {competencia.curso === 'SC' ? 'Piscina Corta (25m)' : 'Piscina Larga (50m)'}
                 </p>
               </div>

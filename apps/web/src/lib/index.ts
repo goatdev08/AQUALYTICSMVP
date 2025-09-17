@@ -14,6 +14,10 @@ export * from './chart-config';
 // Utilidades de shadcn/ui
 export { cn } from './utils';
 
+// Utilidades de dropdown y typeahead
+export * from './dropdown-aria';
+export * from './dropdown-utils';
+
 // Cliente Supabase
 export { supabase } from './supabase';
 

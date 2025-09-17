@@ -1,0 +1,49 @@
+# Task ID: 2
+# Title: Implement Authentication and User Management
+# Status: done
+# Dependencies: 1
+# Priority: high
+# Description: Integrate Supabase Auth for secure user authentication and management across frontend and backend.
+# Details:
+Configure Supabase Auth in Next.js using the official supabase-js client. Protect routes and API endpoints using JWT validation in FastAPI. Ensure user context is available via hooks (e.g., useUser) and backend endpoints. Use Zod for frontend schema validation and Pydantic for backend. Store user data in the 'usuario' table. Follow best practices for session management and token refresh.
+
+# Test Strategy:
+Test login, logout, and protected route access. Validate JWT tokens in backend endpoints. Attempt unauthorized access and confirm rejection.
+
+# Subtasks:
+## 1. Configure Supabase Auth Client in Next.js Frontend [done]
+### Dependencies: None
+### Description: Set up Supabase authentication client configuration in the Next.js frontend with proper environment variables and client initialization.
+### Details:
+Install @supabase/supabase-js and @supabase/auth-helpers-nextjs packages. Create lib/supabase/client.ts with createClientComponentClient and createServerComponentClient functions. Configure environment variables NEXT_PUBLIC_SUPABASE_URL and NEXT_PUBLIC_SUPABASE_ANON_KEY. Set up middleware.ts for auth state management and route protection. Create types/supabase.ts for TypeScript definitions.
+
+## 2. Implement User Authentication Hooks and Context [done]
+### Dependencies: 2.1
+### Description: Create React hooks and context providers for managing user authentication state and session handling across the frontend application.
+### Details:
+Create hooks/useUser.ts with useUser hook that provides current user state, login, logout, and loading states. Implement AuthProvider context in providers/AuthProvider.tsx using Supabase auth state changes. Create useAuth hook for authentication actions (signIn, signUp, signOut). Add Zod schemas for user validation in lib/validations/auth.ts. Handle session refresh and token management automatically.
+
+## 3. Set up JWT Validation Middleware in FastAPI Backend [done]
+### Dependencies: 2.1
+### Description: Implement JWT token validation middleware in FastAPI to secure API endpoints and extract user information from Supabase tokens.
+### Details:
+Install python-jose and cryptography packages. Create auth/middleware.py with JWT validation functions using Supabase JWT secret. Implement get_current_user dependency that validates tokens and extracts user info. Create auth/models.py with Pydantic models for user data. Set up SUPABASE_JWT_SECRET environment variable. Add token verification for Supabase-issued JWTs.
+
+## 4. Create Protected Route Components and Guards [done]
+### Dependencies: 2.2
+### Description: Implement route protection mechanisms for both client-side and server-side rendering in Next.js, ensuring authenticated access to protected pages.
+### Details:
+Create components/ProtectedRoute.tsx wrapper component that checks authentication status. Implement withAuth HOC for page-level protection. Create middleware.ts rules for protecting specific routes (/dashboard, /profile, etc.). Add loading states and redirect logic for unauthenticated users. Implement server-side auth checks using createServerComponentClient for SSR pages.
+
+## 5. Integrate User Data with Usuario Table [done]
+### Dependencies: 2.3, 2.4
+### Description: Connect authentication system with the usuario database table, ensuring user profiles are created and synchronized with Supabase Auth users.
+### Details:
+Create database triggers or functions to automatically create usuario records when new auth users are created. Implement API endpoints in FastAPI for user profile management (GET, PUT /api/users/profile). Create frontend forms for user profile editing with Zod validation. Set up user data synchronization between auth.users and public.usuario tables. Handle user metadata and profile updates.
+
+## 6. Implement Session Management and Token Refresh [done]
+### Dependencies: 2.2, 2.3
+### Description: Set up automatic token refresh, session persistence, and proper session cleanup to ensure seamless user experience and security.
+### Details:
+Configure automatic token refresh in Supabase client settings. Implement session persistence using localStorage/cookies with proper security measures. Create session cleanup on logout and tab close events. Add token expiration handling with automatic re-authentication prompts. Implement refresh token rotation and secure storage. Set up session timeout and idle detection.
+

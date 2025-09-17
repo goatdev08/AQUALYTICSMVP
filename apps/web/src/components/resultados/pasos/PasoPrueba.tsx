@@ -110,49 +110,14 @@ export function PasoPrueba() {
     <div className="space-y-6">
       {/* Encabezado del paso */}
       <div className="text-center space-y-2">
-        <div className="flex items-center justify-center gap-3 mb-2">
-          <div className="w-12 h-12 rounded-full bg-green-100 flex items-center justify-center">
-            <ActivityIcon className="w-6 h-6 text-green-600" />
-          </div>
-        </div>
-        <h2 className="text-xl font-semibold text-gray-900">
+        {/* Header simplificado - FormSection ya maneja los indicadores visuales */}
+        <h2 className="text-xl font-semibold text-gray-900 text-center">
           Seleccionar Prueba y Fase
         </h2>
-        <p className="text-gray-600 max-w-md mx-auto">
-          Elige la prueba específica y la fase de competencia para este resultado
-        </p>
       </div>
       
       {/* Información contextual de competencia y nadador */}
-      <div className="space-y-3">
-        {competencia && (
-          <Alert className="border-blue-200 bg-blue-50">
-            <InfoIcon className="h-4 w-4 text-blue-600" />
-            <AlertDescription className="text-blue-800">
-              <strong>Competencia:</strong> {competencia.nombre}
-              <br />
-              <span className="text-sm">
-                Curso: {competencia.curso} • {competencia.rango_fechas ? 
-                  `${competencia.rango_fechas}` : 'Sin fechas definidas'
-                }
-              </span>
-            </AlertDescription>
-          </Alert>
-        )}
-        
-        {nadador && (
-          <Alert className="border-green-200 bg-green-50">
-            <UserIcon className="h-4 w-4 text-green-600" />
-            <AlertDescription className="text-green-800">
-              <strong>Nadador:</strong> {nadador.nombre_completo}
-              <br />
-              <span className="text-sm">
-                {nadador.rama === 'F' ? 'Femenino' : 'Masculino'} • {nadador.edad_actual} años • Categoría {nadador.categoria_actual}
-              </span>
-            </AlertDescription>
-          </Alert>
-        )}
-      </div>
+      {/* Contexto previo ahora solo en sticky panel */}
       
       {/* Selector simplificado de prueba y fase */}
       <div className="max-w-4xl mx-auto">
@@ -166,68 +131,11 @@ export function PasoPrueba() {
         />
       </div>
       
-      {/* Estado de selección completada */}
-      {tienePruebaSeleccionada && pruebaActual && faseActual && (
-        <div className="max-w-4xl mx-auto">
-          <Alert className="border-green-200 bg-green-50">
-            <CheckCircleIcon className="h-4 w-4 text-green-600" />
-            <AlertDescription className="text-green-800">
-              <div className="space-y-2">
-                <div>
-                  <strong>Prueba confirmada:</strong> {pruebaActual.nombre}
-                </div>
-                <div>
-                  <strong>Fase:</strong> {faseActual}
-                </div>
-                <div className="text-sm pt-1 border-t border-green-200">
-                  <strong>Detalles:</strong> {pruebaActual.estilo} • {pruebaActual.distancia}m • {pruebaActual.curso}
-                </div>
-              </div>
-            </AlertDescription>
-          </Alert>
-        </div>
-      )}
+      {/* Estado de selección ahora solo en sticky panel */}
       
-      {/* Instrucciones de ayuda */}
-      {!tienePruebaSeleccionada && (
-        <div className="max-w-4xl mx-auto">
-          <div className="bg-gray-50 border border-gray-200 rounded-lg p-4">
-            <h3 className="text-sm font-medium text-gray-900 mb-2">
-              💡 Información de pruebas:
-            </h3>
-            <ul className="text-sm text-gray-600 space-y-1">
-              <li>• Pruebas disponibles según el catálogo oficial de natación</li>
-              {competencia?.curso && (
-                <li>• Filtradas automáticamente para curso {competencia.curso}</li>
-              )}
-              <li>• Usa filtros para refinar por estilo, distancia o curso</li>
-              <li>• Selecciona la fase de competencia correspondiente</li>
-              <li>• La búsqueda incluye nombre, estilo y distancia</li>
-            </ul>
-          </div>
-        </div>
-      )}
+      {/* Información de pruebas innecesaria - sticky panel guía el proceso */}
       
-      {/* Advertencias por contexto faltante */}
-      {!competencia && (
-        <Alert className="border-yellow-200 bg-yellow-50">
-          <AlertTriangleIcon className="h-4 w-4 text-yellow-600" />
-          <AlertDescription className="text-yellow-800">
-            <strong>Atención:</strong> No se ha seleccionado una competencia en el paso 1.
-            Para continuar, regresa al Paso 1 y selecciona una competencia.
-          </AlertDescription>
-        </Alert>
-      )}
-      
-      {!nadador && (
-        <Alert className="border-yellow-200 bg-yellow-50">
-          <AlertTriangleIcon className="h-4 w-4 text-yellow-600" />
-          <AlertDescription className="text-yellow-800">
-            <strong>Atención:</strong> No se ha seleccionado un nadador en el paso 2.
-            Para continuar, regresa al Paso 2 y selecciona un nadador.
-          </AlertDescription>
-        </Alert>
-      )}
+      {/* Advertencias ahora solo en sticky panel con "próximos pasos" */}
     </div>
   );
 }

@@ -89,7 +89,7 @@ export default function LoginPage() {
         <div className="text-center space-y-4">
           <LoaderIcon className="h-8 w-8 animate-spin text-primary mx-auto" />
           <div className="space-y-1">
-            <p className="text-sm font-medium text-green-600">¡Sesión activa!</p>
+            <p className="text-sm font-medium text-primary">¡Sesión activa!</p>
             <p className="text-xs text-muted-foreground">Redirigiendo al dashboard...</p>
           </div>
         </div>
